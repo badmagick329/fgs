@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { createRegistration } from '@/lib/db'
+import { getRegistrations, createRegistration } from '@/lib/db'
+
+export async function GET() {
+  const rows = await getRegistrations()
+  return NextResponse.json({ ok: true, data: rows })
+}
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null)
