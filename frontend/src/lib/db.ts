@@ -9,6 +9,36 @@ export async function getRegistrations() {
   return res.rows
 }
 
+export async function getPendingEmails() {
+  const res = await pool.query(`
+    SELECT * FROM registrations
+    WHERE email_status = 'pending' AND retry_count < 3
+  `)
+  return res.rows
+}
+
+export async function setFailedEmailStatus(id: number) {
+  await pool.query(
+    `
+    UPDATE registrations
+    SET email_status = 'failed', retry_count = retry_count + 1
+    WHERE id = $1
+  `,
+    [id],
+  )
+}
+
+export async function setSuccessEmailStatus(id: number) {
+  await pool.query(
+    `
+    UPDATE registrations
+    SET email_status = 'success'
+    WHERE id = $1
+  `,
+    [id],
+  )
+}
+
 export async function createRegistration({
   firstName,
   lastName,
