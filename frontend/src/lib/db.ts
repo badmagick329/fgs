@@ -1,9 +1,12 @@
-import { sql } from 'bun'
+import { Pool } from 'pg'
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
 
 export async function getRegistrations() {
-  return await sql`
-  SELECT * from registrations
-`
+  const res = await pool.query(`SELECT * from registrations`)
+  return res.rows
 }
 
 export async function createRegistration({
@@ -15,10 +18,12 @@ export async function createRegistration({
   lastName: string
   email: string
 }) {
-  const res = await sql`
+  const res = await pool.query(
+    `
     INSERT INTO registrations (first_name, last_name, email)
-    VALUES (${firstName}, ${lastName}, ${email})
-    RETURNING *
-  `
-  return res
+    VALUES ($1, $2, $3)
+    RETURNING *`,
+    [firstName, lastName, email],
+  )
+  return res.rows[0]
 }
