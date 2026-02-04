@@ -6,7 +6,9 @@ async function main() {
   if (!workerInterval) return process.exit(1);
 
   await checkEmails();
-  console.log(`[${new Date().toISOString()}] - Starting email worker`);
+  console.log(
+    `[${new Date().toISOString()}] - Starting email worker. Next run in ${Math.ceil(workerInterval / 1000)} seconds`,
+  );
   setInterval(checkEmails, workerInterval);
 }
 
