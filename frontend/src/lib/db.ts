@@ -1,3 +1,4 @@
+import { Registration } from "@/types";
 import { Pool } from "pg";
 
 const pool = new Pool({
@@ -6,7 +7,7 @@ const pool = new Pool({
 
 export async function getRegistrations() {
   const res = await pool.query(`SELECT * from registrations`);
-  return res.rows;
+  return res.rows as Registration[];
 }
 
 export async function createRegistration({
@@ -25,5 +26,9 @@ export async function createRegistration({
     RETURNING *`,
     [firstName, lastName, email],
   );
-  return res.rows[0];
+  return res.rows[0] as {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
