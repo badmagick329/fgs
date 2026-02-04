@@ -1,5 +1,5 @@
-import { getPendingEmails } from "../frontend/src/lib/db.ts";
-import { sendEmail } from "../frontend/src/actions/email-actions.ts";
+import { getPendingEmailsData } from "@/lib/db.ts";
+import { sendEmail } from "@/lib/email-client.ts";
 
 async function main() {
   const workerInterval = getWorkerInterval();
@@ -28,7 +28,7 @@ async function checkEmails() {
   console.log(`[${new Date().toISOString()}] - Checking emails`);
 
   try {
-    const emails = await getPendingEmails();
+    const emails = await getPendingEmailsData();
 
     if (emails.length > 0) {
       console.log(
