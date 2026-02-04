@@ -9,7 +9,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@react-email/render": "^2.0.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
@@ -17,7 +16,6 @@
     "pg": "^8.18.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "resend": "^6.9.1",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
