@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import {
   createRegistrationSchema,
   type CreateRegistration,
@@ -23,15 +24,22 @@ export default function RegisterPage() {
     defaultValues: { firstName: "", lastName: "", email: "" },
   });
 
-  async function onSubmit(values: CreateRegistration) {
-    setStatus(null);
-    try {
+  const registerMutation = useMutation({
+    mutationFn: async (values: CreateRegistration) => {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      const json = (await res.json()) as Result<Registration>;
+
+      return (await res.json()) as Result<Registration>;
+    },
+  });
+
+  async function onSubmit(values: CreateRegistration) {
+    setStatus(null);
+    try {
+      const json = await registerMutation.mutateAsync(values);
       if (json.ok) {
         setStatus("Registered!");
         reset();
@@ -142,7 +150,7 @@ export default function RegisterPage() {
             <button
               className="mt-4 rounded-md bg-black px-4 py-2 hover:bg-gray-800 hover:cursor-pointer w-32 disabled:cursor-wait"
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || registerMutation.isPending}
             >
               Register
             </button>
