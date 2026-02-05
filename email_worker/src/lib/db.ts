@@ -1,5 +1,5 @@
-import type { Registration } from "@/types";
-import { Pool } from "pg";
+import type { Registration } from '@/types';
+import { Pool } from 'pg';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -20,7 +20,7 @@ export async function setFailedEmailStatus(id: number) {
     SET email_status = 'failed', retry_count = retry_count + 1
     WHERE id = $1
   `,
-    [id],
+    [id]
   );
 }
 
@@ -31,6 +31,6 @@ export async function setSuccessEmailStatus(id: number) {
     SET email_status = 'success'
     WHERE id = $1
   `,
-    [id],
+    [id]
   );
 }
