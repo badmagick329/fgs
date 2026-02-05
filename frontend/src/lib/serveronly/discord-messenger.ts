@@ -82,9 +82,6 @@ async function sendMessageAsEmbed({
     embeds: [embed],
   };
 
-  console.log(
-    `making request to Discord webhook ${webhookUrl} with payload: ${JSON.stringify(discordPayload)}`
-  );
   return await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
