@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import type { z } from 'zod';
 
 export type Result<T> =
   | {
@@ -21,6 +21,6 @@ export function errorsFromZod(error: z.ZodError): ErrorRecord[] {
   return error.issues.map((issue) => ({
     message: issue.message,
     code: issue.code,
-    field: issue.path.length ? issue.path.join(".") : undefined,
+    field: issue.path.length ? issue.path.join('.') : undefined,
   }));
 }

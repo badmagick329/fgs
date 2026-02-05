@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
-import { getRegistrations, createRegistration } from "@/lib/db";
-import { createRegistrationSchema, Registration } from "@/types";
-import { Result, errorsFromZod } from "@/lib/result";
-import { errorMessageFromErrors } from "@/lib/utils";
+import { Registration, createRegistrationSchema } from '@/types';
+import { NextResponse } from 'next/server';
+import { createRegistration, getRegistrations } from '@/lib/db';
+import { Result, errorsFromZod } from '@/lib/result';
+import { errorMessageFromErrors } from '@/lib/utils';
 
 export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
   const result = await getRegistrations();
   if (!result.ok) {
-    console.error("getRegistrations validation error", result.errors);
+    console.error('getRegistrations validation error', result.errors);
     // TODO: add notification here
     // sendDiscordMessage()
 
@@ -15,17 +15,17 @@ export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
       {
         ok: false,
         message:
-          "There was an error parsing the data. Admin has been notified.",
+          'There was an error parsing the data. Admin has been notified.',
         errors: result.errors,
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
   return NextResponse.json(result, { status: 200 });
 }
 
 export async function POST(
-  req: Request,
+  req: Request
 ): Promise<NextResponse<Result<Registration>>> {
   const body = await req.json().catch(() => {});
 
@@ -38,7 +38,7 @@ export async function POST(
         message: errorMessageFromErrors(errors),
         errors,
       },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -55,9 +55,9 @@ export async function POST(
     return NextResponse.json(
       {
         ok: false,
-        message: "The server is currently down. Please try again later.",
+        message: 'The server is currently down. Please try again later.',
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
   return NextResponse.json(creationResult, { status: 201 });
