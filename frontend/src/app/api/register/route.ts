@@ -2,14 +2,17 @@ import { Registration, createRegistrationSchema } from '@/types';
 import { NextResponse } from 'next/server';
 import { createRegistration, getRegistrations } from '@/lib/db';
 import { Result, errorsFromZod } from '@/lib/result';
+import { sendDiscordMessage } from '@/lib/serveronly/discord-messenger';
 import { errorMessageFromErrors } from '@/lib/utils';
 
 export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
   const result = await getRegistrations();
   if (!result.ok) {
     console.error('getRegistrations validation error', result.errors);
-    // TODO: add notification here
-    // sendDiscordMessage()
+    await sendDiscordMessage({
+      source: 'GET /api/register',
+      message: `getRegistrations failed with error: ${result.message}`,
+    });
 
     return NextResponse.json(
       {
@@ -43,6 +46,21 @@ export async function POST(
   }
 
   const { firstName, lastName, email } = createdParsed.data;
+  // TODO: temp tester. remove later
+  const testName = discordTestName();
+  if (testName && firstName === testName) {
+    sendDiscordMessage({
+      source: 'POST /api/register',
+      message: `Received registration with name: ${firstName} ${lastName}. This is a test message triggered by TEST_DISCORD_STRING env variable.`,
+    });
+    return NextResponse.json(
+      {
+        ok: false,
+        message: 'sent test error',
+      },
+      { status: 400 }
+    );
+  }
 
   const creationResult = await createRegistration({
     firstName,
@@ -50,8 +68,11 @@ export async function POST(
     email,
   });
   if (!creationResult.ok) {
-    // TODO: add notification here
-    // sendDiscordMessage()
+    sendDiscordMessage({
+      source: 'POST /api/register',
+      message: `createRegistration failed with error: ${creationResult.message}`,
+    });
+
     return NextResponse.json(
       {
         ok: false,
@@ -62,3 +83,5 @@ export async function POST(
   }
   return NextResponse.json(creationResult, { status: 201 });
 }
+
+const discordTestName = () => process.env.TEST_DISCORD_STRING;
