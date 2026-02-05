@@ -1,32 +1,64 @@
-import { NextResponse } from 'next/server'
-import { getRegistrations, createRegistration } from '@/lib/db'
+import { NextResponse } from "next/server";
+import { getRegistrations, createRegistration } from "@/lib/db";
+import { createRegistrationSchema, Registration } from "@/types";
+import { Result, errorsFromZod } from "@/lib/result";
+import { errorMessageFromErrors } from "@/lib/utils";
 
-export async function GET() {
-  const rows = await getRegistrations()
-  return NextResponse.json({ ok: true, data: rows })
+export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
+  const result = await getRegistrations();
+  if (!result.ok) {
+    console.error("getRegistrations validation error", result.errors);
+    // TODO: add notification here
+    // sendDiscordMessage()
+
+    return NextResponse.json(
+      {
+        ok: false,
+        message:
+          "There was an error parsing the data. Admin has been notified.",
+        errors: result.errors,
+      },
+      { status: 500 },
+    );
+  }
+  return NextResponse.json(result, { status: 200 });
 }
 
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => null)
-  if (!body)
-    return NextResponse.json(
-      { ok: false, error: 'Invalid JSON' },
-      { status: 400 },
-    )
+export async function POST(
+  req: Request,
+): Promise<NextResponse<Result<Registration>>> {
+  const body = await req.json().catch(() => {});
 
-  const { firstName, lastName, email } = body
-  if (!firstName || !email) {
+  const createdParsed = createRegistrationSchema.safeParse(body);
+  if (!createdParsed.success) {
+    const errors = errorsFromZod(createdParsed.error);
     return NextResponse.json(
-      { ok: false, error: 'Missing fields' },
+      {
+        ok: false,
+        message: errorMessageFromErrors(errors),
+        errors,
+      },
       { status: 400 },
-    )
+    );
   }
 
-  try {
-    const created = await createRegistration({ firstName, lastName, email })
-    return NextResponse.json({ ok: true, data: created })
-  } catch (err) {
-    console.error('createRegistration error', err)
-    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 })
+  const { firstName, lastName, email } = createdParsed.data;
+
+  const creationResult = await createRegistration({
+    firstName,
+    lastName,
+    email,
+  });
+  if (!creationResult.ok) {
+    // TODO: add notification here
+    // sendDiscordMessage()
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "The server is currently down. Please try again later.",
+      },
+      { status: 500 },
+    );
   }
+  return NextResponse.json(creationResult, { status: 201 });
 }
