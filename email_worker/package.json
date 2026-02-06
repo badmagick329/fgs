@@ -16,7 +16,8 @@
     "typescript": "^5"
   },
   "scripts": {
-    "start": "bun ./src/index.ts"
+    "start": "bun ./src/index.ts",
+    "test": "bun test --preload ./test/setup.ts"
   },
   "dependencies": {
     "@react-email/render": "^2.0.4",
