@@ -2,7 +2,7 @@
 import useRegisterPage from '@/hooks/useRegisterPage';
 
 export default function RegisterPage() {
-  const { handleSubmit, register, errors, isButtonDisabled } =
+  const { handleSubmit, register, status, errors, isButtonDisabled } =
     useRegisterPage();
 
   return (
