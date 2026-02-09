@@ -1,5 +1,6 @@
 'use client';
 import useRegistrationList from '@/hooks/useRegistrationList';
+import { redirect } from 'next/navigation';
 
 export default function RegistrationList() {
   const { isLoading, isError, error, data } = useRegistrationList();
@@ -74,6 +75,29 @@ export default function RegistrationList() {
           ))}
         </tbody>
       </table>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          (async () => {
+            const res = await fetch('/api/admin/logout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            });
+            if (!res.ok) {
+              console.error('Logout failed.');
+            } else {
+              redirect('/admin/login');
+            }
+          })();
+        }}
+      >
+        <button
+          type='submit'
+          className='fixed bottom-4 right-4 rounded-md bg-red-700 px-4 py-2 hover:bg-red-600'
+        >
+          Logout
+        </button>
+      </form>
     </div>
   );
 }
