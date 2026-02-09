@@ -24,6 +24,24 @@ export const createRegistrationSchema = z.object({
 
 export type CreateRegistration = z.infer<typeof createRegistrationSchema>;
 
+export const adminCredentialsSchema = z.object({
+  email: z.email({ error: 'Invalid email address' }),
+  password: z.string().min(8, { error: 'Password must be at least 8 characters' }),
+});
+
+export type AdminCredentials = z.infer<typeof adminCredentialsSchema>;
+
+export const adminPasswordChangeSchema = z.object({
+  currentPassword: z
+    .string()
+    .min(8, { error: 'Password must be at least 8 characters' }),
+  newPassword: z
+    .string()
+    .min(8, { error: 'Password must be at least 8 characters' }),
+});
+
+export type AdminPasswordChange = z.infer<typeof adminPasswordChangeSchema>;
+
 export const errorRecordSchema = z.object({
   message: z.string(),
   code: z.string().optional(),
