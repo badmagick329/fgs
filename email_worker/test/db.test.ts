@@ -1,1 +1,107 @@
-import { expect, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, it } from 'bun:test';
+import { Pool } from 'pg';
+// Import your actual functions
+import {
+  getPendingEmailsData,
+  setFailedEmailStatus,
+  setSuccessEmailStatus,
+} from '@/lib/db';
+
+// We need a direct pool handle to insert test data manually
+// (The one in @/lib/db is private/not exported, so we make a new one or export it)
+// For now, let's just make a new temp pool for the test setup
+const testPool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+describe('Database Functions', () => {
+  // CLEANUP: Empty the table before every test
+  beforeEach(async () => {
+    // Safety check to ensure we are not nuking prod
+    if (!process.env.DATABASE_URL?.includes('test')) {
+      throw new Error('DANGER: Running tests against non-test DB!');
+    }
+    await testPool.query(
+      'TRUNCATE TABLE registrations RESTART IDENTITY CASCADE'
+    );
+  });
+
+  afterAll(async () => {
+    await testPool.end(); // Close test connection
+  });
+
+  // --- TESTS ---
+
+  it('getPendingEmailsData returns only pending emails', async () => {
+    // 1. Arrange: Insert 3 rows (1 pending, 1 success, 1 failed)
+    await testPool.query(`
+      INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
+      VALUES 
+        ('Alice', 'Test', 'alice@pending.com', 'pending', 0),
+        ('Bob', 'Test', 'bob@success.com', 'success', 0),
+        ('Charlie', 'Test', 'charlie@failed.com', 'failed', 0);
+    `);
+
+    // 2. Act
+    const result = await getPendingEmailsData();
+
+    // 3. Assert
+    expect(result.length).toBe(1);
+    expect(result[0]!.email).toBe('alice@pending.com');
+  });
+
+  it('getPendingEmailsData ignores rows with retry_count >= 3', async () => {
+    // 1. Arrange: Insert a pending email that has failed too many times
+    await testPool.query(`
+      INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
+      VALUES ('Dave', 'Retry', 'dave@retry.com', 'pending', 3);
+    `);
+
+    // 2. Act
+    const result = await getPendingEmailsData();
+
+    // 3. Assert
+    expect(result.length).toBe(0);
+  });
+
+  it("setSuccessEmailStatus updates status to 'success'", async () => {
+    // 1. Arrange: Insert a pending user
+    const insertRes = await testPool.query(`
+      INSERT INTO registrations (first_name, last_name, email, email_status)
+      VALUES ('Eve', 'Success', 'eve@test.com', 'pending')
+      RETURNING id;
+    `);
+    const id = insertRes.rows[0].id;
+
+    // 2. Act
+    await setSuccessEmailStatus(id);
+
+    // 3. Assert: Check DB directly
+    const check = await testPool.query(
+      'SELECT email_status FROM registrations WHERE id = $1',
+      [id]
+    );
+    expect(check.rows[0].email_status).toBe('success');
+  });
+
+  it("setFailedEmailStatus increments retry_count and sets status to 'failed'", async () => {
+    // 1. Arrange: Insert a pending user with 0 retries
+    const insertRes = await testPool.query(`
+      INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
+      VALUES ('Frank', 'Fail', 'frank@test.com', 'pending', 0)
+      RETURNING id;
+    `);
+    const id = insertRes.rows[0].id;
+
+    // 2. Act
+    await setFailedEmailStatus(id);
+
+    // 3. Assert
+    const check = await testPool.query(
+      'SELECT email_status, retry_count FROM registrations WHERE id = $1',
+      [id]
+    );
+    expect(check.rows[0].email_status).toBe('failed');
+    expect(check.rows[0].retry_count).toBe(1);
+  });
+});
