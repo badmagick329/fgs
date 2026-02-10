@@ -1,0 +1,16 @@
+# to start:
+# docker compose -f docker-compose-test.yaml up -d
+services:
+  test-db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_USER: testuser
+      POSTGRES_DB: testdb
+    ports:
+      - '5433:5432' # Note: Port 5433 to avoid conflict with your dev DB (5432)
+    # This automatically runs your init.sql when the container starts!
+    volumes:
+      - ./db/init/:/docker-entrypoint-initdb.d/:ro
+    tmpfs:
+      - /var/lib/postgresql/data # Runs in RAM for speed!

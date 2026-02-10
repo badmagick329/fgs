@@ -1,94 +1,107 @@
 // run tests like this:
 // cd to email_worker
 // then run: bun test --preload ./test/setup.ts
-import { beforeEach, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { sendEmail } from '@/lib/email-client';
 import { type ResendResponse, mockSend } from './setup';
-
-const { sendEmail } =
-  require('@/lib/email-client') as typeof import('@/lib/email-client');
 
 beforeEach(() => {
   mockSend.mockClear();
-  process.env.SENDER_EMAIL_ADDRESS = 'verified@example.com';
-  process.env.DESTINATION_EMAIL_ADDRESS = 'admin@example.com';
+  mockSend.mockResolvedValue({ data: { id: 'test-id' }, error: null });
 });
 
-test('sendEmail returns ok: true when Resend succeeds', async () => {
-  const result = await sendEmail({ email_data: [] });
-  expect(result.ok).toBe(true);
-});
+describe('sendEmail', () => {
+  // SECTION 1: SUCCESS SCENARIOS
+  describe('Success Paths', () => {
+    test('returns ok: true when Resend succeeds', async () => {
+      const result = await sendEmail({ email_data: [] });
+      expect(result.ok).toBe(true);
+    });
 
-test('sendEmail returns providerId when Resend succeeds', async () => {
-  const result = await sendEmail({ email_data: [] });
-  if (result.ok) {
-    expect(result.data.providerId).toBe('test-id');
-  }
-});
+    test('returns providerId when Resend succeeds', async () => {
+      const result = await sendEmail({ email_data: [] });
+      if (result.ok) {
+        expect(result.data.providerId).toBe('test-id');
+      }
+    });
 
-test('sendEmail returns ok: false early if SENDER is missing', async () => {
-  delete process.env.SENDER_EMAIL_ADDRESS;
+    test('handles missing provider ID gracefully', async () => {
+      // Simulate a weird API response where data exists but ID is missing
+      mockSend.mockResolvedValueOnce({
+        data: { id: undefined as any }, // Force undefined
+        error: null,
+      });
 
-  const result = await sendEmail({ email_data: [] });
-  expect(result.ok).toBe(false);
-  if (!result.ok) {
-    expect(result.error).toBe('no sender email configured');
-  }
-});
+      const result = await sendEmail({ email_data: [] });
 
-test('sendEmail returns ok: false early if DEST is missing (with SENDER present)', async () => {
-  delete process.env.DESTINATION_EMAIL_ADDRESS;
-
-  const result = await sendEmail({ email_data: [] });
-  expect(result.ok).toBe(false);
-  if (!result.ok) {
-    expect(result.error).toBe('no destination email configured');
-  }
-});
-
-test('sendEmail handles a Provider Error after passing the guard', async () => {
-  mockSend.mockImplementationOnce(
-    async (): Promise<ResendResponse> => ({
-      data: null,
-      error: { message: 'API key is invalid' },
-    })
-  );
-
-  const result = await sendEmail({ email_data: [] });
-  expect(result.ok).toBe(false);
-  if (!result.ok) {
-    expect(result.error).toContain('API key is invalid');
-  }
-});
-
-test("sendEmail returns ok: false when an unhandled error is caught with an error message of 'Unknown error'", async () => {
-  mockSend.mockImplementationOnce(async () => {
-    throw new Error('Some unhandled error');
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // Logic check: Did it fall back to empty string?
+        expect(result.data.providerId).toBe('');
+      }
+    });
   });
 
-  const result = await sendEmail({ email_data: [] });
-  expect(result.ok).toBe(false);
-  if (!result.ok) {
-    expect(result.errors?.[0]?.message).toBe('Some unhandled error');
-  }
-});
+  // SECTION 2: FAILURE SCENARIOS
+  describe('Error Handling', () => {
+    test('handles a Provider Error (API Rejection)', async () => {
+      mockSend.mockImplementationOnce(
+        async (): Promise<ResendResponse> => ({
+          data: null,
+          error: { message: 'API key is invalid' },
+        })
+      );
 
-test('sendEmail sends the correct payload structure to the Resend SDK', async () => {
-  const testData = [
-    {
-      first_name: 'Harold',
-      last_name: 'Finch',
-      email: 'youarebeing@watched.com',
-    },
-  ];
+      const result = await sendEmail({ email_data: [] });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toContain('API key is invalid');
+      }
+    });
 
-  await sendEmail({ email_data: testData as any });
+    test('handles unexpected errors (Network Crash)', async () => {
+      mockSend.mockImplementationOnce(async () => {
+        throw new Error('Some unhandled error');
+      });
 
-  const sentPayload = mockSend.mock.calls[0]![0]!;
+      const result = await sendEmail({ email_data: [] });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toBe('Some unhandled error');
+      }
+    });
+  });
 
-  expect(sentPayload.from).toContain('Registration Form');
-  expect(sentPayload.from).toContain('verified@example.com');
-  expect(sentPayload.to).toContain('admin@example.com');
-  expect(sentPayload.subject).toContain('New Student Registration');
+  // SECTION 3: DATA INTEGRITY / LOGIC
+  describe('Payload Contruction', () => {
+    test('sends the correct payload structure to the Resend SDK', async () => {
+      const testData = [
+        {
+          first_name: 'Harold',
+          last_name: 'Finch',
+          email: 'youarebeing@watched.com',
+        },
+      ];
 
-  expect(sentPayload.react).toBeDefined();
+      await sendEmail({ email_data: testData as any });
+
+      const sentPayload = mockSend.mock.calls[0]![0];
+
+      expect(sentPayload.from).toContain('Registration Form');
+      expect(sentPayload.from).toContain('verified@example.com');
+      expect(sentPayload.to).toContain('admin@example.com');
+      expect(sentPayload.subject).toContain('New Student Registration');
+
+      expect(sentPayload.react).toBeDefined();
+    });
+
+    test('uses the correct subject line', async () => {
+      await sendEmail({ email_data: [] });
+
+      const sentPayload = mockSend.mock.calls[0]![0];
+
+      // Logic check: Is the subject exactly what we expect?
+      expect(sentPayload.subject).toBe('New Student Registration');
+    });
+  });
 });
