@@ -6,8 +6,8 @@ export const registrationSchema = z.object({
   last_name: z.string().trim().nonempty({ error: 'Last name is required' }),
   email: z.email({ error: 'Invalid email address' }),
   registration_message: z.string().nullable(),
-  registered_at: z.date(),
-  updated_at: z.date().nullable(),
+  registered_at: z.coerce.date(),
+  updated_at: z.coerce.date().nullable(),
   email_status: z.enum(['pending', 'success', 'failed']),
   retry_count: z.number().nonnegative(),
 });
@@ -23,3 +23,45 @@ export const createRegistrationSchema = z.object({
 });
 
 export type CreateRegistration = z.infer<typeof createRegistrationSchema>;
+
+export const adminCredentialsSchema = z.object({
+  email: z.email({ error: 'Invalid email address' }),
+  password: z.string().min(8, { error: 'Password must be at least 8 characters' }),
+});
+
+export type AdminCredentials = z.infer<typeof adminCredentialsSchema>;
+
+export const adminPasswordChangeSchema = z.object({
+  currentPassword: z
+    .string()
+    .min(8, { error: 'Password must be at least 8 characters' }),
+  newPassword: z
+    .string()
+    .min(8, { error: 'Password must be at least 8 characters' }),
+});
+
+export type AdminPasswordChange = z.infer<typeof adminPasswordChangeSchema>;
+
+export const errorRecordSchema = z.object({
+  message: z.string(),
+  code: z.string().optional(),
+  field: z.string().optional(),
+});
+
+export const resultSchema = <T extends z.ZodTypeAny>(data: T) =>
+  z.union([
+    z.object({
+      ok: z.literal(true),
+      data,
+    }),
+    z.object({
+      ok: z.literal(false),
+      message: z.string(),
+      errors: z.array(errorRecordSchema).optional(),
+    }),
+  ]);
+
+export const registrationResultSchema = resultSchema(registrationSchema);
+export const registrationListResultSchema = resultSchema(
+  registrationListSchema
+);
