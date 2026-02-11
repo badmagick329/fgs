@@ -41,8 +41,4 @@ export class EmailClient {
       };
     }
   }
-
-  async success() {}
-  async setRetry() {}
-  async failure() {}
 }

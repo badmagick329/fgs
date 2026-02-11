@@ -45,14 +45,17 @@ async function checkEmails(): Promise<Result<string, string>> {
   try {
     const emails = await getPendingEmailsData();
 
-    if (emails.length > 0) {
+    if (emails.ok) {
       console.log(
-        `[${new Date().toISOString()}] - Fetched ${emails.length} pending emails`
+        `[${new Date().toISOString()}] - Fetched ${emails.data.length} pending emails`
       );
       const configFromSchema = readConfigFromSchema(emailConfigSchema);
       const emailClient = new EmailClient(configFromSchema);
-      emailClient.sendEmail({ email_data: emails });
-      return { ok: true, data: 'Success' };
+      const res = await emailClient.sendEmail({ email_data: emails.data });
+      if (res.ok) {
+        return { ok: true, data: 'sendEmail Success' };
+      }
+      return { ok: false, error: 'sendEmail Failure' };
     }
     console.log(`[${new Date().toISOString()}] - No pending emails found`);
     return { ok: false, error: 'No pending emails found' };
