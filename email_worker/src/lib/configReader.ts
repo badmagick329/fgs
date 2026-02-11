@@ -1,0 +1,16 @@
+import { type EmailConfig } from '@/types/schemas';
+import { z } from 'zod';
+
+export function readConfigFromSchema(
+  schema: z.ZodType<EmailConfig>
+): EmailConfig {
+  const parsed = schema.safeParse(process.env);
+
+  if (!parsed.success) {
+    console.error('❌ Invalid environment variables:');
+    console.error(JSON.stringify(z.treeifyError(parsed.error), null, 2));
+    throw new Error('Invalid environment variables');
+  }
+
+  return parsed.data;
+}

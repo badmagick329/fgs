@@ -1,6 +1,6 @@
-import type { EmailDataProps } from '@/types';
+import type { EmailData } from '@/types';
 
-export function EmailTemplate({ email_data }: EmailDataProps) {
+export function EmailTemplate({ email_data }: EmailData) {
   return (
     <div>
       <h1>New Student Registrations</h1>

@@ -1,10 +1,10 @@
-export type Result<S, F> = Success<S, F> | Failure<S, F>;
+export type Result<S, F> = Success<S> | Failure<F>;
 
-export type Success<S, F> = {
+export type Success<S> = {
   ok: true;
   data: S;
 };
-export type Failure<S, F> = {
+export type Failure<F> = {
   ok: false;
   error: F;
 };
