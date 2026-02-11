@@ -1,6 +1,6 @@
 import { getPendingEmailsData } from '@/lib/db.ts';
 import { EmailClient } from '@/lib/email-client.ts';
-import { readConfigFromSchema } from './lib/configReader';
+import { readConfigFromSchema } from './lib/config-reader';
 import type { Result } from './types/result';
 import { emailConfigSchema } from './types/schemas';
 
