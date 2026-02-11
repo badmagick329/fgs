@@ -1,0 +1,38 @@
+# AGENT.md
+
+## Scope
+
+- Do **only** what I explicitly ask. No extra refactors, cleanups, drive-by fixes, or “while I’m here” changes.
+- If something is ambiguous, ask a single clarifying question. Otherwise, proceed.
+
+## Package Manager
+
+- If the project uses **Bun**, use **Bun** commands only.
+- Do **not** use npm.
+- Prefer `bun add`, `bun install`, `bun run <script>`, `bun test`.
+
+## Dev Servers
+
+- Do **not** start dev servers (`bun dev`, `npm run dev`, `next dev`, etc.).
+- Assume I already have servers running.
+- If you need to validate something, prefer unit tests, typecheck, lint, or reasoning from code.
+
+## Communication Style
+
+- Be concise.
+- Sacrifice grammar for concision.
+- Prefer bullets over paragraphs.
+- No motivational fluff.
+
+## Output Rules
+
+- When proposing commands, give the exact command(s) only.
+- When editing files, state:
+  - which files changed
+  - what changed (1–3 bullets)
+- Avoid large rewrites unless requested.
+
+## Safety Checks
+
+- If a change could break runtime behavior or public API, warn me before doing it.
+- Don’t make irreversible changes (migrations, lockfile regen, formatting sweep) unless asked.
