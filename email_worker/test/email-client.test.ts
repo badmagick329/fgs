@@ -103,5 +103,10 @@ describe('sendEmail', () => {
       // Logic check: Is the subject exactly what we expect?
       expect(sentPayload.subject).toBe('New Student Registration');
     });
+
+    // test('Update db email status field to success when email is sent', async () => {
+    //   await sendEmail({ email_data: [] });
+    //   const sentPayload = mockSend.mock.calls[0]![0];
+    // });
   });
 });

@@ -9,6 +9,6 @@ export type Registration = {
   email_status: string;
   retry_count: number;
 };
-export interface EmailDataProps {
+export interface EmailData {
   email_data: Registration[];
 }
