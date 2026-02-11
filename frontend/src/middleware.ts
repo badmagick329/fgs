@@ -29,8 +29,15 @@ const redirectToLogin = (req: NextRequest) => {
   return NextResponse.redirect(url);
 };
 
+function getInternalApiOrigin() {
+  const configured = process.env.INTERNAL_API_ORIGIN?.trim();
+  if (configured) return configured;
+  const port = process.env.PORT ?? '3000';
+  return `http://127.0.0.1:${port}`;
+}
+
 async function attemptRefresh(req: NextRequest) {
-  const refreshUrl = new URL('/api/admin/refresh', req.url);
+  const refreshUrl = new URL('/api/admin/refresh', getInternalApiOrigin());
   const refreshResponse = await fetch(refreshUrl, {
     method: 'POST',
     headers: {
