@@ -1,78 +1,15 @@
 'use client';
-import {
-  type CreateRegistration,
-  type Registration,
-  createRegistrationSchema,
-} from '@/types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import type { Result } from '@/lib/result';
+import useRegisterPage from '@/hooks/useRegisterPage';
 
 export default function RegisterPage() {
-  const [status, setStatus] = useState<string | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateRegistration>({
-    resolver: zodResolver(createRegistrationSchema),
-    defaultValues: { firstName: '', lastName: '', email: '' },
-  });
-
-  const registerMutation = useMutation({
-    mutationFn: async (values: CreateRegistration) => {
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      });
-
-      return (await res.json()) as Result<Registration>;
-    },
-  });
-
-  async function onSubmit(values: CreateRegistration) {
-    setStatus(null);
-    try {
-      const json = await registerMutation.mutateAsync(values);
-      if (json.ok) {
-        setStatus('Registered!');
-        reset();
-        return;
-      }
-
-      setStatus(json.message ?? 'An unexpected error occurred.');
-      if (Array.isArray(json.errors)) {
-        json.errors.forEach((err: { field?: string; message: string }) => {
-          if (!err.field) return;
-          setError(err.field as keyof CreateRegistration, {
-            type: 'server',
-            message: err.message,
-          });
-        });
-      } else {
-        setError('root.server', {
-          type: 'server',
-          message: json.message ?? 'An unexpected error occurred.',
-        });
-      }
-    } catch {
-      const message = 'An unexpected error occurred. Please try again later.';
-      setStatus(message);
-      setError('root.server', { type: 'server', message });
-    }
-  }
+  const { handleSubmit, register, status, errors, isButtonDisabled } =
+    useRegisterPage();
 
   return (
     <main className='flex flex-col min-h-screen'>
       <div className='flex flex-col items-center gap-8'>
         <h1 className='text-4xl font-semibold'>Register</h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit}>
           <div className='flex flex-col items-center'>
             <div className='flex flex-col mb-4'>
               <label htmlFor='firstName' className='mb-2'>
@@ -150,7 +87,7 @@ export default function RegisterPage() {
             <button
               className='mt-4 rounded-md bg-black px-4 py-2 hover:bg-gray-800 hover:cursor-pointer w-32 disabled:cursor-wait'
               type='submit'
-              disabled={isSubmitting || registerMutation.isPending}
+              disabled={isButtonDisabled}
             >
               Register
             </button>

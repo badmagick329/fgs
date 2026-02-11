@@ -1,11 +1,55 @@
 import { Registration, createRegistrationSchema } from '@/types';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { verifyAccessToken } from '@/lib/auth/jwt';
 import { createRegistration, getRegistrations } from '@/lib/db';
 import { Result, errorsFromZod } from '@/lib/result';
+import { setAuthCookies } from '@/lib/serveronly/admin-cookies';
 import { sendDiscordMessage } from '@/lib/serveronly/discord-messenger';
+import { refreshSession } from '@/lib/serveronly/refresh';
 import { errorMessageFromErrors } from '@/lib/utils';
 
 export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
+  const accessToken = (await cookies()).get('admin_access')?.value;
+  let refreshedTokens: { accessToken: string; refreshToken: string } | null =
+    null;
+  if (!accessToken) {
+    const refreshCookie = (await cookies()).get('admin_refresh')?.value;
+    if (!refreshCookie) {
+      return NextResponse.json(
+        { ok: false as const, message: 'Unauthorized.' },
+        { status: 401 }
+      );
+    }
+    refreshedTokens = await refreshSession(refreshCookie);
+    if (!refreshedTokens) {
+      return NextResponse.json(
+        { ok: false as const, message: 'Unauthorized.' },
+        { status: 401 }
+      );
+    }
+  }
+  try {
+    if (accessToken) {
+      await verifyAccessToken(accessToken);
+    }
+  } catch {
+    const refreshCookie = (await cookies()).get('admin_refresh')?.value;
+    if (!refreshCookie) {
+      return NextResponse.json(
+        { ok: false as const, message: 'Unauthorized.' },
+        { status: 401 }
+      );
+    }
+    refreshedTokens = await refreshSession(refreshCookie);
+    if (!refreshedTokens) {
+      return NextResponse.json(
+        { ok: false as const, message: 'Unauthorized.' },
+        { status: 401 }
+      );
+    }
+  }
+
   const result = await getRegistrations();
   if (!result.ok) {
     console.error('getRegistrations validation error', result.errors);
@@ -14,17 +58,33 @@ export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
       message: `getRegistrations failed with error: ${result.message}`,
     });
 
-    return NextResponse.json(
+    const res = NextResponse.json(
       {
-        ok: false,
+        ok: false as const,
         message:
           'There was an error parsing the data. Admin has been notified.',
         errors: result.errors,
       },
       { status: 500 }
     );
+    if (refreshedTokens) {
+      setAuthCookies(
+        res,
+        refreshedTokens.accessToken,
+        refreshedTokens.refreshToken
+      );
+    }
+    return res;
   }
-  return NextResponse.json(result, { status: 200 });
+  const res = NextResponse.json(result, { status: 200 });
+  if (refreshedTokens) {
+    setAuthCookies(
+      res,
+      refreshedTokens.accessToken,
+      refreshedTokens.refreshToken
+    );
+  }
+  return res;
 }
 
 export async function POST(
@@ -37,7 +97,7 @@ export async function POST(
     const errors = errorsFromZod(createdParsed.error);
     return NextResponse.json(
       {
-        ok: false,
+        ok: false as const,
         message: errorMessageFromErrors(errors),
         errors,
       },
@@ -55,7 +115,7 @@ export async function POST(
     });
     return NextResponse.json(
       {
-        ok: false,
+        ok: false as const,
         message: 'sent test error',
       },
       { status: 400 }
@@ -75,7 +135,7 @@ export async function POST(
 
     return NextResponse.json(
       {
-        ok: false,
+        ok: false as const,
         message: 'The server is currently down. Please try again later.',
       },
       { status: 500 }

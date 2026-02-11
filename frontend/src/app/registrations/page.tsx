@@ -1,22 +1,11 @@
 'use client';
-import type { Registration } from '@/types';
-import { useQuery } from '@tanstack/react-query';
-import type { Result } from '@/lib/result';
+import useRegistrationList from '@/hooks/useRegistrationList';
+import { redirect } from 'next/navigation';
 
 export default function RegistrationList() {
-  const registrationsQuery = useQuery({
-    queryKey: ['registrations'],
-    queryFn: async () => {
-      const res = await fetch('/api/register');
-      const json = (await res.json()) as Result<Registration[]>;
-      if (!json.ok) {
-        throw new Error(json.message ?? 'Failed to load registrations.');
-      }
-      return json.data ?? [];
-    },
-  });
+  const { isLoading, isError, error, data } = useRegistrationList();
 
-  if (registrationsQuery.isLoading) {
+  if (isLoading) {
     return (
       <div>
         <h2 className='text-3xl font-bold p-2 bg-amber-800'>Registrations</h2>
@@ -39,15 +28,15 @@ export default function RegistrationList() {
     );
   }
 
-  if (registrationsQuery.isError) {
+  if (isError) {
     return (
       <p className='p-2 text-red-300'>
-        {registrationsQuery.error?.message ?? 'Failed to load registrations.'}
+        {error?.message ?? 'Failed to load registrations.'}
       </p>
     );
   }
 
-  const registrations = registrationsQuery.data ?? [];
+  const registrations = data ?? [];
 
   return (
     <div>
@@ -67,7 +56,7 @@ export default function RegistrationList() {
           </tr>
         </thead>
         <tbody>
-          {registrations.map((r: Registration) => (
+          {registrations.map((r) => (
             <tr key={r.id} className='even:bg-amber-700 odd:bg-amber-600'>
               <td className='p-2'>{r.id}</td>
               <td className='p-2'>{r.first_name}</td>
@@ -75,11 +64,10 @@ export default function RegistrationList() {
               <td className='p-2'>{r.email}</td>
               <td className='p-2'>{r.registration_message}</td>
               <td className='p-2'>
-                {r.registered_at && new Date(r.registered_at).toLocaleString()}
+                {r.registered_at && r.registered_at.toLocaleString()}
               </td>
               <td className='p-2'>
-                {(r.updated_at && new Date(r.updated_at).toLocaleString()) ??
-                  'N/A'}
+                {(r.updated_at && r.updated_at.toLocaleString()) ?? 'N/A'}
               </td>
               <td className='p-2'>{r.email_status}</td>
               <td className='p-2'>{r.retry_count}</td>
@@ -87,6 +75,29 @@ export default function RegistrationList() {
           ))}
         </tbody>
       </table>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          (async () => {
+            const res = await fetch('/api/admin/logout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            });
+            if (!res.ok) {
+              console.error('Logout failed.');
+            } else {
+              redirect('/admin/login');
+            }
+          })();
+        }}
+      >
+        <button
+          type='submit'
+          className='fixed bottom-4 right-4 rounded-md bg-red-700 px-4 py-2 hover:bg-red-600'
+        >
+          Logout
+        </button>
+      </form>
     </div>
   );
 }
