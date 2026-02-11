@@ -1,3 +1,9 @@
+export type EMAIL_STATUS = 'success' | 'pending' | 'failed';
+
+export interface IdResult {
+  id: number;
+}
+
 export type Registration = {
   id: number;
   first_name: string;
@@ -6,7 +12,7 @@ export type Registration = {
   registration_message: string;
   registered_at: string;
   updated_at: string | null;
-  email_status: string;
+  email_status: EMAIL_STATUS;
   retry_count: number;
 };
 export interface EmailData {
