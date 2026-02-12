@@ -15,8 +15,7 @@ const geistMono = Geist_Mono({
 
 const siteName = 'Farooqi Grammar School (FGS)';
 const siteUrl = 'https://farooqigrammar.school';
-// TODO: get og image from logo?
-// const ogImage = "/og.jpg";
+const ogImage = '/fgs-logo.jpg';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -72,24 +71,22 @@ export const metadata: Metadata = {
       'Learn about Farooqi Grammar School (FGS): admissions, campuses, achievements, and life at school.',
     siteName: siteName,
     locale: 'en_GB',
-    // TODO: uncomment when image is done
-    // images: [
-    //   {
-    //     url: ogImage,
-    //     width: 1200,
-    //     height: 630,
-    //     alt: `${siteName} | Official Website`,
-    //   },
-    // ],
+    images: [
+      {
+        url: ogImage,
+        width: 592,
+        height: 581,
+        alt: `${siteName} | Official Website`,
+      },
+    ],
   },
 
   twitter: {
     card: 'summary_large_image',
     title: siteName,
     description:
-      'Farooqi Grammar School (FGS) — admissions, campuses, achievements, and school life.',
-    // TODO: uncomment when image is done
-    // images: [ogImage],
+      'Farooqi Grammar School (FGS) | admissions, campuses, achievements, and school life.',
+    images: [ogImage],
   },
 
   icons: {
