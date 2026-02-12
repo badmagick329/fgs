@@ -1,22 +1,23 @@
-import type { EmailData } from '@/types';
+import type { Notification } from '@/core/domain';
+import { type INotificationSender } from '@/core/interfaces';
+import { type EmailConfig } from '@/infrastructure/config/schemas';
+import { EmailTemplate } from '@/infrastructure/email/templates/email-template';
 import type { Result } from '@/types/result';
-import { type EmailConfig } from '@/types/schemas';
 import { Resend } from 'resend';
-import { EmailTemplate } from '@/lib/email-template';
 
-export class EmailClient {
-  private API_KEY: string;
-  private SENDER: string;
-  private DESTINATION: string;
+export class EmailClient implements INotificationSender {
+  private readonly API_KEY: string;
+  private readonly SENDER: string;
+  private readonly DESTINATION: string;
   constructor(config: EmailConfig) {
     this.API_KEY = config.RESEND_API_KEY;
     this.SENDER = config.SENDER_EMAIL_ADDRESS;
     this.DESTINATION = config.DESTINATION_EMAIL_ADDRESS;
   }
 
-  async sendEmail({
-    email_data,
-  }: EmailData): Promise<Result<{ providerId: string }, string>> {
+  async send({
+    payload,
+  }: Notification): Promise<Result<{ providerId: string }, string>> {
     const resend = new Resend(this.API_KEY);
     try {
       const { data, error } = await resend.emails.send({
@@ -24,7 +25,7 @@ export class EmailClient {
         to: `${this.DESTINATION}`,
         subject: 'New Student Registration',
         react: EmailTemplate({
-          email_data,
+          payload,
         }),
       });
 

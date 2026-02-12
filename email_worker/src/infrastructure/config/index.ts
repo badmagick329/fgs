@@ -1,4 +1,4 @@
-import { type EmailConfig } from '@/types/schemas';
+import { type EmailConfig } from '@/infrastructure/config/schemas';
 import { z } from 'zod';
 
 export function readConfigFromSchema(

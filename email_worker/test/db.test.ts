@@ -1,11 +1,7 @@
+// Import your actual functions
+import { DB } from '@/infrastructure/db/db';
 import { afterAll, beforeEach, describe, expect, it } from 'bun:test';
 import { Pool } from 'pg';
-// Import your actual functions
-import {
-  getPendingEmailsData,
-  setFailedEmailStatus,
-  setSuccessEmailStatus,
-} from '@/lib/db';
 
 // We need a direct pool handle to insert test data manually
 // (The one in @/lib/db is private/not exported, so we make a new one or export it)
@@ -13,6 +9,8 @@ import {
 const testPool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
+
+const db = new DB();
 
 describe('Database Functions', () => {
   // CLEANUP: Empty the table before every test
@@ -44,12 +42,16 @@ describe('Database Functions', () => {
     `);
 
     // 2. Act
-    const result = await getPendingEmailsData();
+    const result = await db.getPending();
+    if (!result.ok) {
+      throw new Error(`Expected Ok, but got Error: ${result.error}`);
+    }
+    const data = result.data;
 
     // 3. Assert
-    expect(result.length).toBe(2);
-    expect(result[0]!.email).toBe('alice@pending.com');
-    expect(result[1]!.email).toBe('charlie@failed.com');
+    expect(data.length).toBe(2);
+    expect(data[0]!.email).toBe('alice@pending.com');
+    expect(data[1]!.email).toBe('charlie@failed.com');
   });
 
   it('getPendingEmailsData ignores rows with retry_count >= 3', async () => {
@@ -60,10 +62,14 @@ describe('Database Functions', () => {
     `);
 
     // 2. Act
-    const result = await getPendingEmailsData();
+    const result = await db.getPending();
+    if (!result.ok) {
+      throw new Error(`Expected Ok, but got Error: ${result.error}`);
+    }
+    const data = result.data;
 
     // 3. Assert
-    expect(result.length).toBe(0);
+    expect(data.length).toBe(0);
   });
 
   it("setSuccessEmailStatus updates status to 'success'", async () => {
@@ -76,7 +82,7 @@ describe('Database Functions', () => {
     const id = insertRes.rows[0].id;
 
     // 2. Act
-    await setSuccessEmailStatus([id]);
+    await db.setSuccessStatus([id]);
 
     // 3. Assert: Check DB directly
     const check = await testPool.query(
@@ -96,7 +102,7 @@ describe('Database Functions', () => {
     const id = insertRes.rows[0].id;
 
     // 2. Act
-    await setFailedEmailStatus([id]);
+    await db.setFailedStatus([id]);
 
     // 3. Assert
     const check = await testPool.query(

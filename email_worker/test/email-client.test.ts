@@ -1,8 +1,10 @@
 // run tests like this:
 // cd to email_worker
 // then run: bun test --preload ./test/setup.ts
+import { readConfigFromSchema } from '@/infrastructure/config';
+import { emailConfigSchema } from '@/infrastructure/config/schemas';
+import { EmailClient } from '@/infrastructure/email/email-client';
 import { beforeEach, describe, expect, test } from 'bun:test';
-import { sendEmail } from '@/lib/email-client';
 import { type ResendResponse, mockSend } from './setup';
 
 beforeEach(() => {
@@ -12,14 +14,16 @@ beforeEach(() => {
 
 describe('sendEmail', () => {
   // SECTION 1: SUCCESS SCENARIOS
+  const configFromSchema = readConfigFromSchema(emailConfigSchema);
+  const emailClient = new EmailClient(configFromSchema);
   describe('Success Paths', () => {
     test('returns ok: true when Resend succeeds', async () => {
-      const result = await sendEmail({ email_data: [] });
+      const result = await emailClient.send({ payload: [] });
       expect(result.ok).toBe(true);
     });
 
     test('returns providerId when Resend succeeds', async () => {
-      const result = await sendEmail({ email_data: [] });
+      const result = await emailClient.send({ payload: [] });
       if (result.ok) {
         expect(result.data.providerId).toBe('test-id');
       }
@@ -32,7 +36,7 @@ describe('sendEmail', () => {
         error: null,
       });
 
-      const result = await sendEmail({ email_data: [] });
+      const result = await emailClient.send({ payload: [] });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -52,7 +56,7 @@ describe('sendEmail', () => {
         })
       );
 
-      const result = await sendEmail({ email_data: [] });
+      const result = await emailClient.send({ payload: [] });
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toContain('API key is invalid');
@@ -64,7 +68,7 @@ describe('sendEmail', () => {
         throw new Error('Some unhandled error');
       });
 
-      const result = await sendEmail({ email_data: [] });
+      const result = await emailClient.send({ payload: [] });
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error).toBe('Some unhandled error');
@@ -83,7 +87,7 @@ describe('sendEmail', () => {
         },
       ];
 
-      await sendEmail({ email_data: testData as any });
+      await emailClient.send({ payload: testData as any });
 
       const sentPayload = mockSend.mock.calls[0]![0];
 
@@ -96,7 +100,7 @@ describe('sendEmail', () => {
     });
 
     test('uses the correct subject line', async () => {
-      await sendEmail({ email_data: [] });
+      await emailClient.send({ payload: [] });
 
       const sentPayload = mockSend.mock.calls[0]![0];
 
