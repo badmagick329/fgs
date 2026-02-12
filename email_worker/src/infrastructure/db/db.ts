@@ -1,0 +1,156 @@
+import type { IdResult, Registration } from '@/core/domain';
+import type { IUserRepository } from '@/core/interfaces';
+import type { Result } from '@/types/result';
+import { Pool } from 'pg';
+
+export class DB implements IUserRepository {
+  private readonly pool: Pool;
+  constructor() {
+    this.pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+    });
+  }
+
+  async getPending(): Promise<Result<Registration[], string>> {
+    try {
+      const res = await this.pool.query<Registration>(`
+    SELECT * FROM registrations
+    WHERE email_status != 'success' AND retry_count < 3
+  `);
+      if (res.rowCount != null && res.rowCount > 0) {
+        return { ok: true, data: res.rows };
+      }
+      return { ok: false, error: 'No rows returned' };
+    } catch (err: any) {
+      console.error('getPendingNotificationData DB Error:', err);
+      return {
+        ok: false,
+        error: `Database error: ${err.message}`,
+      };
+    }
+  }
+
+  async setFailedStatus(
+    ids: number[]
+  ): Promise<
+    Result<
+      { message: string; ids: number[] },
+      { message: string; ids: number[] }
+    >
+  > {
+    try {
+      const res = await this.pool.query<IdResult>(
+        `
+    UPDATE registrations
+    SET email_status = 'failed', retry_count = retry_count + 1
+    WHERE id = ANY($1::int[]) 
+      AND retry_count < 3
+    RETURNING id
+  `,
+        [ids]
+      );
+
+      if (res.rowCount != null && res.rowCount > 0) {
+        return {
+          ok: true,
+          data: {
+            message: 'Notification status set to "failed"',
+            ids: res.rows.map((row) => row.id),
+          },
+        };
+      }
+      return {
+        ok: false,
+        error: { message: 'Notification status not set to "failed"', ids: ids },
+      };
+    } catch (err: any) {
+      console.error('setFailedNotificationStatus DB Error:', err);
+      return {
+        ok: false,
+        error: { message: `Database error: ${err.message}`, ids: ids },
+      };
+    }
+  }
+
+  async setSuccessStatus(
+    ids: number[]
+  ): Promise<
+    Result<
+      { message: string; ids: number[] },
+      { message: string; ids: number[] }
+    >
+  > {
+    try {
+      const res = await this.pool.query<IdResult>(
+        `
+    UPDATE registrations
+    SET email_status = 'success'
+    WHERE id = ANY($1::int[])
+    RETURNING id
+  `,
+        [ids]
+      );
+      if (res.rowCount != null && res.rowCount > 0) {
+        return {
+          ok: true,
+          data: {
+            message: 'Notification status set to "success"',
+            ids: res.rows.map((row) => row.id),
+          },
+        };
+      }
+      return {
+        ok: false,
+        error: {
+          message: 'Notification status not set to "success"',
+          ids: ids,
+        },
+      };
+    } catch (err: any) {
+      console.error('setSuccessNotificationStatus DB Error:', err);
+      return {
+        ok: false,
+        error: { message: `Database error: ${err.message}`, ids: ids },
+      };
+    }
+  }
+
+  //
+  //
+  //  make helper function for getting ids (return ok: true for greater than 0 ids) and for checking for empty result
+  //
+  //
+}
+
+async function ensureSchema() {
+  const schemaUrl = new URL('../db/schema.sql', import.meta.url);
+  const sql = await Bun.file(schemaUrl).text();
+
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
+  const client = await pool.connect();
+  try {
+    await client.query('SELECT pg_advisory_lock($1, $2);', [42069, 1]);
+
+    try {
+      await client.query('BEGIN;');
+      await client.query(sql);
+      await client.query('COMMIT;');
+    } catch (e) {
+      await client.query('ROLLBACK;');
+      throw e;
+    } finally {
+      await client.query('SELECT pg_advisory_unlock($1, $2);', [42069, 1]);
+    }
+  } finally {
+    client.release();
+  }
+}
+
+const ensureSchemaOnce = (() => {
+  let p: Promise<void> | null = null;
+  return () => (p ??= ensureSchema());
+})();
+
+await ensureSchemaOnce();

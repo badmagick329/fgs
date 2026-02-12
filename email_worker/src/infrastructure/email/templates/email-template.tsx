@@ -1,6 +1,6 @@
-import type { EmailData } from '@/types';
+import type { Notification } from '@/core/domain';
 
-export function EmailTemplate({ email_data }: EmailData) {
+export function EmailTemplate({ payload }: Notification) {
   return (
     <div>
       <h1>New Student Registrations</h1>
@@ -8,7 +8,7 @@ export function EmailTemplate({ email_data }: EmailData) {
         The following registrations were made today:{' '}
         {new Date().toLocaleDateString()}
       </p>
-      {email_data.map((data) => (
+      {payload.map((data) => (
         <div key={data.id}>
           <ul>
             <li>

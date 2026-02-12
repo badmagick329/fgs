@@ -1,71 +1,26 @@
-import { getPendingEmailsData } from '@/lib/db.ts';
-import { EmailClient } from '@/lib/email-client.ts';
-import { readConfigFromSchema } from './lib/config-reader';
-import type { Result } from './types/result';
-import { emailConfigSchema } from './types/schemas';
+import { DB } from '@/infrastructure/db/db';
+import { NotificationService } from './core/NotificationService';
+import { readConfigFromSchema } from './infrastructure/config';
+import { getWorkerInterval } from './infrastructure/config/interval';
+import { emailConfigSchema } from './infrastructure/config/schemas';
+import { EmailClient } from './infrastructure/email/email-client';
 
 async function main(): Promise<void> {
+  const db = new DB();
+  const configFromSchema = readConfigFromSchema(emailConfigSchema);
+  const emailClient = new EmailClient(configFromSchema);
   const workerInterval = getWorkerInterval();
   if (!workerInterval.ok) return process.exit(1);
 
-  await checkEmails();
+  const service = new NotificationService(db, emailClient);
+  await service.processUnsentNotifications();
   console.log(
-    `[${new Date().toISOString()}] - Starting email worker. Next run in ${Math.ceil(workerInterval.data / 1000)} seconds`
+    `[${new Date().toISOString()}] - Starting notification worker. Next run in ${Math.ceil(workerInterval.data / 1000)} seconds`
   );
-  setInterval(checkEmails, workerInterval.data);
-}
-
-function getWorkerInterval(): Result<number, string> {
-  const workerInterval = parseInt(process.env.WORKER_INTERVAL || '0');
-  if (isNaN(workerInterval) || workerInterval <= 1000) {
-    console.error(`Invalid WORKER_INTERVAL value: ${workerInterval}`);
-    return {
-      ok: false,
-      error: `Invalid WORKER_INTERVAL value: ${workerInterval}`,
-    };
-  }
-  if (workerInterval < 1000 * 60 * 10) {
-    console.warn(
-      `WORKER_INTERVAL is set to a low value (${workerInterval} ms). This may lead to rate limiting by the email provider.`
-    );
-    return {
-      ok: false,
-      error: `WORKER_INTERVAL is set to a low value (${workerInterval} ms). This may lead to rate limiting by the email provider.`,
-    };
-  }
-  return {
-    ok: true,
-    data: workerInterval,
-  };
-}
-
-async function checkEmails(): Promise<Result<string, string>> {
-  console.log(`[${new Date().toISOString()}] - Checking emails`);
-
-  try {
-    const emails = await getPendingEmailsData();
-
-    if (emails.ok) {
-      console.log(
-        `[${new Date().toISOString()}] - Fetched ${emails.data.length} pending emails`
-      );
-      const configFromSchema = readConfigFromSchema(emailConfigSchema);
-      const emailClient = new EmailClient(configFromSchema);
-      const res = await emailClient.sendEmail({ email_data: emails.data });
-      if (res.ok) {
-        return { ok: true, data: 'sendEmail Success' };
-      }
-      return { ok: false, error: 'sendEmail Failure' };
-    }
-    console.log(`[${new Date().toISOString()}] - No pending emails found`);
-    return { ok: false, error: 'No pending emails found' };
-  } catch (error) {
-    console.error('Error in checkEmails', error);
-    return { ok: false, error: 'Emails not sent' };
-  }
+  setInterval(service.processUnsentNotifications, workerInterval.data);
 }
 
 main().catch((error) => {
-  console.error('Fatal error in email worker', error);
+  console.error('Fatal error in notification worker', error);
   process.exit(1);
 });

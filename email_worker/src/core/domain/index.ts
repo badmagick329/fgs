@@ -1,4 +1,4 @@
-export type EMAIL_STATUS = 'success' | 'pending' | 'failed';
+export type STATUS = 'success' | 'pending' | 'failed';
 
 export interface IdResult {
   id: number;
@@ -12,9 +12,9 @@ export type Registration = {
   registration_message: string;
   registered_at: string;
   updated_at: string | null;
-  email_status: EMAIL_STATUS;
+  email_status: STATUS;
   retry_count: number;
 };
-export interface EmailData {
-  email_data: Registration[];
+export interface Notification {
+  payload: Registration[];
 }
