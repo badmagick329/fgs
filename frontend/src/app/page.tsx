@@ -1,18 +1,16 @@
-import Image from 'next/image';
+import UnderConstruction from '@/app/_components/UnderConstruction';
 
-export default function Home() {
-  return (
-    <main className='flex flex-col gap-8 pt-12 items-center min-h-screen'>
-      <h1 className='text-4xl font-semibold'>Under Construction</h1>
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  console.log(sp);
 
-      <Image
-        src='/penguin.gif'
-        alt='Description of GIF'
-        width={300}
-        height={200}
-        unoptimized
-        className='rounded-md'
-      />
-    </main>
-  );
+  if (sp.preview !== undefined) {
+    return <p>Hello</p>;
+  }
+
+  return <UnderConstruction />;
 }
