@@ -8,30 +8,34 @@ const pool = new Pool({
 export async function getPendingEmailsData() {
   const res = await pool.query(`
     SELECT * FROM registrations
-    WHERE email_status = 'pending' AND retry_count < 3
+    WHERE email_status != 'success' AND retry_count < 3
   `);
   return res.rows as Registration[];
 }
 
-export async function setFailedEmailStatus(id: number) {
+export async function setFailedEmailStatus(ids: number[]) {
+  if (ids.length === 0) return;
+
   await pool.query(
     `
     UPDATE registrations
     SET email_status = 'failed', retry_count = retry_count + 1
-    WHERE id = $1
+    WHERE id = ANY($1::int[])
   `,
-    [id]
+    [ids]
   );
 }
 
-export async function setSuccessEmailStatus(id: number) {
+export async function setSuccessEmailStatus(ids: number[]) {
+  if (ids.length === 0) return;
+
   await pool.query(
     `
     UPDATE registrations
     SET email_status = 'success'
-    WHERE id = $1
+    WHERE id = ANY($1::int[])
   `,
-    [id]
+    [ids]
   );
 }
 
