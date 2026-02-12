@@ -12,7 +12,7 @@ export async function getPendingEmailsData(): Promise<
   try {
     const res = await pool.query<Registration>(`
     SELECT * FROM registrations
-    WHERE email_status = 'pending' OR (email_status = 'failed' AND retry_count < 3)
+    WHERE email_status != 'success' AND retry_count < 3
   `);
     if (res.rowCount != null && res.rowCount > 0) {
       return { ok: true, data: res.rows };
