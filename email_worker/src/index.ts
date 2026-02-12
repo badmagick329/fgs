@@ -1,4 +1,8 @@
-import { getPendingEmailsData } from '@/lib/db.ts';
+import {
+  getPendingEmailsData,
+  setFailedEmailStatus,
+  setSuccessEmailStatus,
+} from '@/lib/db.ts';
 import { sendEmail } from '@/lib/email-client.ts';
 
 async function main() {
@@ -30,16 +34,23 @@ async function checkEmails() {
   console.log(`[${new Date().toISOString()}] - Checking emails`);
 
   try {
-    const emails = await getPendingEmailsData();
+    const emailsData = await getPendingEmailsData();
 
-    if (emails.length > 0) {
-      console.log(
-        `[${new Date().toISOString()}] - Fetched ${emails.length} pending emails`
-      );
-      sendEmail({ email_data: emails });
+    if (emailsData.length === 0) {
+      console.log(`[${new Date().toISOString()}] - No pending emails found`);
       return;
     }
-    console.log(`[${new Date().toISOString()}] - No pending emails found`);
+
+    console.log(
+      `[${new Date().toISOString()}] - Fetched ${emailsData.length} pending emails`
+    );
+    const result = await sendEmail({ email_data: emailsData });
+
+    if (result.ok) {
+      await setSuccessEmailStatus(emailsData.map((data) => data.id));
+    } else {
+      await setFailedEmailStatus(emailsData.map((data) => data.id));
+    }
   } catch (error) {
     console.error('Error in checkEmails', error);
   }

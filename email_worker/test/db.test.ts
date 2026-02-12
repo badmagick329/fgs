@@ -32,22 +32,24 @@ describe('Database Functions', () => {
 
   // --- TESTS ---
 
-  it('getPendingEmailsData returns only pending emails', async () => {
+  it('getPendingEmailsData returns pending emails or failed emails with retries less than 3', async () => {
     // 1. Arrange: Insert 3 rows (1 pending, 1 success, 1 failed)
     await testPool.query(`
       INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
       VALUES 
         ('Alice', 'Test', 'alice@pending.com', 'pending', 0),
         ('Bob', 'Test', 'bob@success.com', 'success', 0),
-        ('Charlie', 'Test', 'charlie@failed.com', 'failed', 0);
+        ('Charlie', 'Test', 'charlie@failed.com', 'failed', 0),
+        ('Charlie2', 'Test', 'charlie2@failed.com', 'failed', 3);
     `);
 
     // 2. Act
     const result = await getPendingEmailsData();
 
     // 3. Assert
-    expect(result.length).toBe(1);
+    expect(result.length).toBe(2);
     expect(result[0]!.email).toBe('alice@pending.com');
+    expect(result[1]!.email).toBe('charlie@failed.com');
   });
 
   it('getPendingEmailsData ignores rows with retry_count >= 3', async () => {
@@ -74,7 +76,7 @@ describe('Database Functions', () => {
     const id = insertRes.rows[0].id;
 
     // 2. Act
-    await setSuccessEmailStatus(id);
+    await setSuccessEmailStatus([id]);
 
     // 3. Assert: Check DB directly
     const check = await testPool.query(
@@ -94,7 +96,7 @@ describe('Database Functions', () => {
     const id = insertRes.rows[0].id;
 
     // 2. Act
-    await setFailedEmailStatus(id);
+    await setFailedEmailStatus([id]);
 
     // 3. Assert
     const check = await testPool.query(
