@@ -49,6 +49,10 @@ async function checkEmails() {
     if (result.ok) {
       await setSuccessEmailStatus(emailsData.map((data) => data.id));
     } else {
+      if (result.error === 'Notification email not configured.') {
+        console.error('Notification email not configured. Skipping send.');
+        return;
+      }
       await setFailedEmailStatus(emailsData.map((data) => data.id));
     }
   } catch (error) {

@@ -13,6 +13,19 @@ export async function getPendingEmailsData() {
   return res.rows as Registration[];
 }
 
+export async function getNotificationEmail() {
+  const res = await pool.query<{
+    notification_email: string;
+    updated_by_admin_user_id: number;
+    updated_at: Date;
+  }>(
+    `SELECT notification_email, updated_by_admin_user_id, updated_at
+     FROM admin_config
+     WHERE id = 1`
+  );
+  return res.rows[0] ?? null;
+}
+
 export async function setFailedEmailStatus(ids: number[]) {
   if (ids.length === 0) return;
 
