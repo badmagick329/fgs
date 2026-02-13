@@ -4,6 +4,7 @@ import { verifyAccessToken } from '@/lib/auth/jwt';
 const isProtectedPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
   if (pathname === '/registrations') return true;
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return true;
   return false;
 };
 
