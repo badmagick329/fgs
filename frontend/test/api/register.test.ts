@@ -1,40 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { jsonRequest, readJson } from './test-utils';
-
-const getAdminRouteAuth = mock(async () => ({
-  payload: { sub: '1', email: 'admin@example.com' } as
-    | { sub: string; email: string }
-    | null,
-  refreshedTokens: null as { accessToken: string; refreshToken: string } | null,
-  needsClear: false,
-}));
-const unauthorizedJson = mock((opts?: { clearCookies?: boolean }) =>
-  Response.json({ ok: false, clear: !!opts?.clearCookies }, { status: 401 })
-);
-const applyRefreshedAuthCookies = mock(
-  (_res: Response, _tokens: { accessToken: string; refreshToken: string } | null) =>
-    {}
-);
-const requireAdminRouteAuth = mock(
-  async (opts?: { clearCookies?: 'auto' | boolean }) => {
-    const auth = await getAdminRouteAuth();
-    if (!auth.payload) {
-      const clearCookies =
-        opts?.clearCookies === 'auto' || opts?.clearCookies === undefined
-          ? auth.needsClear
-          : opts.clearCookies;
-      return {
-        ok: false as const,
-        response: unauthorizedJson({ clearCookies }),
-      };
-    }
-
-    return {
-      ok: true as const,
-      auth,
-    };
-  }
-);
+import {
+  applyRefreshedAuthCookies,
+  getAdminRouteAuth,
+  unauthorizedJson,
+} from './admin/mocks/admin-route-auth.mock';
 const getRegistrations = mock(
   async (): Promise<any> => ({ ok: true, data: [] as unknown[] })
 );
@@ -46,12 +16,6 @@ const createRegistration = mock(
 );
 const sendDiscordMessage = mock(async (_payload: unknown) => undefined);
 
-mock.module('@/lib/serveronly/admin-route-auth', () => ({
-  getAdminRouteAuth,
-  requireAdminRouteAuth,
-  unauthorizedJson,
-  applyRefreshedAuthCookies,
-}));
 mock.module('@/lib/db', () => ({
   getRegistrations,
   createRegistration,
@@ -70,34 +34,7 @@ describe('/api/register', () => {
     }));
 
     unauthorizedJson.mockClear();
-    unauthorizedJson.mockImplementation((opts?: { clearCookies?: boolean }) =>
-      Response.json({ ok: false, clear: !!opts?.clearCookies }, { status: 401 })
-    );
-
     applyRefreshedAuthCookies.mockClear();
-    applyRefreshedAuthCookies.mockImplementation(() => {});
-
-    requireAdminRouteAuth.mockClear();
-    requireAdminRouteAuth.mockImplementation(
-      async (opts?: { clearCookies?: 'auto' | boolean }) => {
-        const auth = await getAdminRouteAuth();
-        if (!auth.payload) {
-          const clearCookies =
-            opts?.clearCookies === 'auto' || opts?.clearCookies === undefined
-              ? auth.needsClear
-              : opts.clearCookies;
-          return {
-            ok: false as const,
-            response: unauthorizedJson({ clearCookies }),
-          };
-        }
-
-        return {
-          ok: true as const,
-          auth,
-        };
-      }
-    );
 
     getRegistrations.mockClear();
     getRegistrations.mockImplementation(
