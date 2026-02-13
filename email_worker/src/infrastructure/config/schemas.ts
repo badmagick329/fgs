@@ -6,4 +6,9 @@ export const emailConfigSchema = z.object({
   DESTINATION_EMAIL_ADDRESS: z.string(),
 });
 
+export const databaseConfigSchema = z.object({
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+});
+
 export type EmailConfig = z.infer<typeof emailConfigSchema>;
+export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;

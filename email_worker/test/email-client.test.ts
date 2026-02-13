@@ -1,8 +1,7 @@
 // run tests like this:
 // cd to email_worker
 // then run: bun test --preload ./test/setup.ts
-import { readConfigFromSchema } from '@/infrastructure/config';
-import { emailConfigSchema } from '@/infrastructure/config/schemas';
+import { getEmailConfig } from '@/infrastructure/config';
 import { EmailClient } from '@/infrastructure/email/email-client';
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { type ResendResponse, mockSend } from './setup';
@@ -14,11 +13,10 @@ beforeEach(() => {
 
 describe('sendEmail', () => {
   // SECTION 1: SUCCESS SCENARIOS
-  const configFromSchema = readConfigFromSchema(
-    emailConfigSchema,
-    'admin@example.com'
-  );
-  const emailClient = new EmailClient(configFromSchema);
+  const testEmailAddress = 'admin@example.com';
+  const emailConfig = getEmailConfig(testEmailAddress);
+  const emailClient = new EmailClient(emailConfig);
+
   describe('Success Paths', () => {
     test('returns ok: true when Resend succeeds', async () => {
       const result = await emailClient.send({ payload: [] });

@@ -1,13 +1,17 @@
-import { type EmailConfig } from '@/infrastructure/config/schemas';
+import {
+  type DatabaseConfig,
+  type EmailConfig,
+  databaseConfigSchema,
+  emailConfigSchema,
+} from '@/infrastructure/config/schemas';
 import { z } from 'zod';
 
-export function readConfigFromSchema(
-  schema: z.ZodType<EmailConfig>,
-  notificationEmail: string
-): EmailConfig {
+export function readConfigFromSchema<T>(
+  schema: z.ZodType<T>,
+  data: Record<string, unknown>
+): T {
   const parsed = schema.safeParse({
-    ...process.env,
-    DESTINATION_EMAIL_ADDRESS: notificationEmail,
+    data,
   });
 
   if (!parsed.success) {
@@ -18,3 +22,15 @@ export function readConfigFromSchema(
 
   return parsed.data;
 }
+
+export function getEmailConfig(notificationEmail: string): EmailConfig {
+  return readConfigFromSchema(emailConfigSchema, {
+    ...process.env,
+    DESTINATION_EMAIL_ADDRESS: notificationEmail,
+  });
+}
+
+export const databaseConfig = readConfigFromSchema(
+  databaseConfigSchema,
+  process.env
+);
