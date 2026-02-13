@@ -30,7 +30,7 @@ export default function RegisterPage() {
                 <p
                   id='firstName-error'
                   role='alert'
-                  className='mt-1 text-sm text-red-600'
+                  className='mt-1 text-sm text-error'
                 >
                   {errors.firstName.message}
                 </p>
@@ -55,7 +55,7 @@ export default function RegisterPage() {
                 <p
                   id='lastName-error'
                   role='alert'
-                  className='mt-1 text-sm text-red-600'
+                  className='mt-1 text-sm text-error'
                 >
                   {errors.lastName.message}
                 </p>
@@ -78,7 +78,7 @@ export default function RegisterPage() {
                 <p
                   id='email-error'
                   role='alert'
-                  className='mt-1 text-sm text-red-600'
+                  className='mt-1 text-sm text-error'
                 >
                   {errors.email.message}
                 </p>
@@ -92,7 +92,7 @@ export default function RegisterPage() {
               Register
             </button>
             {errors.root?.server?.message && (
-              <p role='alert' className='mt-3 text-sm text-red-600'>
+              <p role='alert' className='mt-3 text-sm text-error'>
                 {errors.root.server.message}
               </p>
             )}

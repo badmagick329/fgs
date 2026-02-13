@@ -1,103 +1,228 @@
 'use client';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import useRegistrationList from '@/hooks/useRegistrationList';
-import { redirect } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+const tableHeaders = [
+  'ID',
+  'Email Status',
+  'First Name',
+  'Last Name',
+  'Email',
+  'Registered At',
+  'Retry Count',
+];
 
 export default function RegistrationList() {
+  const router = useRouter();
   const { isLoading, isError, error, data } = useRegistrationList();
+  const backdrop = (
+    <>
+      <div
+        aria-hidden
+        className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_84%_18%,rgb(0_160_224/0.16),transparent_28%),radial-gradient(circle_at_12%_82%,rgb(240_176_32/0.14),transparent_30%)]'
+      />
+    </>
+  );
+  const logoWatermark = (
+    <div
+      aria-hidden
+      className='mt-auto flex justify-center pt-12 md:justify-end'
+    >
+      <Image
+        src='/fgs-logo.png'
+        alt=''
+        width={720}
+        height={720}
+        className='h-auto w-48 opacity-[0.12] blur-[0.65px] sm:w-64 md:w-80 lg:w-104'
+      />
+    </div>
+  );
 
   if (isLoading) {
     return (
-      <div>
-        <h2 className='text-3xl font-bold p-2 bg-amber-800'>Registrations</h2>
-        <table className='w-full'>
-          <thead className='bg-amber-700'>
-            <tr>
-              <th className='p-2 text-left'>ID</th>
-              <th className='p-2 text-left'>First Name</th>
-              <th className='p-2 text-left'>Last Name</th>
-              <th className='p-2 text-left'>Email</th>
-              <th className='p-2 text-left'>Message</th>
-              <th className='p-2 text-left'>Registered At</th>
-              <th className='p-2 text-left'>Updated At</th>
-              <th className='p-2 text-left'>Email Status</th>
-              <th className='p-2 text-left'>Retry Count</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
+      <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
+        {backdrop}
+      <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+          <div>
+            <h2 className='fgs-heading'>Registrations</h2>
+            <p className='fgs-copy mt-2'>Loading registration records...</p>
+          </div>
+          <div className='flex flex-wrap gap-3'>
+            <Link href='/admin' className='fgs-btn-secondary w-fit'>
+              Admin tools
+            </Link>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                (async () => {
+                  const res = await fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                  if (!res.ok) {
+                    console.error('Logout failed.');
+                  } else {
+                    router.replace('/admin/login');
+                  }
+                })();
+              }}
+            >
+              <button type='submit' className='fgs-btn-danger'>
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+          <div className='mt-6 rounded-2xl border border-border bg-card p-2 sm:p-4'>
+            <Table>
+              <TableHeader>
+                <TableRow className='bg-fgs-surface hover:bg-fgs-surface'>
+                  {tableHeaders.map((header) => (
+                    <TableHead key={header} className='font-semibold'>
+                      {header}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+            </Table>
+          </div>
+          {logoWatermark}
+        </div>
+      </main>
     );
   }
 
   if (isError) {
     return (
-      <p className='p-2 text-red-300'>
-        {error?.message ?? 'Failed to load registrations.'}
-      </p>
+      <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
+        {backdrop}
+      <div className='relative z-10 mx-auto w-full max-w-7xl rounded-2xl border border-border bg-card p-6'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+          <div>
+            <h2 className='fgs-heading'>Registrations</h2>
+            <p className='mt-3 text-error'>
+            {error?.message ?? 'Failed to load registrations.'}
+            </p>
+          </div>
+          <div className='flex flex-wrap gap-3'>
+            <Link href='/admin' className='fgs-btn-secondary w-fit'>
+              Admin tools
+            </Link>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                (async () => {
+                  const res = await fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                  if (!res.ok) {
+                    console.error('Logout failed.');
+                  } else {
+                    router.replace('/admin/login');
+                  }
+                })();
+              }}
+            >
+              <button type='submit' className='fgs-btn-danger'>
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+        <div className='relative z-10 mx-auto flex min-h-[calc(100vh-18rem)] max-w-7xl flex-col'>
+          {logoWatermark}
+        </div>
+      </main>
     );
   }
 
   const registrations = data ?? [];
 
   return (
-    <div>
-      <h2 className='text-3xl font-bold p-2 bg-amber-800'>Registrations</h2>
-      <table className='w-full'>
-        <thead className='bg-amber-700'>
-          <tr>
-            <th className='p-2 text-left'>ID</th>
-            <th className='p-2 text-left'>First Name</th>
-            <th className='p-2 text-left'>Last Name</th>
-            <th className='p-2 text-left'>Email</th>
-            <th className='p-2 text-left'>Message</th>
-            <th className='p-2 text-left'>Registered At</th>
-            <th className='p-2 text-left'>Updated At</th>
-            <th className='p-2 text-left'>Email Status</th>
-            <th className='p-2 text-left'>Retry Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {registrations.map((r) => (
-            <tr key={r.id} className='even:bg-amber-700 odd:bg-amber-600'>
-              <td className='p-2'>{r.id}</td>
-              <td className='p-2'>{r.first_name}</td>
-              <td className='p-2'>{r.last_name}</td>
-              <td className='p-2'>{r.email}</td>
-              <td className='p-2'>{r.registration_message}</td>
-              <td className='p-2'>
-                {r.registered_at && r.registered_at.toLocaleString()}
-              </td>
-              <td className='p-2'>
-                {(r.updated_at && r.updated_at.toLocaleString()) ?? 'N/A'}
-              </td>
-              <td className='p-2'>{r.email_status}</td>
-              <td className='p-2'>{r.retry_count}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          (async () => {
-            const res = await fetch('/api/admin/logout', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            });
-            if (!res.ok) {
-              console.error('Logout failed.');
-            } else {
-              redirect('/admin/login');
-            }
-          })();
-        }}
-      >
-        <button
-          type='submit'
-          className='fixed bottom-4 right-4 rounded-md bg-red-700 px-4 py-2 hover:bg-red-600'
-        >
-          Logout
-        </button>
-      </form>
-    </div>
+    <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
+      {backdrop}
+      <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+          <div>
+            <h2 className='fgs-heading'>Registrations</h2>
+            <p className='fgs-copy mt-2'>
+              Admission interest submissions received from the landing page.
+            </p>
+          </div>
+          <div className='flex flex-wrap gap-3'>
+            <Link href='/admin' className='fgs-btn-secondary w-fit'>
+              Admin tools
+            </Link>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                (async () => {
+                  const res = await fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                  if (!res.ok) {
+                    console.error('Logout failed.');
+                  } else {
+                    router.replace('/admin/login');
+                  }
+                })();
+              }}
+            >
+              <button type='submit' className='fgs-btn-danger'>
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className='mt-6 rounded-2xl border border-border bg-card p-2 shadow-sm sm:p-4'>
+          <Table>
+            <TableHeader>
+              <TableRow className='bg-fgs-surface hover:bg-fgs-surface'>
+                {tableHeaders.map((header) => (
+                  <TableHead key={header} className='font-semibold'>
+                    {header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {registrations.map((r) => (
+                <TableRow
+                  key={r.id}
+                  className='odd:bg-card even:bg-fgs-surface/55'
+                >
+                  <TableCell>{r.id}</TableCell>
+                  <TableCell className='capitalize'>{r.email_status}</TableCell>
+                  <TableCell>{r.first_name}</TableCell>
+                  <TableCell>{r.last_name}</TableCell>
+                  <TableCell>{r.email}</TableCell>
+                  <TableCell>
+                    {r.registered_at?.toLocaleString() ?? 'N/A'}
+                  </TableCell>
+                  <TableCell>{r.retry_count}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        {logoWatermark}
+      </div>
+
+    </main>
   );
 }

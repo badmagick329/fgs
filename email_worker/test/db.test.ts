@@ -31,7 +31,6 @@ describe('Database Functions', () => {
   // --- TESTS ---
 
   it('getPendingEmailsData returns pending emails or failed emails with retries less than 3', async () => {
-    // 1. Arrange: Insert 3 rows (1 pending, 1 success, 1 failed)
     await testPool.query(`
       INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
       VALUES 
@@ -41,14 +40,12 @@ describe('Database Functions', () => {
         ('Charlie2', 'Test', 'charlie2@failed.com', 'failed', 3);
     `);
 
-    // 2. Act
     const result = await db.getPending();
     if (!result.ok) {
       throw new Error(`Expected Ok, but got Error: ${result.error}`);
     }
     const data = result.data;
 
-    // 3. Assert
     expect(data.length).toBe(2);
     expect(data[0]!.email).toBe('alice@pending.com');
     expect(data[1]!.email).toBe('charlie@failed.com');

@@ -19,7 +19,7 @@ type NavBarProps = {
 
 export default function NavBar({ items }: NavBarProps) {
   return (
-    <header className='sticky top-0 z-50 border-b border-[color:var(--fgs-border)] bg-white/90 backdrop-blur-sm'>
+    <header className='sticky top-0 z-50 border-b border-border bg-card/90 backdrop-blur-sm'>
       <div className='mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8'>
         <a href='#top' className='flex items-center gap-3'>
           <Image
@@ -30,7 +30,7 @@ export default function NavBar({ items }: NavBarProps) {
             className='h-11 w-11 rounded-md bg-white object-cover'
             priority
           />
-          <span className='text-sm font-semibold leading-tight text-[color:var(--fgs-ink)] sm:text-base'>
+          <span className='text-fgs-ink text-sm font-semibold leading-tight sm:text-base'>
             Farooqi Grammar School
           </span>
         </a>
@@ -48,18 +48,18 @@ export default function NavBar({ items }: NavBarProps) {
         </nav>
 
         <details className='group md:hidden'>
-          <summary className='cursor-pointer list-none rounded-md border border-[color:var(--fgs-border)] px-3 py-2 text-sm font-medium text-[color:var(--fgs-ink)]'>
+          <summary className='text-fgs-ink cursor-pointer list-none rounded-md border border-border px-3 py-2 text-sm font-medium'>
             Menu
           </summary>
           <nav
-            className='absolute right-4 top-[68px] w-52 rounded-xl border border-[color:var(--fgs-border)] bg-[color:var(--fgs-white)] p-2 shadow-xl'
+            className='absolute right-4 top-[68px] w-52 rounded-xl border border-border bg-card p-2 shadow-xl'
             aria-label='Mobile'
           >
             <ul className='flex flex-col'>
               {items.map((item) => (
                 <li key={item.id}>
                   <a
-                    className='block rounded-lg px-3 py-2 text-sm text-[color:var(--fgs-ink)] hover:bg-[color:var(--fgs-surface)]'
+                    className='text-fgs-ink hover:bg-fgs-surface block rounded-lg px-3 py-2 text-sm'
                     href={`#${item.id}`}
                   >
                     {item.label}

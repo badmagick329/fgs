@@ -115,6 +115,18 @@ export class DB implements IUserRepository {
     }
   }
 
+  async getNotificationEmail() {
+    const res = await this.pool.query<{
+      notification_email: string;
+      updated_by_admin_user_id: number;
+      updated_at: Date;
+    }>(
+      `SELECT notification_email, updated_by_admin_user_id, updated_at
+     FROM admin_config
+     WHERE id = 1`
+    );
+    return res.rows[0] ?? null;
+  }
   //
   //
   //  make helper function for getting ids (return ok: true for greater than 0 ids) and for checking for empty result
