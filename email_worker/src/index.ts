@@ -22,9 +22,12 @@ async function main(): Promise<void> {
   const service = new NotificationService(db, emailClient);
   await service.processUnsentNotifications();
   console.log(
-    `[${new Date().toISOString()}] - Starting notification worker. Next run in ${Math.ceil(workerInterval.data / 1000)} seconds`
+    `[${new Date().toISOString()}] - [Main] Starting notification worker. Next run in ${Math.ceil(workerInterval.data / 1000)} seconds`
   );
-  setInterval(service.processUnsentNotifications, workerInterval.data);
+  setInterval(
+    service.processUnsentNotifications.bind(service),
+    workerInterval.data
+  );
 }
 
 main().catch((error) => {
