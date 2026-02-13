@@ -1,10 +1,11 @@
 // run tests like this:
 // cd to email_worker
 // then run: bun test --preload ./test/setup.ts
-import { getEmailConfig } from '@/infrastructure/config';
+import { createMockConfig } from '@/infrastructure/config';
 import { EmailClient } from '@/infrastructure/email/email-client';
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { type ResendResponse, mockSend } from './setup';
+import { testConfig } from './testConfig';
 
 beforeEach(() => {
   mockSend.mockClear();
@@ -13,8 +14,7 @@ beforeEach(() => {
 
 describe('sendEmail', () => {
   // SECTION 1: SUCCESS SCENARIOS
-  const testEmailAddress = 'admin@example.com';
-  const emailConfig = getEmailConfig(testEmailAddress);
+  const emailConfig = createMockConfig(testConfig).read();
   const emailClient = new EmailClient(emailConfig);
 
   describe('Success Paths', () => {

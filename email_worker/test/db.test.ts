@@ -1,8 +1,10 @@
 // Import your actual functions
-import { databaseConfig } from '@/infrastructure/config';
+import { getDatabaseConfig } from '@/infrastructure/config';
 import { DB } from '@/infrastructure/db/db';
 import { afterAll, beforeEach, describe, expect, it } from 'bun:test';
+import { testConfig } from './testConfig';
 
+const databaseConfig = getDatabaseConfig(testConfig);
 const db = new DB(databaseConfig.DATABASE_URL);
 
 describe('Database Functions', () => {
