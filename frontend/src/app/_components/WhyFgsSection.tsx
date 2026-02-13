@@ -20,7 +20,7 @@ export default function WhyFgsSection() {
             </article>
           ))}
         </div>
-        <div className='mt-6 grid gap-3 rounded-2xl border border-(--fgs-border) bg-(--fgs-white) p-4 sm:grid-cols-3'>
+        <div className='mt-6 grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-3'>
           <p className='fgs-proof'>95%+ Board Performance</p>
           <p className='fgs-proof'>30+ Activities & Clubs</p>
           <p className='fgs-proof'>Dedicated Mentorship</p>

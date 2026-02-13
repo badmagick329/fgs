@@ -17,7 +17,7 @@ export default function ContactSection() {
             <p className='fgs-copy mt-2'>FGS Campus, Lahore, Pakistan</p>
           </article>
         </div>
-        <div className='mt-4 rounded-2xl border border-dashed border-(--fgs-border) bg-white p-4 text-sm text-(--fgs-muted)'>
+        <div className='mt-4 rounded-2xl border border-dashed border-border bg-card p-4 text-sm text-muted-foreground'>
           Contact form placeholder (non-functional in v1).
         </div>
       </div>

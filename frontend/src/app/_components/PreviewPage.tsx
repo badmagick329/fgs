@@ -18,7 +18,7 @@ const navItems: { id: SectionId; label: string }[] = [
 ];
 export default function PreviewPage() {
   return (
-    <main id='top' className='min-h-screen bg-(--fgs-surface) text-(--fgs-ink)'>
+    <main id='top' className='min-h-screen bg-fgs-surface text-fgs-ink'>
       <NavBar items={navItems} />
       <LandingHero />
       <AboutSection />
