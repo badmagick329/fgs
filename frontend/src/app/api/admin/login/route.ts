@@ -1,16 +1,12 @@
 import { adminCredentialsSchema } from '@/types';
-import {
-  createRefreshToken,
-  countAdmins,
-  generateRefreshToken,
-  getAdminByEmail,
-  hashRefreshToken,
-  refreshTokenExpiresAt,
-  verifyPassword,
-} from '@/lib/serveronly/auth';
-import { signAccessToken } from '@/lib/auth/jwt';
 import { NextResponse } from 'next/server';
 import { setAuthCookies } from '@/lib/serveronly/admin-cookies';
+import { issueAdminSession } from '@/lib/serveronly/admin-session';
+import {
+  countAdmins,
+  getAdminByEmail,
+  verifyPassword,
+} from '@/lib/serveronly/auth';
 
 export async function POST(req: Request) {
   const adminCount = await countAdmins();
@@ -47,13 +43,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const refreshToken = generateRefreshToken();
-  const tokenHash = hashRefreshToken(refreshToken);
-  await createRefreshToken(admin.id, tokenHash, refreshTokenExpiresAt());
-  const accessToken = await signAccessToken({
-    sub: String(admin.id),
-    email: admin.email,
-  });
+  const { accessToken, refreshToken } = await issueAdminSession(admin);
 
   const res = NextResponse.json({ ok: true });
   setAuthCookies(res, accessToken, refreshToken);

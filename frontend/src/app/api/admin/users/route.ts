@@ -1,67 +1,26 @@
-import { verifyAccessToken } from '@/lib/auth/jwt';
-import { clearAuthCookies, setAuthCookies } from '@/lib/serveronly/admin-cookies';
-import { getAdminAuthById, listAdminUsers } from '@/lib/serveronly/auth';
-import { refreshSession } from '@/lib/serveronly/refresh';
-import { cookies } from 'next/headers';
+import { adminCredentialsSchema } from '@/types';
 import { NextResponse } from 'next/server';
-
-async function requireAdmin() {
-  const accessToken = (await cookies()).get('admin_access')?.value;
-  let refreshedTokens: { accessToken: string; refreshToken: string } | null =
-    null;
-  let payload: { sub: string; email: string } | null = null;
-
-  if (accessToken) {
-    try {
-      payload = await verifyAccessToken(accessToken);
-    } catch {
-      // fall through to refresh
-    }
-  }
-
-  if (!payload) {
-    const refreshCookie = (await cookies()).get('admin_refresh')?.value;
-    if (!refreshCookie) {
-      return { payload: null, refreshedTokens: null, needsClear: true };
-    }
-    refreshedTokens = await refreshSession(refreshCookie);
-    if (!refreshedTokens) {
-      return { payload: null, refreshedTokens: null, needsClear: true };
-    }
-    payload = await verifyAccessToken(refreshedTokens.accessToken);
-  }
-
-  return { payload, refreshedTokens, needsClear: false };
-}
+import {
+  applyRefreshedAuthCookies,
+  getAdminRouteAuth,
+  unauthorizedJson,
+} from '@/lib/serveronly/admin-route-auth';
+import {
+  createAdminUser,
+  getAdminAuthById,
+  listAdminUsers,
+} from '@/lib/serveronly/auth';
 
 export async function GET() {
-  const auth = await requireAdmin();
+  const auth = await getAdminRouteAuth();
   if (!auth.payload) {
-    const res = NextResponse.json(
-      { ok: false, message: 'Unauthorized.' },
-      { status: 401 }
-    );
-    if (auth.needsClear) {
-      clearAuthCookies(res);
-    }
-    return res;
+    return unauthorizedJson({ clearCookies: auth.needsClear });
   }
 
   const currentAdminId = Number(auth.payload.sub);
   const currentAdmin = await getAdminAuthById(currentAdminId);
   if (!currentAdmin) {
-    const res = NextResponse.json(
-      { ok: false, message: 'Unauthorized.' },
-      { status: 401 }
-    );
-    if (auth.refreshedTokens) {
-      setAuthCookies(
-        res,
-        auth.refreshedTokens.accessToken,
-        auth.refreshedTokens.refreshToken
-      );
-    }
-    return res;
+    return unauthorizedJson({ clearCookies: true });
   }
 
   const admins = await listAdminUsers();
@@ -80,12 +39,48 @@ export async function GET() {
     },
   });
 
-  if (auth.refreshedTokens) {
-    setAuthCookies(
-      res,
-      auth.refreshedTokens.accessToken,
-      auth.refreshedTokens.refreshToken
+  applyRefreshedAuthCookies(res, auth.refreshedTokens);
+  return res;
+}
+
+export async function POST(req: Request) {
+  const auth = await getAdminRouteAuth();
+  if (!auth.payload) {
+    return unauthorizedJson({ clearCookies: auth.needsClear });
+  }
+
+  const actingAdminId = Number(auth.payload.sub);
+  const actingAdmin = await getAdminAuthById(actingAdminId);
+  if (!actingAdmin?.is_super_admin) {
+    const res = NextResponse.json(
+      { ok: false, message: 'Only super admins can create admins.' },
+      { status: 403 }
+    );
+    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    return res;
+  }
+
+  const body = await req.json().catch(() => null);
+  const parsed = adminCredentialsSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { ok: false, message: 'Invalid credentials.' },
+      { status: 400 }
     );
   }
-  return res;
+
+  try {
+    const { email, password } = parsed.data;
+    await createAdminUser(email, password);
+    const res = NextResponse.json({ ok: true });
+    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    return res;
+  } catch {
+    const res = NextResponse.json(
+      { ok: false, message: 'Unable to create admin.' },
+      { status: 400 }
+    );
+    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    return res;
+  }
 }

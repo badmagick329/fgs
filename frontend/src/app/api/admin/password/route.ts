@@ -1,53 +1,22 @@
 import { adminPasswordChangeSchema } from '@/types';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { verifyAccessToken } from '@/lib/auth/jwt';
+import { clearAuthCookies } from '@/lib/serveronly/admin-cookies';
 import {
-  clearAuthCookies,
-  setAuthCookies,
-} from '@/lib/serveronly/admin-cookies';
+  applyRefreshedAuthCookies,
+  getAdminRouteAuth,
+  unauthorizedJson,
+} from '@/lib/serveronly/admin-route-auth';
 import {
   getAdminById,
   revokeAllRefreshTokensForUser,
   updateAdminPassword,
   verifyPassword,
 } from '@/lib/serveronly/auth';
-import { refreshSession } from '@/lib/serveronly/refresh';
 
 export async function POST(req: Request) {
-  const accessToken = (await cookies()).get('admin_access')?.value;
-  let refreshedTokens: { accessToken: string; refreshToken: string } | null =
-    null;
-  let payload: { sub: string; email: string } | null = null;
-
-  if (accessToken) {
-    try {
-      payload = await verifyAccessToken(accessToken);
-    } catch {
-      // fall through to refresh
-    }
-  }
-
-  if (!payload) {
-    const refreshCookie = (await cookies()).get('admin_refresh')?.value;
-    if (!refreshCookie) {
-      const res = NextResponse.json(
-        { ok: false, message: 'Unauthorized.' },
-        { status: 401 }
-      );
-      clearAuthCookies(res);
-      return res;
-    }
-    refreshedTokens = await refreshSession(refreshCookie);
-    if (!refreshedTokens) {
-      const res = NextResponse.json(
-        { ok: false, message: 'Unauthorized.' },
-        { status: 401 }
-      );
-      clearAuthCookies(res);
-      return res;
-    }
-    payload = await verifyAccessToken(refreshedTokens.accessToken);
+  const auth = await getAdminRouteAuth();
+  if (!auth.payload) {
+    return unauthorizedJson({ clearCookies: true });
   }
 
   const body = await req.json().catch(() => null);
@@ -59,20 +28,14 @@ export async function POST(req: Request) {
     );
   }
 
-  const adminId = Number(payload.sub);
+  const adminId = Number(auth.payload.sub);
   const admin = await getAdminById(adminId);
   if (!admin) {
     const res = NextResponse.json(
       { ok: false, message: 'Unauthorized.' },
       { status: 401 }
     );
-    if (refreshedTokens) {
-      setAuthCookies(
-        res,
-        refreshedTokens.accessToken,
-        refreshedTokens.refreshToken
-      );
-    }
+    applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   }
 
@@ -83,13 +46,7 @@ export async function POST(req: Request) {
       { ok: false, message: 'Current password is incorrect.' },
       { status: 400 }
     );
-    if (refreshedTokens) {
-      setAuthCookies(
-        res,
-        refreshedTokens.accessToken,
-        refreshedTokens.refreshToken
-      );
-    }
+    applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   }
 

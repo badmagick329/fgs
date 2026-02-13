@@ -102,7 +102,11 @@ export function ChangePasswordSection() {
       <p className='fgs-copy mt-2'>
         Update your password. You will need to sign in again.
       </p>
-      <form className='mt-6 space-y-4' onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form
+        className='mt-6 space-y-4'
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         <label className='flex flex-col gap-2'>
           <span className='text-sm font-medium'>Current password</span>
           <input
@@ -111,14 +115,20 @@ export function ChangePasswordSection() {
             autoComplete='off'
             aria-invalid={!!errors.currentPassword}
             aria-describedby={
-              errors.currentPassword ? 'change-password-current-error' : undefined
+              errors.currentPassword
+                ? 'change-password-current-error'
+                : undefined
             }
             className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
             placeholder='Enter current password'
           />
         </label>
         {errors.currentPassword?.message && (
-          <p id='change-password-current-error' role='alert' className='text-sm text-error'>
+          <p
+            id='change-password-current-error'
+            role='alert'
+            className='text-sm text-error'
+          >
             {errors.currentPassword.message}
           </p>
         )}
@@ -129,13 +139,19 @@ export function ChangePasswordSection() {
             {...register('newPassword')}
             autoComplete='off'
             aria-invalid={!!errors.newPassword}
-            aria-describedby={errors.newPassword ? 'change-password-new-error' : undefined}
+            aria-describedby={
+              errors.newPassword ? 'change-password-new-error' : undefined
+            }
             className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
             placeholder='Minimum 8 characters'
           />
         </label>
         {errors.newPassword?.message && (
-          <p id='change-password-new-error' role='alert' className='text-sm text-error'>
+          <p
+            id='change-password-new-error'
+            role='alert'
+            className='text-sm text-error'
+          >
             {errors.newPassword.message}
           </p>
         )}
@@ -147,14 +163,20 @@ export function ChangePasswordSection() {
             autoComplete='off'
             aria-invalid={!!errors.confirmPassword}
             aria-describedby={
-              errors.confirmPassword ? 'change-password-confirm-error' : undefined
+              errors.confirmPassword
+                ? 'change-password-confirm-error'
+                : undefined
             }
             className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
             placeholder='Re-enter new password'
           />
         </label>
         {errors.confirmPassword?.message && (
-          <p id='change-password-confirm-error' role='alert' className='text-sm text-error'>
+          <p
+            id='change-password-confirm-error'
+            role='alert'
+            className='text-sm text-error'
+          >
             {errors.confirmPassword.message}
           </p>
         )}
@@ -171,7 +193,13 @@ export function ChangePasswordSection() {
           </p>
         )}
         {status && (
-          <p className={status.tone === 'error' ? 'text-sm text-error' : 'text-sm text-fgs-ink'}>
+          <p
+            className={
+              status.tone === 'error'
+                ? 'text-sm text-error'
+                : 'text-sm text-fgs-ink'
+            }
+          >
             {status.message}
           </p>
         )}

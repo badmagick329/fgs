@@ -1,53 +1,19 @@
 import { Registration, createRegistrationSchema } from '@/types';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { verifyAccessToken } from '@/lib/auth/jwt';
 import { createRegistration, getRegistrations } from '@/lib/db';
 import { Result, errorsFromZod } from '@/lib/result';
-import { setAuthCookies } from '@/lib/serveronly/admin-cookies';
+import {
+  applyRefreshedAuthCookies,
+  getAdminRouteAuth,
+  unauthorizedJson,
+} from '@/lib/serveronly/admin-route-auth';
 import { sendDiscordMessage } from '@/lib/serveronly/discord-messenger';
-import { refreshSession } from '@/lib/serveronly/refresh';
 import { errorMessageFromErrors } from '@/lib/utils';
 
 export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
-  const accessToken = (await cookies()).get('admin_access')?.value;
-  let refreshedTokens: { accessToken: string; refreshToken: string } | null =
-    null;
-  if (!accessToken) {
-    const refreshCookie = (await cookies()).get('admin_refresh')?.value;
-    if (!refreshCookie) {
-      return NextResponse.json(
-        { ok: false as const, message: 'Unauthorized.' },
-        { status: 401 }
-      );
-    }
-    refreshedTokens = await refreshSession(refreshCookie);
-    if (!refreshedTokens) {
-      return NextResponse.json(
-        { ok: false as const, message: 'Unauthorized.' },
-        { status: 401 }
-      );
-    }
-  }
-  try {
-    if (accessToken) {
-      await verifyAccessToken(accessToken);
-    }
-  } catch {
-    const refreshCookie = (await cookies()).get('admin_refresh')?.value;
-    if (!refreshCookie) {
-      return NextResponse.json(
-        { ok: false as const, message: 'Unauthorized.' },
-        { status: 401 }
-      );
-    }
-    refreshedTokens = await refreshSession(refreshCookie);
-    if (!refreshedTokens) {
-      return NextResponse.json(
-        { ok: false as const, message: 'Unauthorized.' },
-        { status: 401 }
-      );
-    }
+  const auth = await getAdminRouteAuth();
+  if (!auth.payload) {
+    return unauthorizedJson({ clearCookies: false });
   }
 
   const result = await getRegistrations();
@@ -67,23 +33,11 @@ export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
       },
       { status: 500 }
     );
-    if (refreshedTokens) {
-      setAuthCookies(
-        res,
-        refreshedTokens.accessToken,
-        refreshedTokens.refreshToken
-      );
-    }
+    applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   }
   const res = NextResponse.json(result, { status: 200 });
-  if (refreshedTokens) {
-    setAuthCookies(
-      res,
-      refreshedTokens.accessToken,
-      refreshedTokens.refreshToken
-    );
-  }
+  applyRefreshedAuthCookies(res, auth.refreshedTokens);
   return res;
 }
 
@@ -106,22 +60,6 @@ export async function POST(
   }
 
   const { firstName, lastName, email } = createdParsed.data;
-  // TODO: temp tester. remove later
-  const testName = discordTestName();
-  if (testName && firstName === testName) {
-    sendDiscordMessage({
-      source: 'POST /api/register',
-      message: `Received registration with name: ${firstName} ${lastName}. This is a test message triggered by TEST_DISCORD_STRING env variable.`,
-    });
-    return NextResponse.json(
-      {
-        ok: false as const,
-        message: 'sent test error',
-      },
-      { status: 400 }
-    );
-  }
-
   const creationResult = await createRegistration({
     firstName,
     lastName,
@@ -143,5 +81,3 @@ export async function POST(
   }
   return NextResponse.json(creationResult, { status: 201 });
 }
-
-const discordTestName = () => process.env.TEST_DISCORD_STRING;
