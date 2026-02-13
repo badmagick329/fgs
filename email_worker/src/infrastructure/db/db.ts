@@ -17,7 +17,7 @@ export class DB implements IUserRepository {
     SELECT * FROM registrations
     WHERE email_status != 'success' AND retry_count < 3
   `);
-      if (res.rowCount != null && res.rowCount > 0) {
+      if (res.rowCount != null) {
         return { ok: true, data: res.rows };
       }
       return { ok: false, error: 'No rows returned' };
