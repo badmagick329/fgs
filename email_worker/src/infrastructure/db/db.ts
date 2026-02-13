@@ -3,40 +3,30 @@ import type { IUserRepository } from '@/core/interfaces';
 import type { Result } from '@/types/result';
 import { Pool } from 'pg';
 
-async function ensureSchema(connectionString: string) {
-  const schemaUrl = new URL('../db/schema.sql', import.meta.url);
-  const sql = await Bun.file(schemaUrl).text();
-
-  const pool = new Pool({ connectionString });
-  const client = await pool.connect();
-
-  try {
-    await client.query('SELECT pg_advisory_lock($1, $2);', [42069, 1]);
-
-    try {
-      await client.query('BEGIN;');
-      await client.query(sql);
-      await client.query('COMMIT;');
-    } catch (e) {
-      await client.query('ROLLBACK;');
-      throw e;
-    } finally {
-      await client.query('SELECT pg_advisory_unlock($1, $2);', [42069, 1]);
-    }
-  } finally {
-    client.release();
-    await pool.end(); // important: don't leak a pool
-  }
-}
-
-export const ensureSchemaOnce = (() => {
-  let p: Promise<void> | null = null;
-  return (connectionString: string) => (p ??= ensureSchema(connectionString));
-})();
-
 export class DB implements IUserRepository {
+  private static schemaInitByConnection = new Map<string, Promise<void>>();
   private readonly pool: Pool;
   private readonly connectionString: string;
+
+  static async initializeSchema(connectionString: string): Promise<void> {
+    console.log(
+      `${new Date().toISOString()} - [DB] - Initializing database schema...`
+    );
+    const init =
+      this.schemaInitByConnection.get(connectionString) ??
+      ensureSchema(connectionString);
+    this.schemaInitByConnection.set(connectionString, init);
+    await init;
+    console.log(
+      `${new Date().toISOString()} - [DB] - Database schema initialization complete.`
+    );
+  }
+
+  static async create(connectionString: string): Promise<DB> {
+    await this.initializeSchema(connectionString);
+    return new DB(connectionString);
+  }
+
   constructor(connectionString: string) {
     this.connectionString = connectionString;
     this.pool = new Pool({
@@ -167,5 +157,31 @@ export class DB implements IUserRepository {
      WHERE id = 1`
     );
     return res.rows[0] ?? null;
+  }
+}
+
+async function ensureSchema(connectionString: string) {
+  const schemaUrl = new URL('../db/schema.sql', import.meta.url);
+  const sql = await Bun.file(schemaUrl).text();
+
+  const pool = new Pool({ connectionString });
+  const client = await pool.connect();
+
+  try {
+    await client.query('SELECT pg_advisory_lock($1, $2);', [42069, 1]);
+
+    try {
+      await client.query('BEGIN;');
+      await client.query(sql);
+      await client.query('COMMIT;');
+    } catch (e) {
+      await client.query('ROLLBACK;');
+      throw e;
+    } finally {
+      await client.query('SELECT pg_advisory_unlock($1, $2);', [42069, 1]);
+    }
+  } finally {
+    client.release();
+    await pool.end(); // important: don't leak a pool
   }
 }
