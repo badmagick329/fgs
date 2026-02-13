@@ -1,10 +1,9 @@
-'use server';
 import type { EmailDataProps } from '@/types';
 import type { Result } from '@/types/result';
 import { Resend } from 'resend';
 import { EmailTemplate } from '@/lib/email-template';
-import { env } from './env';
 import { getNotificationEmail } from './db';
+import { env } from './env';
 
 const resend = new Resend(env.RESEND_API_KEY);
 
