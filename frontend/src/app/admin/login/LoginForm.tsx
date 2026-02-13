@@ -10,7 +10,7 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
@@ -34,40 +34,48 @@ export default function LoginForm() {
   };
 
   return (
-    <main className='flex min-h-screen items-center justify-center'>
+    <main className='bg-background text-foreground flex min-h-screen items-center justify-center px-4 py-10'>
       <form
-        className='flex w-full max-w-md flex-col gap-4 rounded-lg bg-gray-800 p-6'
+        className='w-full max-w-xl rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8'
         onSubmit={onSubmit}
       >
-        <h1 className='text-2xl font-semibold'>Admin Login</h1>
-        <label className='flex flex-col gap-2'>
-          <span>Email</span>
+        <h1 className='text-3xl font-semibold leading-tight'>Admin Login</h1>
+        <p className='mt-2 text-sm text-muted-foreground'>
+          Sign in to view and manage admission interest submissions.
+        </p>
+
+        <label className='mt-6 flex flex-col gap-2'>
+          <span className='text-sm font-medium'>Email</span>
           <input
             type='email'
             value={email}
+            autoComplete='off'
             onChange={(e) => setEmail(e.target.value)}
-            className='rounded-md border border-gray-300 p-2 text-white'
+            className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+            placeholder='admin@farooqigrammar.school'
             required
           />
         </label>
-        <label className='flex flex-col gap-2'>
-          <span>Password</span>
+        <label className='mt-4 flex flex-col gap-2'>
+          <span className='text-sm font-medium'>Password</span>
           <input
             type='password'
             value={password}
+            autoComplete='off'
             onChange={(e) => setPassword(e.target.value)}
-            className='rounded-md border border-gray-300 p-2 text-white'
+            className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+            placeholder='Enter your password'
             required
           />
         </label>
         <button
           type='submit'
-          className='rounded-md bg-black px-4 py-2 hover:bg-gray-700 disabled:opacity-70'
+          className='fgs-btn-primary mt-6 w-full justify-center disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto'
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Signing in...' : 'Sign in'}
         </button>
-        {error && <p className='text-sm text-error'>{error}</p>}
+        {error && <p className='mt-3 text-sm text-error'>{error}</p>}
       </form>
     </main>
   );
