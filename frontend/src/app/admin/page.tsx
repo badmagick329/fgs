@@ -4,6 +4,7 @@ import { AdminActions } from './_components/admin-actions';
 import { AdminBackdrop } from './_components/admin-backdrop';
 import { AdminHeader } from './_components/admin-header';
 import { AdminLogoWatermark } from './_components/admin-logo-watermark';
+import { AdminUsersSection } from './_components/admin-users-section';
 import { ChangePasswordSection } from './_components/change-password-section';
 import { CreateAdminSection } from './_components/create-admin-section';
 import { NotificationEmailSection } from './_components/notification-email-section';
@@ -21,6 +22,7 @@ export default function AdminToolsPage() {
 
         <div className='mt-8 grid gap-6 lg:grid-cols-2'>
           <NotificationEmailSection />
+          <AdminUsersSection />
           <CreateAdminSection />
           <ChangePasswordSection />
         </div>

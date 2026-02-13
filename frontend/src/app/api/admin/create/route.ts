@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { verifyAccessToken } from '@/lib/auth/jwt';
 import { refreshSession } from '@/lib/serveronly/refresh';
 import { setAuthCookies, clearAuthCookies } from '@/lib/serveronly/admin-cookies';
-import { createAdminUser } from '@/lib/serveronly/auth';
+import { createAdminUser, getAdminAuthById } from '@/lib/serveronly/auth';
 
 export async function POST(req: Request) {
   const accessToken = (await cookies()).get('admin_access')?.value;
@@ -47,6 +47,23 @@ export async function POST(req: Request) {
       { ok: false, message: 'Unauthorized.' },
       { status: 401 }
     );
+  }
+
+  const actingAdminId = Number(payload.sub);
+  const actingAdmin = await getAdminAuthById(actingAdminId);
+  if (!actingAdmin?.is_super_admin) {
+    const res = NextResponse.json(
+      { ok: false, message: 'Only super admins can create admins.' },
+      { status: 403 }
+    );
+    if (refreshedTokens) {
+      setAuthCookies(
+        res,
+        refreshedTokens.accessToken,
+        refreshedTokens.refreshToken
+      );
+    }
+    return res;
   }
 
   const body = await req.json().catch(() => null);
