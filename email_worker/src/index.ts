@@ -1,12 +1,14 @@
-import { DB } from '@/infrastructure/db/db';
+import { DB, ensureSchemaOnce } from '@/infrastructure/db/db';
 import { NotificationService } from './core/notification-service';
 import { createConfig, getDatabaseConfig } from './infrastructure/config';
 import { getWorkerInterval } from './infrastructure/config/interval';
 import { EmailClient } from './infrastructure/email/email-client';
 
 async function main(): Promise<void> {
-  const dbconfig = getDatabaseConfig();
-  const db = new DB(dbconfig.DATABASE_URL);
+  const dbConfig = getDatabaseConfig();
+  await ensureSchemaOnce(dbConfig.DATABASE_URL);
+
+  const db = new DB(dbConfig.DATABASE_URL);
 
   const notificationEmail =
     (await db.getNotificationEmail())?.notification_email ?? '';

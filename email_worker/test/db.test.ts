@@ -1,17 +1,30 @@
 // Import your actual functions
 import { getDatabaseConfig } from '@/infrastructure/config';
-import { DB } from '@/infrastructure/db/db';
-import { afterAll, beforeEach, describe, expect, it } from 'bun:test';
+import { DB, ensureSchemaOnce } from '@/infrastructure/db/db';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from 'bun:test';
 import { testConfig } from './testConfig';
 
-const databaseConfig = getDatabaseConfig(testConfig);
-const db = new DB(databaseConfig.DATABASE_URL);
+const dbConfig = getDatabaseConfig(testConfig);
+
+const db = new DB(dbConfig.DATABASE_URL);
 
 describe('Database Functions', () => {
+  // Set up schema once before all tests
+  beforeAll(async () => {
+    await ensureSchemaOnce(dbConfig.DATABASE_URL);
+  });
+
   // CLEANUP: Empty the table before every test
   beforeEach(async () => {
     // Safety check to ensure we are not nuking prod
-    if (!process.env.DATABASE_URL?.includes('test')) {
+    if (!dbConfig.DATABASE_URL?.includes('test')) {
       throw new Error('DANGER: Running tests against non-test DB!');
     }
     await db.query('TRUNCATE TABLE registrations RESTART IDENTITY CASCADE');

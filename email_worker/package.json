@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "bun ./src/index.ts",
-    "test": "bun test --env-file=.env.test --preload ./test/setup.ts"
+    "test": "bun test  --preload ./test/setup.ts"
   },
   "dependencies": {
     "@react-email/render": "^2.0.4",
