@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 import { clearAuthCookies } from '@/lib/serveronly/admin-cookies';
 import {
   applyRefreshedAuthCookies,
-  getAdminRouteAuth,
-  unauthorizedJson,
+  requireAdminRouteAuth,
 } from '@/lib/serveronly/admin-route-auth';
 import {
   getAdminById,
@@ -14,10 +13,11 @@ import {
 } from '@/lib/serveronly/auth';
 
 export async function POST(req: Request) {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: true });
+  const authResult = await requireAdminRouteAuth({ clearCookies: true });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const body = await req.json().catch(() => null);
   const parsed = adminPasswordChangeSchema.safeParse(body);

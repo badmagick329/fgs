@@ -16,6 +16,22 @@ export type RouteAuthResult = {
   needsClear: boolean;
 };
 
+export type AuthorizedRouteAuth = RouteAuthResult & {
+  payload: AccessTokenPayload;
+};
+
+type RouteAuthFailure = {
+  ok: false;
+  response: NextResponse;
+};
+
+type RouteAuthSuccess = {
+  ok: true;
+  auth: AuthorizedRouteAuth;
+};
+
+export type RequireAdminRouteAuthResult = RouteAuthFailure | RouteAuthSuccess;
+
 export async function getAdminRouteAuth(): Promise<RouteAuthResult> {
   const accessToken = (await cookies()).get('admin_access')?.value;
   let refreshedTokens: RefreshedTokens | null = null;
@@ -59,6 +75,27 @@ export function unauthorizedJson(opts?: { clearCookies?: boolean }) {
     clearAuthCookies(res);
   }
   return res;
+}
+
+export async function requireAdminRouteAuth(opts?: {
+  clearCookies?: 'auto' | boolean;
+}): Promise<RequireAdminRouteAuthResult> {
+  const auth = await getAdminRouteAuth();
+  if (!auth.payload) {
+    const clearCookies =
+      opts?.clearCookies === 'auto' || opts?.clearCookies === undefined
+        ? auth.needsClear
+        : opts.clearCookies;
+    return {
+      ok: false,
+      response: unauthorizedJson({ clearCookies }),
+    };
+  }
+
+  return {
+    ok: true,
+    auth: auth as AuthorizedRouteAuth,
+  };
 }
 
 export function applyRefreshedAuthCookies(

@@ -4,17 +4,17 @@ import { createRegistration, getRegistrations } from '@/lib/db';
 import { Result, errorsFromZod } from '@/lib/result';
 import {
   applyRefreshedAuthCookies,
-  getAdminRouteAuth,
-  unauthorizedJson,
+  requireAdminRouteAuth,
 } from '@/lib/serveronly/admin-route-auth';
 import { sendDiscordMessage } from '@/lib/serveronly/discord-messenger';
 import { errorMessageFromErrors } from '@/lib/utils';
 
-export async function GET(): Promise<NextResponse<Result<Registration[]>>> {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: false });
+export async function GET() {
+  const authResult = await requireAdminRouteAuth({ clearCookies: false });
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const result = await getRegistrations();
   if (!result.ok) {

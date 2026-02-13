@@ -2,7 +2,7 @@ import { adminCredentialsSchema } from '@/types';
 import { NextResponse } from 'next/server';
 import {
   applyRefreshedAuthCookies,
-  getAdminRouteAuth,
+  requireAdminRouteAuth,
   unauthorizedJson,
 } from '@/lib/serveronly/admin-route-auth';
 import {
@@ -12,10 +12,11 @@ import {
 } from '@/lib/serveronly/auth';
 
 export async function GET() {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: auth.needsClear });
+  const authResult = await requireAdminRouteAuth();
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const currentAdminId = Number(auth.payload.sub);
   const currentAdmin = await getAdminAuthById(currentAdminId);
@@ -44,10 +45,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: auth.needsClear });
+  const authResult = await requireAdminRouteAuth();
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const actingAdminId = Number(auth.payload.sub);
   const actingAdmin = await getAdminAuthById(actingAdminId);
