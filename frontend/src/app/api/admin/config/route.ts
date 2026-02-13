@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import {
   applyRefreshedAuthCookies,
-  getAdminRouteAuth,
-  unauthorizedJson,
+  requireAdminRouteAuth,
 } from '@/lib/serveronly/admin-route-auth';
 import { getAdminConfig, upsertAdminConfig } from '@/lib/serveronly/auth';
 
@@ -12,10 +11,11 @@ const notificationEmailSchema = z.object({
 });
 
 export async function GET() {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: auth.needsClear });
+  const authResult = await requireAdminRouteAuth();
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const config = await getAdminConfig();
   const res = NextResponse.json({ ok: true, data: config });
@@ -24,10 +24,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: auth.needsClear });
+  const authResult = await requireAdminRouteAuth();
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const body = await req.json().catch(() => null);
   const parsed = notificationEmailSchema.safeParse(body);

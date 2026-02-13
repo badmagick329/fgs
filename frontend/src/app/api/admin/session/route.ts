@@ -1,15 +1,15 @@
 import {
   applyRefreshedAuthCookies,
-  getAdminRouteAuth,
-  unauthorizedJson,
+  requireAdminRouteAuth,
 } from '@/lib/serveronly/admin-route-auth';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: auth.needsClear });
+  const authResult = await requireAdminRouteAuth();
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const res = NextResponse.json({
     ok: true,

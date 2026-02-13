@@ -2,8 +2,7 @@ import { updateSuperAdminSchema } from '@/types';
 import { NextResponse } from 'next/server';
 import {
   applyRefreshedAuthCookies,
-  getAdminRouteAuth,
-  unauthorizedJson,
+  requireAdminRouteAuth,
 } from '@/lib/serveronly/admin-route-auth';
 import {
   AdminActionError,
@@ -15,10 +14,11 @@ export async function DELETE(
   _req: Request,
   context: { params: Promise<{ id: string }> | { id: string } }
 ) {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: auth.needsClear });
+  const authResult = await requireAdminRouteAuth();
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const { id } = await Promise.resolve(context.params);
   const targetAdminId = Number(id);
@@ -54,10 +54,11 @@ export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> | { id: string } }
 ) {
-  const auth = await getAdminRouteAuth();
-  if (!auth.payload) {
-    return unauthorizedJson({ clearCookies: auth.needsClear });
+  const authResult = await requireAdminRouteAuth();
+  if (!authResult.ok) {
+    return authResult.response;
   }
+  const auth = authResult.auth;
 
   const { id } = await Promise.resolve(context.params);
   const targetAdminId = Number(id);
