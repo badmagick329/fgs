@@ -13,10 +13,6 @@ export function getWorkerInterval(): Result<number, string> {
     console.warn(
       `WORKER_INTERVAL is set to a low value (${workerInterval} ms). This may lead to rate limiting by the email provider.`
     );
-    return {
-      ok: false,
-      error: `WORKER_INTERVAL is set to a low value (${workerInterval} ms). This may lead to rate limiting by the email provider.`,
-    };
   }
   return {
     ok: true,
