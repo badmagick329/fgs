@@ -67,7 +67,7 @@ export default function LoginForm() {
         >
           {isSubmitting ? 'Signing in...' : 'Sign in'}
         </button>
-        {error && <p className='text-sm text-red-400'>{error}</p>}
+        {error && <p className='text-sm text-error'>{error}</p>}
       </form>
     </main>
   );

@@ -1,3 +1,5 @@
+import AdmissionInterestForm from '@/app/_components/AdmissionInterestForm';
+
 export default function ContactSection() {
   return (
     <section id='contact' className='fgs-section reveal pb-20'>
@@ -17,8 +19,15 @@ export default function ContactSection() {
             <p className='fgs-copy mt-2'>FGS Campus, Lahore, Pakistan</p>
           </article>
         </div>
-        <div className='mt-4 rounded-2xl border border-dashed border-border bg-card p-4 text-sm text-muted-foreground'>
-          Contact form placeholder (non-functional in v1).
+        <div className='mt-6'>
+          <h3 className='fgs-subheading'>Admission Interest Form</h3>
+          <p className='fgs-copy mt-2'>
+            Share student details so our admissions team can follow up with next
+            steps.
+          </p>
+          <div className='mt-4'>
+            <AdmissionInterestForm />
+          </div>
         </div>
       </div>
     </section>

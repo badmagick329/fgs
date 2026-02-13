@@ -12,6 +12,7 @@
   --color-card: var(--fgs-white);
   --color-primary: var(--fgs-gold);
   --color-primary-foreground: var(--fgs-ink);
+  --color-error: var(--fgs-error);
   --color-brand-blue: var(--fgs-blue);
   --color-fgs-surface: var(--fgs-surface);
   --color-fgs-ink: var(--fgs-ink);
@@ -38,6 +39,7 @@
   --fgs-white: #ffffff;
   --fgs-muted: #4a5565;
   --fgs-border: #d8e0ea;
+  --fgs-error: #dc2626;
 }
 
 @layer base {

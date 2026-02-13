@@ -30,7 +30,7 @@ export default function RegistrationList() {
 
   if (isError) {
     return (
-      <p className='p-2 text-red-300'>
+      <p className='p-2 text-error'>
         {error?.message ?? 'Failed to load registrations.'}
       </p>
     );
