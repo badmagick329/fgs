@@ -14,7 +14,10 @@ beforeEach(() => {
 
 describe('sendEmail', () => {
   // SECTION 1: SUCCESS SCENARIOS
-  const configFromSchema = readConfigFromSchema(emailConfigSchema);
+  const configFromSchema = readConfigFromSchema(
+    emailConfigSchema,
+    'admin@example.com'
+  );
   const emailClient = new EmailClient(configFromSchema);
   describe('Success Paths', () => {
     test('returns ok: true when Resend succeeds', async () => {
