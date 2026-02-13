@@ -10,7 +10,7 @@ export default function SetupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
@@ -39,9 +39,12 @@ export default function SetupForm() {
         className='w-full max-w-xl rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8'
         onSubmit={onSubmit}
       >
-        <h1 className='text-3xl font-semibold leading-tight'>Create Admin Account</h1>
+        <h1 className='text-3xl font-semibold leading-tight'>
+          Create Admin Account
+        </h1>
         <p className='mt-2 text-sm text-muted-foreground'>
-          Initial setup only. This creates the first admin user for registrations.
+          Initial setup only. This creates the first admin user for
+          registrations.
         </p>
 
         <label className='mt-6 flex flex-col gap-2'>
