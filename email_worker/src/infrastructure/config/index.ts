@@ -10,21 +10,6 @@ interface IConfig {
   read(): EmailConfig;
 }
 
-export function readConfigFromSchema<T>(
-  schema: z.ZodType<T>,
-  data: Record<string, unknown>
-): T {
-  const parsed = schema.safeParse(data);
-
-  if (!parsed.success) {
-    console.error('❌ Invalid environment variables:');
-    console.error(JSON.stringify(z.treeifyError(parsed.error), null, 2));
-    throw new Error('Invalid environment variables');
-  }
-
-  return parsed.data;
-}
-
 class Config implements IConfig {
   constructor(private readonly notificationEmail: string) {}
   read() {
@@ -55,4 +40,19 @@ export function createConfig(notificationEmail: string): IConfig {
 
 export function createMockConfig(testValues: EmailConfig): IConfig {
   return new MockConfig(testValues);
+}
+
+function readConfigFromSchema<T>(
+  schema: z.ZodType<T>,
+  data: Record<string, unknown>
+): T {
+  const parsed = schema.safeParse(data);
+
+  if (!parsed.success) {
+    console.error('❌ Invalid environment variables:');
+    console.error(JSON.stringify(z.treeifyError(parsed.error), null, 2));
+    throw new Error('Invalid environment variables');
+  }
+
+  return parsed.data;
 }

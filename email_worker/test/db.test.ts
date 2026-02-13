@@ -1,6 +1,6 @@
 // Import your actual functions
 import { getDatabaseConfig } from '@/infrastructure/config';
-import { DB, ensureSchemaOnce } from '@/infrastructure/db/db';
+import { DB } from '@/infrastructure/db/db';
 import {
   afterAll,
   beforeAll,
@@ -18,7 +18,7 @@ const db = new DB(dbConfig.DATABASE_URL);
 describe('Database Functions', () => {
   // Set up schema once before all tests
   beforeAll(async () => {
-    await ensureSchemaOnce(dbConfig.DATABASE_URL);
+    await DB.initializeSchema(dbConfig.DATABASE_URL);
   });
 
   // CLEANUP: Empty the table before every test
