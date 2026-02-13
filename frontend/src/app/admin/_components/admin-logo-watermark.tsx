@@ -2,7 +2,10 @@ import Image from 'next/image';
 
 export function AdminLogoWatermark() {
   return (
-    <div aria-hidden className='mt-auto flex justify-center pt-12 md:justify-end'>
+    <div
+      aria-hidden
+      className='mt-auto flex justify-center pt-12 md:justify-end'
+    >
       <Image
         src='/fgs-logo.png'
         alt=''

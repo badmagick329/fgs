@@ -27,7 +27,9 @@ export function AdminActions({
       if (!res.ok) {
         throw new Error('Failed to load session.');
       }
-      const json = (await res.json().catch(() => null)) as AdminSessionResponse | null;
+      const json = (await res
+        .json()
+        .catch(() => null)) as AdminSessionResponse | null;
       const email = json?.data?.email;
       if (!email) {
         throw new Error('Invalid session response.');
@@ -63,16 +65,16 @@ export function AdminActions({
         <Link href={navigationHref} className='fgs-btn-secondary w-fit'>
           {navigationLabel}
         </Link>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void handleLogout();
-        }}
-      >
-        <button type='submit' className='fgs-btn-danger'>
-          Logout
-        </button>
-      </form>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleLogout();
+          }}
+        >
+          <button type='submit' className='fgs-btn-danger'>
+            Logout
+          </button>
+        </form>
       </div>
     </div>
   );

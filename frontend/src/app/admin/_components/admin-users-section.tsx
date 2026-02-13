@@ -1,10 +1,6 @@
 'use client';
 
 import {
-  adminActionResponseSchema,
-  adminUsersResponseSchema,
-} from '@/types';
-import {
   Table,
   TableBody,
   TableCell,
@@ -12,153 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-
-type AdminUsersData = {
-  currentAdminId: number;
-  currentAdminEmail: string;
-  currentAdminIsSuperAdmin: boolean;
-  admins: Array<{
-    id: number;
-    email: string;
-    created_at: string;
-    is_super_admin: boolean;
-  }>;
-};
-
-async function getAdminUsers() {
-  const res = await fetch('/api/admin/users');
-  if (!res.ok) {
-    const json = await res.json().catch(() => null);
-    throw new Error(json?.message ?? 'Failed to load admin users.');
-  }
-  const json = await res.json().catch(() => null);
-  const parsed = adminUsersResponseSchema.safeParse(json);
-  if (!parsed.success) {
-    throw new Error('Invalid response from server.');
-  }
-  return parsed.data.data as AdminUsersData;
-}
+import { useAdminUserActions } from '@/hooks/useAdminUserActions';
+import { useAdminUsersList } from '@/hooks/useAdminUsersList';
 
 export function AdminUsersSection() {
-  const queryClient = useQueryClient();
-  const [status, setStatus] = useState<{
-    tone: 'success' | 'error';
-    message: string;
-  } | null>(null);
-
-  const adminUsersQuery = useQuery({
-    queryKey: ['admin-users'],
-    queryFn: getAdminUsers,
-  });
-
-  const toggleSuperAdminMutation = useMutation({
-    mutationFn: async ({
-      adminId,
-      isSuperAdmin,
-    }: {
-      adminId: number;
-      isSuperAdmin: boolean;
-    }) => {
-      const res = await fetch(`/api/admin/users/${adminId}/super-admin`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isSuperAdmin }),
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Failed to update super admin status.');
-      }
-      return json;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-    },
-  });
-
-  const removeAdminMutation = useMutation({
-    mutationFn: async (adminId: number) => {
-      const res = await fetch(`/api/admin/users/${adminId}`, {
-        method: 'DELETE',
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Failed to remove admin.');
-      }
-      const parsed = adminActionResponseSchema.safeParse(json);
-      if (!parsed.success || !parsed.data.ok) {
-        throw new Error(json?.message ?? 'Failed to remove admin.');
-      }
-      return parsed.data;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-    },
-  });
-
-  const isMutating =
-    toggleSuperAdminMutation.isPending || removeAdminMutation.isPending;
+  const adminUsersQuery = useAdminUsersList();
+  const { status, isMutating, handleToggleSuperAdmin, handleRemoveAdmin } =
+    useAdminUserActions();
+  const adminData = adminUsersQuery.data;
   const actionButtonBaseClass =
     'inline-flex items-center justify-center rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60';
-
-  const handleToggleSuperAdmin = async (args: {
-    adminId: number;
-    email: string;
-    nextIsSuperAdmin: boolean;
-    currentIsSuperAdmin: boolean;
-  }) => {
-    setStatus(null);
-
-    if (args.currentIsSuperAdmin && !args.nextIsSuperAdmin) {
-      const confirmed = window.confirm(
-        `Revoke super admin from ${args.email}?`
-      );
-      if (!confirmed) {
-        return;
-      }
-    }
-
-    try {
-      await toggleSuperAdminMutation.mutateAsync({
-        adminId: args.adminId,
-        isSuperAdmin: args.nextIsSuperAdmin,
-      });
-      setStatus({
-        tone: 'success',
-        message: args.nextIsSuperAdmin
-          ? 'Super admin access granted.'
-          : 'Super admin access revoked.',
-      });
-    } catch (error) {
-      setStatus({
-        tone: 'error',
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update super admin status.',
-      });
-    }
-  };
-
-  const handleRemoveAdmin = async (args: { adminId: number; email: string }) => {
-    setStatus(null);
-    const confirmed = window.confirm(`Remove admin account ${args.email}?`);
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await removeAdminMutation.mutateAsync(args.adminId);
-      setStatus({ tone: 'success', message: 'Admin removed.' });
-    } catch (error) {
-      setStatus({
-        tone: 'error',
-        message:
-          error instanceof Error ? error.message : 'Failed to remove admin.',
-      });
-    }
-  };
 
   return (
     <section className='fgs-card lg:col-span-2'>
@@ -200,11 +59,11 @@ export function AdminUsersSection() {
                   Loading admins...
                 </TableCell>
               </TableRow>
-            ) : adminUsersQuery.data?.admins.length ? (
-              adminUsersQuery.data.admins.map((admin) => {
+            ) : adminData && adminData.admins.length > 0 ? (
+              adminData.admins.map((admin) => {
                 const canManage =
-                  adminUsersQuery.data.currentAdminIsSuperAdmin &&
-                  admin.id !== adminUsersQuery.data.currentAdminId;
+                  adminData.currentAdminIsSuperAdmin &&
+                  admin.id !== adminData.currentAdminId;
                 const createdAt = new Date(admin.created_at);
                 return (
                   <TableRow
@@ -256,7 +115,7 @@ export function AdminUsersSection() {
                             Remove
                           </button>
                         </div>
-                      ) : admin.id === adminUsersQuery.data.currentAdminId ? (
+                      ) : admin.id === adminData.currentAdminId ? (
                         <span className='text-sm text-muted-foreground'>
                           Current account
                         </span>

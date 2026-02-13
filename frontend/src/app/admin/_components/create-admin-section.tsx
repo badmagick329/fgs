@@ -4,14 +4,18 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const createAdminFormSchema = z.object({
-  email: z.email('Enter a valid email address.'),
-  password: z.string().min(8, 'Password must be at least 8 characters.'),
-  confirmPassword: z.string().min(8, 'Confirm password must be at least 8 characters.'),
-}).refine((values) => values.password === values.confirmPassword, {
-  message: 'Passwords do not match.',
-  path: ['confirmPassword'],
-});
+const createAdminFormSchema = z
+  .object({
+    email: z.email('Enter a valid email address.'),
+    password: z.string().min(8, 'Password must be at least 8 characters.'),
+    confirmPassword: z
+      .string()
+      .min(8, 'Confirm password must be at least 8 characters.'),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    message: 'Passwords do not match.',
+    path: ['confirmPassword'],
+  });
 
 const createAdminResponseSchema = z.object({
   message: z.string().optional(),
@@ -42,7 +46,7 @@ export function CreateAdminSection() {
 
   const createAdminMutation = useMutation({
     mutationFn: async (values: CreateAdminFormValues) => {
-      const res = await fetch('/api/admin/create', {
+      const res = await fetch('/api/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -86,7 +90,11 @@ export function CreateAdminSection() {
       <p className='fgs-copy mt-2'>
         Add another admin account with email and password.
       </p>
-      <form className='mt-6 space-y-4' onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form
+        className='mt-6 space-y-4'
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         <label className='flex flex-col gap-2'>
           <span className='text-sm font-medium'>Email</span>
           <input
@@ -94,13 +102,19 @@ export function CreateAdminSection() {
             {...register('email')}
             autoComplete='off'
             aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? 'create-admin-email-error' : undefined}
+            aria-describedby={
+              errors.email ? 'create-admin-email-error' : undefined
+            }
             className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
             placeholder='admin@farooqigrammar.school'
           />
         </label>
         {errors.email?.message && (
-          <p id='create-admin-email-error' role='alert' className='text-sm text-error'>
+          <p
+            id='create-admin-email-error'
+            role='alert'
+            className='text-sm text-error'
+          >
             {errors.email.message}
           </p>
         )}
@@ -119,7 +133,11 @@ export function CreateAdminSection() {
           />
         </label>
         {errors.password?.message && (
-          <p id='create-admin-password-error' role='alert' className='text-sm text-error'>
+          <p
+            id='create-admin-password-error'
+            role='alert'
+            className='text-sm text-error'
+          >
             {errors.password.message}
           </p>
         )}
@@ -131,7 +149,9 @@ export function CreateAdminSection() {
             autoComplete='off'
             aria-invalid={!!errors.confirmPassword}
             aria-describedby={
-              errors.confirmPassword ? 'create-admin-confirm-password-error' : undefined
+              errors.confirmPassword
+                ? 'create-admin-confirm-password-error'
+                : undefined
             }
             className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
             placeholder='Re-enter password'
@@ -159,7 +179,13 @@ export function CreateAdminSection() {
           </p>
         )}
         {status && (
-          <p className={status.tone === 'error' ? 'text-sm text-error' : 'text-sm text-fgs-ink'}>
+          <p
+            className={
+              status.tone === 'error'
+                ? 'text-sm text-error'
+                : 'text-sm text-fgs-ink'
+            }
+          >
             {status.message}
           </p>
         )}

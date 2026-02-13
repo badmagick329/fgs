@@ -1,30 +1,18 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import {
-  clearAuthCookies,
-  setAuthCookies,
-} from '@/lib/serveronly/admin-cookies';
+import { setAuthCookies } from '@/lib/serveronly/admin-cookies';
+import { unauthorizedJson } from '@/lib/serveronly/admin-route-auth';
 import { refreshSession } from '@/lib/serveronly/refresh';
 
 export async function POST() {
   const refreshCookie = (await cookies()).get('admin_refresh')?.value;
   if (!refreshCookie) {
-    const res = NextResponse.json(
-      { ok: false, message: 'Unauthorized.' },
-      { status: 401 }
-    );
-    clearAuthCookies(res);
-    return res;
+    return unauthorizedJson({ clearCookies: true });
   }
 
   const refreshed = await refreshSession(refreshCookie);
   if (!refreshed) {
-    const res = NextResponse.json(
-      { ok: false, message: 'Unauthorized.' },
-      { status: 401 }
-    );
-    clearAuthCookies(res);
-    return res;
+    return unauthorizedJson({ clearCookies: true });
   }
 
   const res = NextResponse.json({ ok: true });
