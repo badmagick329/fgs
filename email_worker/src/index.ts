@@ -7,7 +7,14 @@ import { EmailClient } from './infrastructure/email/email-client';
 
 async function main(): Promise<void> {
   const db = new DB();
-  const configFromSchema = readConfigFromSchema(emailConfigSchema);
+  const notificationEmail =
+    (await db.getNotificationEmail())?.notification_email ?? '';
+
+  const configFromSchema = readConfigFromSchema(
+    emailConfigSchema,
+    notificationEmail
+  );
+
   const emailClient = new EmailClient(configFromSchema);
   const workerInterval = getWorkerInterval();
   if (!workerInterval.ok) return process.exit(1);

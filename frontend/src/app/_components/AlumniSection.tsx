@@ -28,7 +28,7 @@ export default function AlumniSection() {
                 Portrait Placeholder
               </div>
               <h3 className='fgs-subheading mt-3'>{alumni.name}</h3>
-              <p className='text-sm font-medium text-(--fgs-blue)'>
+              <p className='text-brand-blue text-sm font-medium'>
                 {alumni.role}
               </p>
               <p className='fgs-copy mt-2'>&ldquo;{alumni.quote}&rdquo;</p>
