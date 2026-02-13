@@ -5,10 +5,20 @@ import { Pool } from 'pg';
 
 export class DB implements IUserRepository {
   private readonly pool: Pool;
-  constructor() {
+  private readonly connectionString: string;
+  constructor(connectionString: string) {
+    this.connectionString = connectionString;
     this.pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: this.connectionString,
     });
+  }
+
+  async query(queryString: string, params?: any[]) {
+    return this.pool.query(queryString, params);
+  }
+
+  async close() {
+    await this.pool.end();
   }
 
   async getPending(): Promise<Result<Registration[], string>> {
@@ -127,11 +137,6 @@ export class DB implements IUserRepository {
     );
     return res.rows[0] ?? null;
   }
-  //
-  //
-  //  make helper function for getting ids (return ok: true for greater than 0 ids) and for checking for empty result
-  //
-  //
 }
 
 async function ensureSchema() {

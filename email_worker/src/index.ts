@@ -1,21 +1,19 @@
 import { DB } from '@/infrastructure/db/db';
-import { NotificationService } from './core/NotificationService';
-import { readConfigFromSchema } from './infrastructure/config';
+import { NotificationService } from './core/notification-service';
+import { getEmailConfig } from './infrastructure/config';
+import { databaseConfig } from './infrastructure/config';
 import { getWorkerInterval } from './infrastructure/config/interval';
-import { emailConfigSchema } from './infrastructure/config/schemas';
 import { EmailClient } from './infrastructure/email/email-client';
 
 async function main(): Promise<void> {
-  const db = new DB();
+  const connectionString = databaseConfig.DATABASE_URL;
+  const db = new DB(connectionString);
+
   const notificationEmail =
     (await db.getNotificationEmail())?.notification_email ?? '';
+  const emailConfig = getEmailConfig(notificationEmail);
+  const emailClient = new EmailClient(emailConfig);
 
-  const configFromSchema = readConfigFromSchema(
-    emailConfigSchema,
-    notificationEmail
-  );
-
-  const emailClient = new EmailClient(configFromSchema);
   const workerInterval = getWorkerInterval();
   if (!workerInterval.ok) return process.exit(1);
 

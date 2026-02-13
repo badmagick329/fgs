@@ -1,16 +1,9 @@
 // Import your actual functions
+import { databaseConfig } from '@/infrastructure/config';
 import { DB } from '@/infrastructure/db/db';
 import { afterAll, beforeEach, describe, expect, it } from 'bun:test';
-import { Pool } from 'pg';
 
-// We need a direct pool handle to insert test data manually
-// (The one in @/lib/db is private/not exported, so we make a new one or export it)
-// For now, let's just make a new temp pool for the test setup
-const testPool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-const db = new DB();
+const db = new DB(databaseConfig.DATABASE_URL);
 
 describe('Database Functions', () => {
   // CLEANUP: Empty the table before every test
@@ -19,19 +12,17 @@ describe('Database Functions', () => {
     if (!process.env.DATABASE_URL?.includes('test')) {
       throw new Error('DANGER: Running tests against non-test DB!');
     }
-    await testPool.query(
-      'TRUNCATE TABLE registrations RESTART IDENTITY CASCADE'
-    );
+    await db.query('TRUNCATE TABLE registrations RESTART IDENTITY CASCADE');
   });
 
   afterAll(async () => {
-    await testPool.end(); // Close test connection
+    await db.close(); // Close test connection
   });
 
   // --- TESTS ---
 
   it('getPendingEmailsData returns pending emails or failed emails with retries less than 3', async () => {
-    await testPool.query(`
+    await db.query(`
       INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
       VALUES 
         ('Alice', 'Test', 'alice@pending.com', 'pending', 0),
@@ -53,7 +44,7 @@ describe('Database Functions', () => {
 
   it('getPendingEmailsData ignores rows with retry_count >= 3', async () => {
     // 1. Arrange: Insert a pending email that has failed too many times
-    await testPool.query(`
+    await db.query(`
       INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
       VALUES ('Dave', 'Retry', 'dave@retry.com', 'pending', 3);
     `);
@@ -71,7 +62,7 @@ describe('Database Functions', () => {
 
   it("setSuccessEmailStatus updates status to 'success'", async () => {
     // 1. Arrange: Insert a pending user
-    const insertRes = await testPool.query(`
+    const insertRes = await db.query(`
       INSERT INTO registrations (first_name, last_name, email, email_status)
       VALUES ('Eve', 'Success', 'eve@test.com', 'pending')
       RETURNING id;
@@ -82,7 +73,7 @@ describe('Database Functions', () => {
     await db.setSuccessStatus([id]);
 
     // 3. Assert: Check DB directly
-    const check = await testPool.query(
+    const check = await db.query(
       'SELECT email_status FROM registrations WHERE id = $1',
       [id]
     );
@@ -91,7 +82,7 @@ describe('Database Functions', () => {
 
   it("setFailedEmailStatus increments retry_count and sets status to 'failed'", async () => {
     // 1. Arrange: Insert a pending user with 0 retries
-    const insertRes = await testPool.query(`
+    const insertRes = await db.query(`
       INSERT INTO registrations (first_name, last_name, email, email_status, retry_count)
       VALUES ('Frank', 'Fail', 'frank@test.com', 'pending', 0)
       RETURNING id;
@@ -102,7 +93,7 @@ describe('Database Functions', () => {
     await db.setFailedStatus([id]);
 
     // 3. Assert
-    const check = await testPool.query(
+    const check = await db.query(
       'SELECT email_status, retry_count FROM registrations WHERE id = $1',
       [id]
     );
