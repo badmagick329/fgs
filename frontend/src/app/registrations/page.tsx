@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table';
 import useRegistrationList from '@/hooks/useRegistrationList';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const tableHeaders = [
@@ -51,9 +52,38 @@ export default function RegistrationList() {
     return (
       <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
         {backdrop}
-        <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
-          <h2 className='fgs-heading'>Registrations</h2>
-          <p className='fgs-copy mt-2'>Loading registration records...</p>
+      <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+          <div>
+            <h2 className='fgs-heading'>Registrations</h2>
+            <p className='fgs-copy mt-2'>Loading registration records...</p>
+          </div>
+          <div className='flex flex-wrap gap-3'>
+            <Link href='/admin' className='fgs-btn-secondary w-fit'>
+              Admin tools
+            </Link>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                (async () => {
+                  const res = await fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                  if (!res.ok) {
+                    console.error('Logout failed.');
+                  } else {
+                    router.replace('/admin/login');
+                  }
+                })();
+              }}
+            >
+              <button type='submit' className='fgs-btn-danger'>
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
           <div className='mt-6 rounded-2xl border border-border bg-card p-2 sm:p-4'>
             <Table>
               <TableHeader>
@@ -77,12 +107,41 @@ export default function RegistrationList() {
     return (
       <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
         {backdrop}
-        <div className='relative z-10 mx-auto w-full max-w-7xl rounded-2xl border border-border bg-card p-6'>
-          <h2 className='fgs-heading'>Registrations</h2>
-          <p className='mt-3 text-error'>
+      <div className='relative z-10 mx-auto w-full max-w-7xl rounded-2xl border border-border bg-card p-6'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+          <div>
+            <h2 className='fgs-heading'>Registrations</h2>
+            <p className='mt-3 text-error'>
             {error?.message ?? 'Failed to load registrations.'}
-          </p>
+            </p>
+          </div>
+          <div className='flex flex-wrap gap-3'>
+            <Link href='/admin' className='fgs-btn-secondary w-fit'>
+              Admin tools
+            </Link>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                (async () => {
+                  const res = await fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                  if (!res.ok) {
+                    console.error('Logout failed.');
+                  } else {
+                    router.replace('/admin/login');
+                  }
+                })();
+              }}
+            >
+              <button type='submit' className='fgs-btn-danger'>
+                Logout
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
         <div className='relative z-10 mx-auto flex min-h-[calc(100vh-18rem)] max-w-7xl flex-col'>
           {logoWatermark}
         </div>
@@ -96,10 +155,39 @@ export default function RegistrationList() {
     <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
       {backdrop}
       <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
-        <h2 className='fgs-heading'>Registrations</h2>
-        <p className='fgs-copy mt-2'>
-          Admission interest submissions received from the landing page.
-        </p>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+          <div>
+            <h2 className='fgs-heading'>Registrations</h2>
+            <p className='fgs-copy mt-2'>
+              Admission interest submissions received from the landing page.
+            </p>
+          </div>
+          <div className='flex flex-wrap gap-3'>
+            <Link href='/admin' className='fgs-btn-secondary w-fit'>
+              Admin tools
+            </Link>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                (async () => {
+                  const res = await fetch('/api/admin/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                  if (!res.ok) {
+                    console.error('Logout failed.');
+                  } else {
+                    router.replace('/admin/login');
+                  }
+                })();
+              }}
+            >
+              <button type='submit' className='fgs-btn-danger'>
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
 
         <div className='mt-6 rounded-2xl border border-border bg-card p-2 shadow-sm sm:p-4'>
           <Table>
@@ -135,29 +223,6 @@ export default function RegistrationList() {
         {logoWatermark}
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          (async () => {
-            const res = await fetch('/api/admin/logout', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            });
-            if (!res.ok) {
-              console.error('Logout failed.');
-            } else {
-              router.replace('/admin/login');
-            }
-          })();
-        }}
-      >
-        <button
-          type='submit'
-          className='fixed bottom-4 right-4 rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground shadow-sm hover:bg-fgs-surface'
-        >
-          Logout
-        </button>
-      </form>
     </main>
   );
 }

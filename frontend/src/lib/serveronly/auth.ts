@@ -20,6 +20,14 @@ export type AdminUser = {
   password_hash: string;
 };
 
+export type AdminConfigRow = {
+  id: number;
+  notification_email: string;
+  updated_by_admin_user_id: number;
+  updated_at: Date;
+  updated_by_email: string;
+};
+
 export type RefreshTokenRow = {
   id: number;
   admin_user_id: number;
@@ -171,4 +179,34 @@ export async function rotateRefreshToken(
   } finally {
     client.release();
   }
+}
+
+export async function getAdminConfig() {
+  const res = await pool.query<AdminConfigRow>(
+    `SELECT admin_config.id,
+            admin_config.notification_email,
+            admin_config.updated_by_admin_user_id,
+            admin_config.updated_at,
+            admin_users.email as updated_by_email
+     FROM admin_config
+     JOIN admin_users ON admin_users.id = admin_config.updated_by_admin_user_id
+     WHERE admin_config.id = 1`
+  );
+  return res.rows[0] ?? null;
+}
+
+export async function upsertAdminConfig(
+  notificationEmail: string,
+  updatedByAdminUserId: number
+) {
+  const res = await pool.query<AdminConfigRow>(
+    `INSERT INTO admin_config (id, notification_email, updated_by_admin_user_id)
+     VALUES (1, $1, $2)
+     ON CONFLICT (id) DO UPDATE
+       SET notification_email = EXCLUDED.notification_email,
+           updated_by_admin_user_id = EXCLUDED.updated_by_admin_user_id
+     RETURNING id, notification_email, updated_by_admin_user_id, updated_at`,
+    [notificationEmail.toLowerCase(), updatedByAdminUserId]
+  );
+  return res.rows[0];
 }
