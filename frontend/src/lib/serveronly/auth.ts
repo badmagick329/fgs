@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
-import { PoolClient } from 'pg';
 import { Pool } from 'pg';
+import { PoolClient } from 'pg';
 import 'server-only';
 
 const pool = new Pool({
@@ -18,6 +18,19 @@ export type AdminUser = {
   id: number;
   email: string;
   password_hash: string;
+};
+
+export type AdminAuthUser = {
+  id: number;
+  email: string;
+  is_super_admin: boolean;
+};
+
+export type AdminUserListRow = {
+  id: number;
+  email: string;
+  created_at: Date;
+  is_super_admin: boolean;
 };
 
 export type AdminConfigRow = {
@@ -37,6 +50,16 @@ export type RefreshTokenRow = {
   revoked_at: Date | null;
   replaced_by_token_id: number | null;
 };
+
+export class AdminActionError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'AdminActionError';
+    this.status = status;
+  }
+}
 
 export async function countAdmins() {
   const res = await pool.query<{ count: string }>(
@@ -61,13 +84,26 @@ export async function getAdminById(id: number) {
   return res.rows[0] ?? null;
 }
 
-export async function createAdminUser(email: string, password: string) {
+export async function getAdminAuthById(id: number, client?: PoolClient) {
+  const db = client ?? pool;
+  const res = await db.query<AdminAuthUser>(
+    `SELECT id, email, is_super_admin FROM admin_users WHERE id = $1`,
+    [id]
+  );
+  return res.rows[0] ?? null;
+}
+
+export async function createAdminUser(
+  email: string,
+  password: string,
+  isSuperAdmin = false
+) {
   const passwordHash = await hashPassword(password);
   const res = await pool.query<AdminUser>(
-    `INSERT INTO admin_users (email, password_hash)
-     VALUES ($1, $2)
+    `INSERT INTO admin_users (email, password_hash, is_super_admin)
+     VALUES ($1, $2, $3)
      RETURNING id, email, password_hash`,
-    [email.toLowerCase(), passwordHash]
+    [email.toLowerCase(), passwordHash, isSuperAdmin]
   );
   return res.rows[0];
 }
@@ -127,6 +163,159 @@ export async function getRefreshTokenByHash(tokenHash: string) {
     [tokenHash]
   );
   return res.rows[0] ?? null;
+}
+
+export async function listAdminUsers(client?: PoolClient) {
+  const db = client ?? pool;
+  const res = await db.query<AdminUserListRow>(
+    `SELECT id, email, created_at, is_super_admin
+     FROM admin_users
+     ORDER BY created_at ASC, id ASC`
+  );
+  return res.rows;
+}
+
+export async function countSuperAdmins(client?: PoolClient) {
+  const db = client ?? pool;
+  const res = await db.query<{ count: string }>(
+    `SELECT COUNT(*)::text as count
+     FROM admin_users
+     WHERE is_super_admin = TRUE`
+  );
+  return Number(res.rows[0]?.count ?? 0);
+}
+
+export async function setAdminSuperStatus(
+  adminId: number,
+  isSuperAdmin: boolean,
+  client?: PoolClient
+) {
+  const db = client ?? pool;
+  const res = await db.query(
+    `UPDATE admin_users
+     SET is_super_admin = $1
+     WHERE id = $2`,
+    [isSuperAdmin, adminId]
+  );
+  return (res.rowCount ?? 0) > 0;
+}
+
+export async function deleteAdminUserById(adminId: number, client?: PoolClient) {
+  const db = client ?? pool;
+  const res = await db.query(`DELETE FROM admin_users WHERE id = $1`, [adminId]);
+  return (res.rowCount ?? 0) > 0;
+}
+
+async function reassignAdminConfigUpdater(
+  fromAdminId: number,
+  toAdminId: number,
+  client: PoolClient
+) {
+  await client.query(
+    `UPDATE admin_config
+     SET updated_by_admin_user_id = $1
+     WHERE updated_by_admin_user_id = $2`,
+    [toAdminId, fromAdminId]
+  );
+}
+
+async function withTransaction<T>(work: (client: PoolClient) => Promise<T>) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await work(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function updateAdminSuperStatusWithGuards({
+  actingAdminId,
+  targetAdminId,
+  isSuperAdmin,
+}: {
+  actingAdminId: number;
+  targetAdminId: number;
+  isSuperAdmin: boolean;
+}) {
+  return withTransaction(async (client) => {
+    const actingAdmin = await getAdminAuthById(actingAdminId, client);
+    if (!actingAdmin) {
+      throw new AdminActionError('Unauthorized.', 401);
+    }
+    if (!actingAdmin.is_super_admin) {
+      throw new AdminActionError('Only super admins can change admin roles.', 403);
+    }
+
+    const targetAdmin = await getAdminAuthById(targetAdminId, client);
+    if (!targetAdmin) {
+      throw new AdminActionError('Admin not found.', 404);
+    }
+
+    if (targetAdmin.is_super_admin === isSuperAdmin) {
+      return targetAdmin;
+    }
+
+    if (targetAdmin.is_super_admin && !isSuperAdmin) {
+      const superAdminCount = await countSuperAdmins(client);
+      if (superAdminCount <= 1) {
+        throw new AdminActionError(
+          'At least one super admin must remain.',
+          409
+        );
+      }
+    }
+
+    await setAdminSuperStatus(targetAdminId, isSuperAdmin, client);
+    const updatedTargetAdmin = await getAdminAuthById(targetAdminId, client);
+    if (!updatedTargetAdmin) {
+      throw new AdminActionError('Admin not found.', 404);
+    }
+    return updatedTargetAdmin;
+  });
+}
+
+export async function removeAdminUserWithGuards({
+  actingAdminId,
+  targetAdminId,
+}: {
+  actingAdminId: number;
+  targetAdminId: number;
+}) {
+  return withTransaction(async (client) => {
+    const actingAdmin = await getAdminAuthById(actingAdminId, client);
+    if (!actingAdmin) {
+      throw new AdminActionError('Unauthorized.', 401);
+    }
+    if (!actingAdmin.is_super_admin) {
+      throw new AdminActionError('Only super admins can remove admins.', 403);
+    }
+    if (actingAdmin.id === targetAdminId) {
+      throw new AdminActionError('You cannot remove your own account.', 400);
+    }
+
+    const targetAdmin = await getAdminAuthById(targetAdminId, client);
+    if (!targetAdmin) {
+      throw new AdminActionError('Admin not found.', 404);
+    }
+    if (targetAdmin.is_super_admin) {
+      const superAdminCount = await countSuperAdmins(client);
+      if (superAdminCount <= 1) {
+        throw new AdminActionError(
+          'At least one super admin must remain.',
+          409
+        );
+      }
+    }
+
+    await reassignAdminConfigUpdater(targetAdminId, actingAdminId, client);
+    await deleteAdminUserById(targetAdminId, client);
+  });
 }
 
 export async function revokeRefreshToken(id: number, client?: PoolClient) {

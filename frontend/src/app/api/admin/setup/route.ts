@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   }
 
   const { email, password } = parsed.data;
-  const admin = await createAdminUser(email, password);
+  const admin = await createAdminUser(email, password, true);
   const refreshToken = generateRefreshToken();
   const tokenHash = hashRefreshToken(refreshToken);
   await createRefreshToken(admin.id, tokenHash, refreshTokenExpiresAt());

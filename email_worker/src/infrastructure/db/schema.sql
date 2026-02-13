@@ -15,9 +15,13 @@ CREATE TABLE IF NOT EXISTS admin_users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    is_super_admin BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE admin_users
+    ADD COLUMN IF NOT EXISTS is_super_admin BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS admin_refresh_tokens (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -66,6 +70,20 @@ BEGIN
         EXECUTE FUNCTION update_updated_at_column();
     END IF;
 END $$;
+
+-- Ensure at least one super admin exists on upgraded databases
+WITH first_admin AS (
+    SELECT id
+    FROM admin_users
+    ORDER BY id ASC
+    LIMIT 1
+)
+UPDATE admin_users
+SET is_super_admin = TRUE
+WHERE id = (SELECT id FROM first_admin)
+  AND NOT EXISTS (
+    SELECT 1 FROM admin_users WHERE is_super_admin = TRUE
+  );
 
 -- Attach the trigger to the admin_config table
 DO $$

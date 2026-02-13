@@ -42,6 +42,36 @@ export const adminPasswordChangeSchema = z.object({
 
 export type AdminPasswordChange = z.infer<typeof adminPasswordChangeSchema>;
 
+export const adminUserListItemSchema = z.object({
+  id: z.number().positive(),
+  email: z.email(),
+  created_at: z.string(),
+  is_super_admin: z.boolean(),
+});
+
+export type AdminUserListItem = z.infer<typeof adminUserListItemSchema>;
+
+export const adminUsersResponseSchema = z.object({
+  ok: z.literal(true),
+  data: z.object({
+    currentAdminId: z.number().positive(),
+    currentAdminEmail: z.email(),
+    currentAdminIsSuperAdmin: z.boolean(),
+    admins: z.array(adminUserListItemSchema),
+  }),
+});
+
+export const updateSuperAdminSchema = z.object({
+  isSuperAdmin: z.boolean(),
+});
+
+export type UpdateSuperAdmin = z.infer<typeof updateSuperAdminSchema>;
+
+export const adminActionResponseSchema = z.object({
+  ok: z.boolean(),
+  message: z.string().optional(),
+});
+
 export const errorRecordSchema = z.object({
   message: z.string(),
   code: z.string().optional(),
