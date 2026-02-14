@@ -1,25 +1,23 @@
 import { Registration, createRegistrationSchema } from '@/types';
 import { NextResponse } from 'next/server';
 import { Result, errorsFromZod } from '@/lib/result';
-import {
-  applyRefreshedAuthCookies,
-  requireAdminRouteAuth,
-} from '@/lib/serveronly/auth/admin-route-auth';
-import { createRegistration, getRegistrations } from '@/lib/serveronly/db';
-import { sendDiscordMessage } from '@/lib/serveronly/discord-messenger';
+import { getServerContainer } from '@/lib/serveronly/container';
 import { errorMessageFromErrors } from '@/lib/utils';
 
 export async function GET() {
-  const authResult = await requireAdminRouteAuth({ clearCookies: false });
+  const { adminAccessService, registrationService } = getServerContainer();
+  const authResult = await adminAccessService.requireAdminRouteAuth({
+    clearCookies: false,
+  });
   if (!authResult.ok) {
     return authResult.response;
   }
   const auth = authResult.auth;
 
-  const result = await getRegistrations();
+  const result = await registrationService.getRegistrations();
   if (!result.ok) {
     console.error('getRegistrations validation error', result.errors);
-    await sendDiscordMessage({
+    await registrationService.notifyDiscord({
       source: 'GET /api/register',
       message: `getRegistrations failed with error: ${result.message}`,
     });
@@ -33,19 +31,21 @@ export async function GET() {
       },
       { status: 500 }
     );
-    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   }
+
   const res = NextResponse.json(result, { status: 200 });
-  applyRefreshedAuthCookies(res, auth.refreshedTokens);
+  adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
   return res;
 }
 
 export async function POST(
   req: Request
 ): Promise<NextResponse<Result<Registration>>> {
-  const body = await req.json().catch(() => {});
+  const { registrationService } = getServerContainer();
 
+  const body = await req.json().catch(() => {});
   const createdParsed = createRegistrationSchema.safeParse(body);
   if (!createdParsed.success) {
     const errors = errorsFromZod(createdParsed.error);
@@ -59,14 +59,14 @@ export async function POST(
     );
   }
 
-  const { firstName, lastName, email } = createdParsed.data;
-  const creationResult = await createRegistration({
-    firstName,
-    lastName,
-    email,
+  const creationResult = await registrationService.createRegistration({
+    firstName: createdParsed.data.firstName,
+    lastName: createdParsed.data.lastName,
+    email: createdParsed.data.email,
   });
+
   if (!creationResult.ok) {
-    sendDiscordMessage({
+    registrationService.notifyDiscord({
       source: 'POST /api/register',
       message: `createRegistration failed with error: ${creationResult.message}`,
     });
@@ -79,5 +79,9 @@ export async function POST(
       { status: 500 }
     );
   }
+
   return NextResponse.json(creationResult, { status: 201 });
 }
+
+
+

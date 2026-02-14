@@ -1,13 +1,10 @@
 import { adminCredentialsSchema } from '@/types';
 import { NextResponse } from 'next/server';
-import { setAuthCookies } from '@/lib/serveronly/auth/admin-cookies';
-import { issueAdminSession } from '@/lib/serveronly/auth/admin-session';
-import { verifyPassword } from '@/lib/serveronly/auth/common';
-import { countAdmins } from '@/lib/serveronly/db';
-import { getAdminByEmail } from '@/lib/serveronly/db';
+import { getServerContainer } from '@/lib/serveronly/container';
 
 export async function POST(req: Request) {
-  const adminCount = await countAdmins();
+  const { adminAccessService } = getServerContainer();
+  const adminCount = await adminAccessService.countAdmins();
   if (adminCount === 0) {
     return NextResponse.json(
       { ok: false, message: 'No admins exist. Run setup first.' },
@@ -25,25 +22,23 @@ export async function POST(req: Request) {
   }
 
   const { email, password } = parsed.data;
-  const admin = await getAdminByEmail(email);
-  if (!admin) {
+  const loginResult = await adminAccessService.login({ email, password });
+  if (!loginResult.ok) {
     return NextResponse.json(
-      { ok: false, message: 'Invalid email or password.' },
-      { status: 401 }
+      { ok: false, message: loginResult.message },
+      { status: loginResult.status }
     );
   }
-
-  const isValid = await verifyPassword(password, admin.password_hash);
-  if (!isValid) {
-    return NextResponse.json(
-      { ok: false, message: 'Invalid email or password.' },
-      { status: 401 }
-    );
-  }
-
-  const { accessToken, refreshToken } = await issueAdminSession(admin);
 
   const res = NextResponse.json({ ok: true });
-  setAuthCookies(res, accessToken, refreshToken);
+  adminAccessService.setAuthCookies(
+    res,
+    loginResult.tokens.accessToken,
+    loginResult.tokens.refreshToken
+  );
   return res;
 }
+
+
+
+

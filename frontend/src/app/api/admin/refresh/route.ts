@@ -1,21 +1,27 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { setAuthCookies } from '@/lib/serveronly/auth/admin-cookies';
-import { unauthorizedJson } from '@/lib/serveronly/auth/admin-route-auth';
-import { refreshSession } from '@/lib/serveronly/auth/auth';
+import { getServerContainer } from '@/lib/serveronly/container';
 
 export async function POST() {
+  const { adminAccessService } = getServerContainer();
   const refreshCookie = (await cookies()).get('admin_refresh')?.value;
   if (!refreshCookie) {
-    return unauthorizedJson({ clearCookies: true });
+    return adminAccessService.unauthorizedJson({ clearCookies: true });
   }
 
-  const refreshed = await refreshSession(refreshCookie);
+  const refreshed = await adminAccessService.refreshSession(refreshCookie);
   if (!refreshed) {
-    return unauthorizedJson({ clearCookies: true });
+    return adminAccessService.unauthorizedJson({ clearCookies: true });
   }
 
   const res = NextResponse.json({ ok: true });
-  setAuthCookies(res, refreshed.accessToken, refreshed.refreshToken);
+  adminAccessService.setAuthCookies(
+    res,
+    refreshed.accessToken,
+    refreshed.refreshToken
+  );
   return res;
 }
+
+
+

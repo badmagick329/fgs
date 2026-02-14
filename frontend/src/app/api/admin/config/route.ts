@@ -1,31 +1,28 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import {
-  applyRefreshedAuthCookies,
-  requireAdminRouteAuth,
-} from '@/lib/serveronly/auth/admin-route-auth';
-import { getAdminConfig } from '@/lib/serveronly/db';
-import { upsertAdminConfig } from '@/lib/serveronly/db';
+import { getServerContainer } from '@/lib/serveronly/container';
 
 const notificationEmailSchema = z.object({
   notificationEmail: z.email({ error: 'Invalid email address' }),
 });
 
 export async function GET() {
-  const authResult = await requireAdminRouteAuth();
+  const { adminAccessService, adminManagementService } = getServerContainer();
+  const authResult = await adminAccessService.requireAdminRouteAuth();
   if (!authResult.ok) {
     return authResult.response;
   }
   const auth = authResult.auth;
 
-  const config = await getAdminConfig();
+  const config = await adminManagementService.getAdminConfig();
   const res = NextResponse.json({ ok: true, data: config });
-  applyRefreshedAuthCookies(res, auth.refreshedTokens);
+  adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
   return res;
 }
 
 export async function POST(req: Request) {
-  const authResult = await requireAdminRouteAuth();
+  const { adminAccessService, adminManagementService } = getServerContainer();
+  const authResult = await adminAccessService.requireAdminRouteAuth();
   if (!authResult.ok) {
     return authResult.response;
   }
@@ -40,12 +37,15 @@ export async function POST(req: Request) {
     );
   }
 
-  await upsertAdminConfig(
+  await adminManagementService.upsertAdminConfig(
     parsed.data.notificationEmail,
     Number(auth.payload.sub)
   );
-  const config = await getAdminConfig();
+  const config = await adminManagementService.getAdminConfig();
   const res = NextResponse.json({ ok: true, data: config });
-  applyRefreshedAuthCookies(res, auth.refreshedTokens);
+  adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
   return res;
 }
+
+
+
