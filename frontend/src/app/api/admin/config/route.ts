@@ -3,8 +3,9 @@ import { z } from 'zod';
 import {
   applyRefreshedAuthCookies,
   requireAdminRouteAuth,
-} from '@/lib/serveronly/admin-route-auth';
-import { getAdminConfig, upsertAdminConfig } from '@/lib/serveronly/auth';
+} from '@/lib/serveronly/auth/admin-route-auth';
+import { getAdminConfig } from '@/lib/serveronly/db';
+import { upsertAdminConfig } from '@/lib/serveronly/db';
 
 const notificationEmailSchema = z.object({
   notificationEmail: z.email({ error: 'Invalid email address' }),

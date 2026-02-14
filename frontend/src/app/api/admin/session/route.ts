@@ -1,8 +1,8 @@
+import { NextResponse } from 'next/server';
 import {
   applyRefreshedAuthCookies,
   requireAdminRouteAuth,
-} from '@/lib/serveronly/admin-route-auth';
-import { NextResponse } from 'next/server';
+} from '@/lib/serveronly/auth/admin-route-auth';
 
 export async function GET() {
   const authResult = await requireAdminRouteAuth();

@@ -1,11 +1,11 @@
 import { Registration, createRegistrationSchema } from '@/types';
 import { NextResponse } from 'next/server';
-import { createRegistration, getRegistrations } from '@/lib/db';
 import { Result, errorsFromZod } from '@/lib/result';
 import {
   applyRefreshedAuthCookies,
   requireAdminRouteAuth,
-} from '@/lib/serveronly/admin-route-auth';
+} from '@/lib/serveronly/auth/admin-route-auth';
+import { createRegistration, getRegistrations } from '@/lib/serveronly/db';
 import { sendDiscordMessage } from '@/lib/serveronly/discord-messenger';
 import { errorMessageFromErrors } from '@/lib/utils';
 

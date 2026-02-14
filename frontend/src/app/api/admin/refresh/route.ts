@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { setAuthCookies } from '@/lib/serveronly/admin-cookies';
-import { unauthorizedJson } from '@/lib/serveronly/admin-route-auth';
-import { refreshSession } from '@/lib/serveronly/refresh';
+import { setAuthCookies } from '@/lib/serveronly/auth/admin-cookies';
+import { unauthorizedJson } from '@/lib/serveronly/auth/admin-route-auth';
+import { refreshSession } from '@/lib/serveronly/auth/auth';
 
 export async function POST() {
   const refreshCookie = (await cookies()).get('admin_refresh')?.value;

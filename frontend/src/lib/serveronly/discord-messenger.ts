@@ -1,4 +1,3 @@
-// Ensure this code only runs on the server
 import 'server-only';
 
 const DISCORD_MESSAGE_LIMIT = 2000;

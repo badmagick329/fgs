@@ -1,11 +1,9 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { clearAuthCookies } from '@/lib/serveronly/admin-cookies';
-import {
-  getRefreshTokenByHash,
-  hashRefreshToken,
-  revokeRefreshToken,
-} from '@/lib/serveronly/auth';
+import { clearAuthCookies } from '@/lib/serveronly/auth/admin-cookies';
+import { hashRefreshToken } from '@/lib/serveronly/auth/common';
+import { revokeRefreshToken } from '@/lib/serveronly/db';
+import { getRefreshTokenByHash } from '@/lib/serveronly/db';
 
 export async function POST() {
   const refreshCookie = (await cookies()).get('admin_refresh')?.value;

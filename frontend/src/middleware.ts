@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAccessToken } from '@/lib/auth/jwt';
+import { verifyAccessToken } from './lib/serveronly/auth/jwt';
 
 const isProtectedPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;

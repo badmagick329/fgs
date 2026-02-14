@@ -1,16 +1,14 @@
 import { adminPasswordChangeSchema } from '@/types';
 import { NextResponse } from 'next/server';
-import { clearAuthCookies } from '@/lib/serveronly/admin-cookies';
+import { clearAuthCookies } from '@/lib/serveronly/auth/admin-cookies';
 import {
   applyRefreshedAuthCookies,
   requireAdminRouteAuth,
-} from '@/lib/serveronly/admin-route-auth';
-import {
-  getAdminById,
-  revokeAllRefreshTokensForUser,
-  updateAdminPassword,
-  verifyPassword,
-} from '@/lib/serveronly/auth';
+} from '@/lib/serveronly/auth/admin-route-auth';
+import { verifyPassword } from '@/lib/serveronly/auth/common';
+import { revokeAllRefreshTokensForUser } from '@/lib/serveronly/db';
+import { updateAdminPassword } from '@/lib/serveronly/db';
+import { getAdminById } from '@/lib/serveronly/db';
 
 export async function POST(req: Request) {
   const authResult = await requireAdminRouteAuth({ clearCookies: true });
