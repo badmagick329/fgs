@@ -17,7 +17,7 @@ export function AdminUsersSection() {
     useAdminUserActions();
   const adminData = adminUsersQuery.data;
   const actionButtonBaseClass =
-    'inline-flex items-center justify-center rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex cursor-pointer items-center justify-center rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60';
 
   return (
     <section className='fgs-card lg:col-span-2'>
