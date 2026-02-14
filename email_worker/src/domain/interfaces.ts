@@ -1,5 +1,4 @@
-import type { Result } from '@/types/result';
-import { type Notification, type Registration } from './domain';
+import { type Notification, type Registration, type Result } from '.';
 
 export interface INotificationSender {
   send(data: Notification): Promise<Result<{ providerId: string }, string>>;

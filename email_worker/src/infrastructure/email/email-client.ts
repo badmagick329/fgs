@@ -1,8 +1,7 @@
-import type { Notification } from '@/core/domain';
-import { type INotificationSender } from '@/core/interfaces';
-import { type EmailConfig } from '@/infrastructure/config/schemas';
+import type { Notification, Result } from '@/domain';
+import { type INotificationSender } from '@/domain/interfaces';
+import { type EmailConfig } from '@/domain/schemas';
 import { EmailTemplate } from '@/infrastructure/email/templates/email-template';
-import type { Result } from '@/types/result';
 import { Resend } from 'resend';
 
 export class EmailClient implements INotificationSender {

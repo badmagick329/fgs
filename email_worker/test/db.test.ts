@@ -9,7 +9,7 @@ import {
   expect,
   it,
 } from 'bun:test';
-import { testConfig } from './testConfig';
+import { testConfig } from './test-config';
 
 const dbConfig = getDatabaseConfig(testConfig);
 
