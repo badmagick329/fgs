@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
   title: {
     default: siteName,
-    template: `%s | ${siteName}`,
+    template: '%s | FGS',
   },
 
   description:
