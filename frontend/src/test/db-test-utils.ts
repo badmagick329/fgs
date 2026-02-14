@@ -1,7 +1,6 @@
 import { Pool } from 'pg';
 
 const TEST_DATABASE_URL =
-  process.env.DATABASE_URL ??
   'postgresql://testuser:testpassword@localhost:5433/testdb';
 
 export function createTestPool() {

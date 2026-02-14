@@ -1,7 +1,13 @@
 import 'server-only';
 
+const DEFAULT_TEST_DATABASE_URL =
+  'postgresql://testuser:testpassword@localhost:5433/testdb';
+
 export class EnvConfig {
   getDatabaseUrl() {
+    if (process.env.NODE_ENV === 'test') {
+      return process.env.TEST_DATABASE_URL ?? DEFAULT_TEST_DATABASE_URL;
+    }
     return process.env.DATABASE_URL;
   }
 
