@@ -1,6 +1,6 @@
-import { API } from '@/lib/consts';
+import { API, QUERY_KEYS } from '@/lib/consts';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -25,6 +25,7 @@ const createAdminResponseSchema = z.object({
 type CreateAdminFormValues = z.infer<typeof createAdminFormSchema>;
 
 export function CreateAdminSection() {
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<{
     tone: 'success' | 'error';
     message: string;
@@ -65,7 +66,8 @@ export function CreateAdminSection() {
       }
       return parsed.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminUsers });
       reset();
       setStatus({ tone: 'success', message: 'Admin account created.' });
     },
