@@ -1,7 +1,19 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { API, QUERY_KEYS, ROUTES } from '@/lib/consts';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type AdminActionsProps = {
   navigationHref: string;
@@ -21,6 +33,8 @@ export function AdminActions({
   className,
 }: AdminActionsProps) {
   const router = useRouter();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const sessionQuery = useQuery({
     queryKey: QUERY_KEYS.adminSession,
     queryFn: async () => {
@@ -41,15 +55,24 @@ export function AdminActions({
   });
 
   const handleLogout = async () => {
-    const res = await fetch(API.admin.logout, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) {
-      console.error('Logout failed.');
+    if (isLoggingOut) {
       return;
     }
-    router.replace(ROUTES.admin.login);
+    setIsLoggingOut(true);
+    try {
+      const res = await fetch(API.admin.logout, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) {
+        console.error('Logout failed.');
+        setIsLogoutDialogOpen(false);
+        return;
+      }
+      router.replace(ROUTES.admin.login);
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -66,16 +89,45 @@ export function AdminActions({
         <Link href={navigationHref} className='fgs-btn-secondary w-fit'>
           {navigationLabel}
         </Link>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            void handleLogout();
+        <AlertDialog
+          open={isLogoutDialogOpen}
+          onOpenChange={(open) => {
+            if (!isLoggingOut) {
+              setIsLogoutDialogOpen(open);
+            }
           }}
         >
-          <button type='submit' className='fgs-btn-danger'>
-            Logout
-          </button>
-        </form>
+          <AlertDialogTrigger asChild>
+            <button
+              type='button'
+              className='fgs-btn-danger'
+              disabled={isLoggingOut}
+            >
+              Logout
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent size='sm'>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Log out?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You will need to sign in again.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isLoggingOut}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                variant='destructive'
+                disabled={isLoggingOut}
+                onClick={(event) => {
+                  event.preventDefault();
+                  void handleLogout();
+                }}
+              >
+                {isLoggingOut ? 'Logging out...' : 'Log out'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
