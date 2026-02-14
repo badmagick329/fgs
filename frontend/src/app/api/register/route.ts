@@ -1,5 +1,6 @@
 import { Registration, createRegistrationSchema } from '@/types';
 import { NextResponse } from 'next/server';
+import { API } from '@/lib/consts';
 import { Result, errorsFromZod } from '@/lib/result';
 import { getServerContainer } from '@/lib/serveronly/container';
 import { errorMessageFromErrors } from '@/lib/utils';
@@ -18,7 +19,7 @@ export async function GET() {
   if (!result.ok) {
     console.error('getRegistrations validation error', result.errors);
     await registrationService.notifyDiscord({
-      source: 'GET /api/register',
+      source: `GET ${API.register}`,
       message: `getRegistrations failed with error: ${result.message}`,
     });
 
@@ -67,7 +68,7 @@ export async function POST(
 
   if (!creationResult.ok) {
     registrationService.notifyDiscord({
-      source: 'POST /api/register',
+      source: `POST ${API.register}`,
       message: `createRegistration failed with error: ${creationResult.message}`,
     });
 

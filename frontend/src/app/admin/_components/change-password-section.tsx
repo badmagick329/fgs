@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { API, ROUTES } from '@/lib/consts';
 
 const changePasswordFormSchema = z
   .object({
@@ -52,7 +53,7 @@ export function ChangePasswordSection() {
 
   const updatePasswordMutation = useMutation({
     mutationFn: async (values: ChangePasswordFormValues) => {
-      const res = await fetch('/api/admin/password', {
+      const res = await fetch(API.admin.password, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -76,7 +77,7 @@ export function ChangePasswordSection() {
         tone: 'success',
         message: 'Password updated. Redirecting to sign in...',
       });
-      router.replace('/admin/login');
+      router.replace(ROUTES.admin.login);
     },
     onError: (error) => {
       const message =

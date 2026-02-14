@@ -1,11 +1,7 @@
 import crypto from 'node:crypto';
 import { SignJWT, jwtVerify } from 'jose';
 import 'server-only';
-import {
-  ACCESS_TOKEN_TTL_SECONDS,
-  REFRESH_TOKEN_BYTES,
-  REFRESH_TOKEN_TTL_DAYS,
-} from '@/lib/consts';
+import { AUTH_TOKEN, AUTH_TTL } from '@/lib/consts';
 import { IToken } from '@/lib/serveronly/domain/interfaces';
 import { AccessTokenPayload } from '@/types/auth';
 
@@ -17,7 +13,7 @@ export class Token implements IToken {
     return new SignJWT(payload)
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime(`${ACCESS_TOKEN_TTL_SECONDS}s`)
+      .setExpirationTime(`${AUTH_TTL.accessSeconds}s`)
       .sign(secret);
   }
 
@@ -28,7 +24,7 @@ export class Token implements IToken {
   }
 
   generateRefreshToken(): string {
-    return crypto.randomBytes(REFRESH_TOKEN_BYTES).toString('hex');
+    return crypto.randomBytes(AUTH_TOKEN.refreshBytes).toString('hex');
   }
 
   hashRefreshToken(token: string): string {
@@ -37,7 +33,7 @@ export class Token implements IToken {
 
   refreshTokenExpiresAt(): Date {
     const expires = new Date();
-    expires.setDate(expires.getDate() + REFRESH_TOKEN_TTL_DAYS);
+    expires.setDate(expires.getDate() + AUTH_TTL.refreshDays);
     return expires;
   }
 

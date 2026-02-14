@@ -1,3 +1,4 @@
+import { API, QUERY_KEYS, ROUTES } from '@/lib/consts';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -21,9 +22,9 @@ export function AdminActions({
 }: AdminActionsProps) {
   const router = useRouter();
   const sessionQuery = useQuery({
-    queryKey: ['admin-session'],
+    queryKey: QUERY_KEYS.adminSession,
     queryFn: async () => {
-      const res = await fetch('/api/admin/session');
+      const res = await fetch(API.admin.session);
       if (!res.ok) {
         throw new Error('Failed to load session.');
       }
@@ -40,7 +41,7 @@ export function AdminActions({
   });
 
   const handleLogout = async () => {
-    const res = await fetch('/api/admin/logout', {
+    const res = await fetch(API.admin.logout, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -48,7 +49,7 @@ export function AdminActions({
       console.error('Logout failed.');
       return;
     }
-    router.replace('/admin/login');
+    router.replace(ROUTES.admin.login);
   };
 
   return (

@@ -1,20 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AccessToken } from '@/lib/middleware/access-token';
-import { ADMIN_ACCESS_KEY } from '@/lib/consts';
+import {
+  API,
+  AUTH_COOKIE_KEYS,
+  ENV_DEFAULTS,
+  ENV_KEYS,
+  MIDDLEWARE_PATHS,
+  ROUTES,
+} from '@/lib/consts';
 
 const tokenVerifier = new AccessToken(process.env.ADMIN_JWT_SECRET ?? '');
 
 export const isProtectedPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
-  if (pathname === '/registrations') return true;
-  if (pathname === '/admin' || pathname.startsWith('/admin/')) return true;
+  if (pathname === ROUTES.registrations) return true;
+  if (pathname === ROUTES.admin.root) return true;
+  if (MIDDLEWARE_PATHS.protectedPrefixes.some((prefix) => pathname.startsWith(prefix))) return true;
   return false;
 };
 
 export const isPublicPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
-  if (pathname.startsWith('/admin/login')) return true;
-  if (pathname.startsWith('/admin/setup')) return true;
+  if (MIDDLEWARE_PATHS.publicPrefixes.some((prefix) => pathname.startsWith(prefix))) return true;
   return false;
 };
 
@@ -29,19 +36,19 @@ export const copySetCookieHeaders = (from: Response, to: NextResponse) => {
 
 const redirectToLogin = (req: NextRequest) => {
   const url = req.nextUrl.clone();
-  url.pathname = '/admin/login';
+  url.pathname = ROUTES.admin.login;
   return NextResponse.redirect(url);
 };
 
 function getInternalApiOrigin() {
-  const configured = process.env.INTERNAL_API_ORIGIN?.trim();
+  const configured = process.env[ENV_KEYS.internalApiOrigin]?.trim();
   if (configured) return configured;
-  const port = process.env.PORT ?? '3000';
+  const port = process.env[ENV_KEYS.port] ?? ENV_DEFAULTS.port;
   return `http://127.0.0.1:${port}`;
 }
 
 export async function attemptRefresh(req: NextRequest) {
-  const refreshUrl = new URL('/api/admin/refresh', getInternalApiOrigin());
+  const refreshUrl = new URL(API.admin.refresh, getInternalApiOrigin());
   const refreshResponse = await fetch(refreshUrl, {
     method: 'POST',
     headers: {
@@ -67,7 +74,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const accessToken = req.cookies.get(ADMIN_ACCESS_KEY)?.value;
+  const accessToken = req.cookies.get(AUTH_COOKIE_KEYS.access)?.value;
   if (accessToken) {
     try {
       await tokenVerifier.verify(accessToken);

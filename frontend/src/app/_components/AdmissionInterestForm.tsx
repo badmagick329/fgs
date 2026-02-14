@@ -1,5 +1,6 @@
 'use client';
 
+import { API } from '@/lib/consts';
 import {
   type CreateRegistration,
   createRegistrationSchema,
@@ -33,7 +34,7 @@ export default function AdmissionInterestForm() {
 
   const submitInterest = useMutation({
     mutationFn: async (values: CreateRegistration) => {
-      const res = await fetch('/api/register', {
+      const res = await fetch(API.register, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),

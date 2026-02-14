@@ -1,5 +1,6 @@
 'use client';
 
+import { ROUTES } from '@/lib/consts';
 import { AdminActions } from './_components/admin-actions';
 import { AdminBackdrop } from './_components/admin-backdrop';
 import { AdminHeader } from './_components/admin-header';
@@ -16,7 +17,7 @@ export default function AdminToolsPage() {
       <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col'>
         <AdminHeader />
         <AdminActions
-          navigationHref='/registrations'
+          navigationHref={ROUTES.registrations}
           navigationLabel='Back to registrations'
         />
 
