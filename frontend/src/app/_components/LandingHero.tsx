@@ -16,7 +16,7 @@ export default function LandingHero() {
             knowledge, confidence, and purpose.
           </p>
           <div className='flex flex-wrap gap-3'>
-            <a className='fgs-btn-primary' href='#join'>
+            <a className='fgs-btn-primary' href='#contact'>
               Apply for Admission
             </a>
             <a className='fgs-btn-secondary' href='#campuses'>
