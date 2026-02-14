@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AccessToken } from '@/lib/middleware/access-token';
+import { ADMIN_ACCESS_KEY } from '@/lib/consts';
 
 const tokenVerifier = new AccessToken(process.env.ADMIN_JWT_SECRET ?? '');
 
-const isProtectedPath = (req: NextRequest) => {
+export const isProtectedPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
   if (pathname === '/registrations') return true;
   if (pathname === '/admin' || pathname.startsWith('/admin/')) return true;
   return false;
 };
 
-const isPublicPath = (req: NextRequest) => {
+export const isPublicPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
   if (pathname.startsWith('/admin/login')) return true;
   if (pathname.startsWith('/admin/setup')) return true;
   return false;
 };
 
-const copySetCookieHeaders = (from: Response, to: NextResponse) => {
+export const copySetCookieHeaders = (from: Response, to: NextResponse) => {
   const header = from.headers.get('set-cookie');
   if (!header) return;
   const cookies = header.split(/,(?=[^;]+=[^;]+)/);
@@ -39,7 +40,7 @@ function getInternalApiOrigin() {
   return `http://127.0.0.1:${port}`;
 }
 
-async function attemptRefresh(req: NextRequest) {
+export async function attemptRefresh(req: NextRequest) {
   const refreshUrl = new URL('/api/admin/refresh', getInternalApiOrigin());
   const refreshResponse = await fetch(refreshUrl, {
     method: 'POST',
@@ -66,7 +67,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const accessToken = req.cookies.get('admin_access')?.value;
+  const accessToken = req.cookies.get(ADMIN_ACCESS_KEY)?.value;
   if (accessToken) {
     try {
       await tokenVerifier.verify(accessToken);
