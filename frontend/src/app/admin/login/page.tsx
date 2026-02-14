@@ -1,5 +1,5 @@
-import { countAdmins } from '@/lib/serveronly/auth';
 import { redirect } from 'next/navigation';
+import { countAdmins } from '@/lib/serveronly/db';
 import LoginForm from './LoginForm';
 
 export const dynamic = 'force-dynamic';

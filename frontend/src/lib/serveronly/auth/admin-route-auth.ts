@@ -1,39 +1,23 @@
+import {
+  AuthorizedRouteAuth,
+  RefreshedTokens,
+  RequireAdminRouteAuthResult,
+  RouteAuthResult,
+} from '@/types/auth';
+import { AccessTokenPayload } from '@/types/auth';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import 'server-only';
-import { AccessTokenPayload, verifyAccessToken } from '@/lib/auth/jwt';
-import { clearAuthCookies, setAuthCookies } from '@/lib/serveronly/admin-cookies';
-import { refreshSession } from '@/lib/serveronly/refresh';
-
-export type RefreshedTokens = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-export type RouteAuthResult = {
-  payload: AccessTokenPayload | null;
-  refreshedTokens: RefreshedTokens | null;
-  needsClear: boolean;
-};
-
-export type AuthorizedRouteAuth = RouteAuthResult & {
-  payload: AccessTokenPayload;
-};
-
-type RouteAuthFailure = {
-  ok: false;
-  response: NextResponse;
-};
-
-type RouteAuthSuccess = {
-  ok: true;
-  auth: AuthorizedRouteAuth;
-};
-
-export type RequireAdminRouteAuthResult = RouteAuthFailure | RouteAuthSuccess;
+import { ADMIN_ACCESS_KEY, ADMIN_REFRESH_KEY } from '@/lib/consts';
+import {
+  clearAuthCookies,
+  setAuthCookies,
+} from '@/lib/serveronly/auth/admin-cookies';
+import { refreshSession } from './auth';
+import { verifyAccessToken } from './jwt';
 
 export async function getAdminRouteAuth(): Promise<RouteAuthResult> {
-  const accessToken = (await cookies()).get('admin_access')?.value;
+  const accessToken = (await cookies()).get(ADMIN_ACCESS_KEY)?.value;
   let refreshedTokens: RefreshedTokens | null = null;
   let payload: AccessTokenPayload | null = null;
 
@@ -46,7 +30,7 @@ export async function getAdminRouteAuth(): Promise<RouteAuthResult> {
   }
 
   if (!payload) {
-    const refreshCookie = (await cookies()).get('admin_refresh')?.value;
+    const refreshCookie = (await cookies()).get(ADMIN_REFRESH_KEY)?.value;
     if (!refreshCookie) {
       return { payload: null, refreshedTokens: null, needsClear: true };
     }
@@ -105,5 +89,9 @@ export function applyRefreshedAuthCookies(
   if (!refreshedTokens) {
     return;
   }
-  setAuthCookies(res, refreshedTokens.accessToken, refreshedTokens.refreshToken);
+  setAuthCookies(
+    res,
+    refreshedTokens.accessToken,
+    refreshedTokens.refreshToken
+  );
 }

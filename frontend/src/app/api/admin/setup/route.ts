@@ -1,11 +1,9 @@
 import { adminCredentialsSchema } from '@/types';
-import {
-  countAdmins,
-  createAdminUser,
-} from '@/lib/serveronly/auth';
 import { NextResponse } from 'next/server';
-import { setAuthCookies } from '@/lib/serveronly/admin-cookies';
-import { issueAdminSession } from '@/lib/serveronly/admin-session';
+import { setAuthCookies } from '@/lib/serveronly/auth/admin-cookies';
+import { issueAdminSession } from '@/lib/serveronly/auth/admin-session';
+import { createAdminUser } from '@/lib/serveronly/db';
+import { countAdmins } from '@/lib/serveronly/db';
 
 export async function POST(req: Request) {
   const adminCount = await countAdmins();

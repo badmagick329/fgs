@@ -1,14 +1,14 @@
 import { updateSuperAdminSchema } from '@/types';
+import { AdminActionError } from '@/types/auth';
 import { NextResponse } from 'next/server';
 import {
   applyRefreshedAuthCookies,
   requireAdminRouteAuth,
-} from '@/lib/serveronly/admin-route-auth';
+} from '@/lib/serveronly/auth/admin-route-auth';
 import {
-  AdminActionError,
   removeAdminUserWithGuards,
   updateAdminSuperStatusWithGuards,
-} from '@/lib/serveronly/auth';
+} from '@/lib/serveronly/auth/auth';
 
 export async function DELETE(
   _req: Request,

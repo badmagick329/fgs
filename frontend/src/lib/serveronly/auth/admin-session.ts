@@ -1,11 +1,11 @@
 import 'server-only';
-import { signAccessToken } from '@/lib/auth/jwt';
+import { createRefreshToken } from '../db';
 import {
-  createRefreshToken,
   generateRefreshToken,
   hashRefreshToken,
   refreshTokenExpiresAt,
-} from '@/lib/serveronly/auth';
+} from './common';
+import { signAccessToken } from './jwt';
 
 export async function issueAdminSession(admin: { id: number; email: string }) {
   const refreshToken = generateRefreshToken();

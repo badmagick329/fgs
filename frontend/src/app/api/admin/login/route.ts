@@ -1,12 +1,10 @@
 import { adminCredentialsSchema } from '@/types';
 import { NextResponse } from 'next/server';
-import { setAuthCookies } from '@/lib/serveronly/admin-cookies';
-import { issueAdminSession } from '@/lib/serveronly/admin-session';
-import {
-  countAdmins,
-  getAdminByEmail,
-  verifyPassword,
-} from '@/lib/serveronly/auth';
+import { setAuthCookies } from '@/lib/serveronly/auth/admin-cookies';
+import { issueAdminSession } from '@/lib/serveronly/auth/admin-session';
+import { verifyPassword } from '@/lib/serveronly/auth/common';
+import { countAdmins } from '@/lib/serveronly/db';
+import { getAdminByEmail } from '@/lib/serveronly/db';
 
 export async function POST(req: Request) {
   const adminCount = await countAdmins();

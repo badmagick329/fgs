@@ -76,9 +76,7 @@ export function ChangePasswordSection() {
         tone: 'success',
         message: 'Password updated. Redirecting to sign in...',
       });
-      window.setTimeout(() => {
-        router.replace('/admin/login');
-      }, 900);
+      router.replace('/admin/login');
     },
     onError: (error) => {
       const message =

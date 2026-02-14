@@ -4,12 +4,10 @@ import {
   applyRefreshedAuthCookies,
   requireAdminRouteAuth,
   unauthorizedJson,
-} from '@/lib/serveronly/admin-route-auth';
-import {
-  createAdminUser,
-  getAdminAuthById,
-  listAdminUsers,
-} from '@/lib/serveronly/auth';
+} from '@/lib/serveronly/auth/admin-route-auth';
+import { listAdminUsers } from '@/lib/serveronly/db';
+import { createAdminUser } from '@/lib/serveronly/db';
+import { getAdminAuthById } from '@/lib/serveronly/db';
 
 export async function GET() {
   const authResult = await requireAdminRouteAuth();

@@ -1,18 +1,14 @@
+import { AccessTokenPayload } from '@/types/auth';
 import { SignJWT, jwtVerify } from 'jose';
+import 'server-only';
+import { ACCESS_TOKEN_TTL_SECONDS } from '@/lib/consts';
 
-const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
-
-const getJwtSecret = () => {
+export const getJwtSecret = () => {
   const secret = process.env.ADMIN_JWT_SECRET;
   if (!secret) {
     throw new Error('ADMIN_JWT_SECRET is not set.');
   }
   return new TextEncoder().encode(secret);
-};
-
-export type AccessTokenPayload = {
-  sub: string;
-  email: string;
 };
 
 export async function signAccessToken(payload: AccessTokenPayload) {
@@ -29,5 +25,3 @@ export async function verifyAccessToken(token: string) {
   const { payload } = await jwtVerify(token, secret);
   return payload as AccessTokenPayload;
 }
-
-export const accessTokenTtlSeconds = ACCESS_TOKEN_TTL_SECONDS;
