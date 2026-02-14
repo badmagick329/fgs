@@ -1,6 +1,16 @@
 'use client';
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -10,6 +20,7 @@ import {
 } from '@/components/ui/table';
 import { useAdminUserActions } from '@/hooks/useAdminUserActions';
 import { useAdminUsersList } from '@/hooks/useAdminUsersList';
+import { useState } from 'react';
 
 type AdminUser = {
   id: number;
@@ -24,6 +35,20 @@ type AdminUsersData = {
   currentAdminIsSuperAdmin: boolean;
 };
 
+type PendingAdminAction =
+  | {
+      type: 'toggle-super';
+      adminId: number;
+      email: string;
+      currentIsSuperAdmin: boolean;
+      nextIsSuperAdmin: boolean;
+    }
+  | {
+      type: 'remove-admin';
+      adminId: number;
+      email: string;
+    };
+
 type AdminUsersListProps = {
   adminData: AdminUsersData;
   isMutating: boolean;
@@ -34,20 +59,79 @@ type AdminUsersListProps = {
     email: string;
     currentIsSuperAdmin: boolean;
     nextIsSuperAdmin: boolean;
-  }) => Promise<void>;
-  onRemoveAdmin: (args: { adminId: number; email: string }) => Promise<void>;
+  }) => void;
+  onRemoveAdmin: (args: { adminId: number; email: string }) => void;
 };
 
 export function AdminUsersSection() {
   const adminUsersQuery = useAdminUsersList();
   const { status, isMutating, handleToggleSuperAdmin, handleRemoveAdmin } =
     useAdminUserActions();
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<PendingAdminAction | null>(
+    null
+  );
   const adminData = adminUsersQuery.data;
   const actionButtonBaseClass =
     'inline-flex cursor-pointer items-center justify-center rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60';
 
   const formatCreatedAt = (createdAtValue: string) =>
     new Date(createdAtValue).toLocaleString();
+  const requestToggleSuperAdmin = (args: {
+    adminId: number;
+    email: string;
+    currentIsSuperAdmin: boolean;
+    nextIsSuperAdmin: boolean;
+  }) => {
+    setPendingAction({ type: 'toggle-super', ...args });
+    setIsConfirmDialogOpen(true);
+  };
+  const requestRemoveAdmin = (args: { adminId: number; email: string }) => {
+    setPendingAction({ type: 'remove-admin', ...args });
+    setIsConfirmDialogOpen(true);
+  };
+  const handleConfirmAction = async () => {
+    if (!pendingAction || isMutating) {
+      return;
+    }
+    try {
+      if (pendingAction.type === 'toggle-super') {
+        await handleToggleSuperAdmin({
+          adminId: pendingAction.adminId,
+          email: pendingAction.email,
+          currentIsSuperAdmin: pendingAction.currentIsSuperAdmin,
+          nextIsSuperAdmin: pendingAction.nextIsSuperAdmin,
+        });
+        return;
+      }
+      await handleRemoveAdmin({
+        adminId: pendingAction.adminId,
+        email: pendingAction.email,
+      });
+    } finally {
+      setIsConfirmDialogOpen(false);
+      setPendingAction(null);
+    }
+  };
+
+  const dialogTitle =
+    pendingAction?.type === 'toggle-super'
+      ? pendingAction.nextIsSuperAdmin
+        ? `Make ${pendingAction.email} a super admin?`
+        : `Revoke super admin from ${pendingAction.email}?`
+      : pendingAction
+        ? `Remove admin account ${pendingAction.email}?`
+        : 'Confirm action?';
+  const dialogActionLabel =
+    pendingAction?.type === 'toggle-super'
+      ? pendingAction.nextIsSuperAdmin
+        ? 'Make Super'
+        : 'Revoke Super'
+      : 'Remove';
+  const dialogActionVariant =
+    pendingAction?.type === 'toggle-super' && pendingAction.nextIsSuperAdmin
+      ? 'default'
+      : 'destructive';
 
   return (
     <section className='fgs-card min-w-0 lg:col-span-2'>
@@ -82,22 +166,55 @@ export function AdminUsersSection() {
               isMutating={isMutating}
               actionButtonBaseClass={actionButtonBaseClass}
               formatCreatedAt={formatCreatedAt}
-              onToggleSuperAdmin={handleToggleSuperAdmin}
-              onRemoveAdmin={handleRemoveAdmin}
+              onToggleSuperAdmin={requestToggleSuperAdmin}
+              onRemoveAdmin={requestRemoveAdmin}
             />
             <AdminUsersTable
               adminData={adminData}
               isMutating={isMutating}
               actionButtonBaseClass={actionButtonBaseClass}
               formatCreatedAt={formatCreatedAt}
-              onToggleSuperAdmin={handleToggleSuperAdmin}
-              onRemoveAdmin={handleRemoveAdmin}
+              onToggleSuperAdmin={requestToggleSuperAdmin}
+              onRemoveAdmin={requestRemoveAdmin}
             />
           </>
         ) : (
           <p className='py-8 text-center text-sm'>No admins found.</p>
         )}
       </div>
+      <AlertDialog
+        open={isConfirmDialogOpen}
+        onOpenChange={(open) => {
+          if (!isMutating) {
+            setIsConfirmDialogOpen(open);
+            if (!open) {
+              setPendingAction(null);
+            }
+          }
+        }}
+      >
+        <AlertDialogContent size='sm'>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialogTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will be applied immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isMutating}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant={dialogActionVariant}
+              disabled={isMutating || !pendingAction}
+              onClick={(event) => {
+                event.preventDefault();
+                void handleConfirmAction();
+              }}
+            >
+              {isMutating ? 'Applying...' : dialogActionLabel}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
@@ -138,7 +255,7 @@ function AdminActionsCell({
           className={`${actionButtonBaseClass} border-fgs-blue/55 text-fgs-blue hover:bg-fgs-blue/8`}
           disabled={isMutating}
           onClick={() =>
-            void onToggleSuperAdmin({
+            onToggleSuperAdmin({
               adminId: admin.id,
               email: admin.email,
               currentIsSuperAdmin: admin.is_super_admin,
@@ -153,7 +270,7 @@ function AdminActionsCell({
           className={`${actionButtonBaseClass} border-red-300 text-red-600 hover:bg-red-50`}
           disabled={isMutating}
           onClick={() =>
-            void onRemoveAdmin({
+            onRemoveAdmin({
               adminId: admin.id,
               email: admin.email,
             })

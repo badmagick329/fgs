@@ -12,6 +12,8 @@
   --color-card: var(--fgs-white);
   --color-primary: var(--fgs-gold);
   --color-primary-foreground: var(--fgs-ink);
+  --color-destructive: var(--fgs-error-strong);
+  --color-destructive-foreground: var(--fgs-white);
   --color-error: var(--fgs-error);
   --color-brand-blue: var(--fgs-blue);
   --color-fgs-surface: var(--fgs-surface);
@@ -40,6 +42,7 @@
   --fgs-muted: #4a5565;
   --fgs-border: #d8e0ea;
   --fgs-error: #dc2626;
+  --fgs-error-strong: #b91c1c;
 }
 
 @layer base {

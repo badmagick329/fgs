@@ -66,15 +66,6 @@ export function useAdminUserActions() {
   }) => {
     setStatus(null);
 
-    if (args.currentIsSuperAdmin && !args.nextIsSuperAdmin) {
-      const confirmed = window.confirm(
-        `Revoke super admin from ${args.email}?`
-      );
-      if (!confirmed) {
-        return;
-      }
-    }
-
     try {
       await toggleSuperAdminMutation.mutateAsync({
         adminId: args.adminId,
@@ -99,10 +90,6 @@ export function useAdminUserActions() {
 
   const handleRemoveAdmin = async (args: { adminId: number; email: string }) => {
     setStatus(null);
-    const confirmed = window.confirm(`Remove admin account ${args.email}?`);
-    if (!confirmed) {
-      return;
-    }
 
     try {
       await removeAdminMutation.mutateAsync(args.adminId);
