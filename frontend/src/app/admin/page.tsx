@@ -1,14 +1,14 @@
 'use client';
 
 import { ROUTES } from '@/lib/consts';
-import { AdminActions } from './_components/admin-actions';
-import { AdminBackdrop } from './_components/admin-backdrop';
-import { AdminHeader } from './_components/admin-header';
-import { AdminLogoWatermark } from './_components/admin-logo-watermark';
-import { AdminUsersSection } from './_components/admin-users-section';
-import { ChangePasswordSection } from './_components/change-password-section';
-import { CreateAdminSection } from './_components/create-admin-section';
-import { NotificationEmailSection } from './_components/notification-email-section';
+import { AdminActions } from './_components/AdminActions';
+import { AdminBackdrop } from './_components/AdminBackdrop';
+import { AdminHeader } from './_components/AdminHeader';
+import { AdminLogoWatermark } from './_components/AdminLogoWatermark';
+import { AdminUsersSection } from './_components/AdminUsersSection';
+import { ChangePasswordSection } from './_components/ChangePasswordSection';
+import { CreateAdminSection } from './_components/CreateAdminSection';
+import { NotificationEmailSection } from './_components/NotificationEmailSection';
 
 export default function AdminToolsPage() {
   return (

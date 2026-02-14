@@ -10,7 +10,7 @@ import {
 import useRegistrationList from '@/hooks/useRegistrationList';
 import { Registration } from '@/types';
 import Image from 'next/image';
-import { AdminActions } from '../admin/_components/admin-actions';
+import { AdminActions } from '../admin/_components/AdminActions';
 
 const tableHeaders = [
   'ID',
