@@ -1,3 +1,4 @@
+import { API } from '@/lib/consts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -46,7 +47,7 @@ export function CreateAdminSection() {
 
   const createAdminMutation = useMutation({
     mutationFn: async (values: CreateAdminFormValues) => {
-      const res = await fetch('/api/admin/users', {
+      const res = await fetch(API.admin.users, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
-import { ADMIN_REFRESH_KEY } from '@/lib/consts';
+import { AUTH_COOKIE_KEYS } from '@/lib/consts';
 
 mock.module('server-only', () => ({}));
 const cookiesMock = mock(async () => ({
-  get: (name: string) => (name === ADMIN_REFRESH_KEY ? { value: 'r' } : undefined),
+  get: (name: string) =>
+    name === AUTH_COOKIE_KEYS.refresh ? { value: 'r' } : undefined,
 }));
 mock.module('next/headers', () => ({ cookies: cookiesMock }));
 
@@ -20,7 +21,7 @@ describe('/api/admin/logout', () => {
     getServerContainer.mockReset();
     cookiesMock.mockResolvedValue({
       get: (name: string) =>
-        name === ADMIN_REFRESH_KEY ? { value: 'r' } : undefined,
+        name === AUTH_COOKIE_KEYS.refresh ? { value: 'r' } : undefined,
     });
   });
 

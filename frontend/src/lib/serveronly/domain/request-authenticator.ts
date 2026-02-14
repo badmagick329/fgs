@@ -1,4 +1,4 @@
-import { ADMIN_ACCESS_KEY, ADMIN_REFRESH_KEY } from '@/lib/consts';
+import { AUTH_COOKIE_KEYS } from '@/lib/consts';
 import {
   ICookie,
   RouteAuthState,
@@ -15,7 +15,7 @@ export class RequestAuthenticator {
   ) {}
 
   async getRouteAuth(): Promise<RouteAuthState> {
-    const accessToken = await this.cookieService.get(ADMIN_ACCESS_KEY);
+    const accessToken = await this.cookieService.get(AUTH_COOKIE_KEYS.access);
     let refreshedTokens: RefreshedTokens | null = null;
     let payload: RouteAuthState['payload'] = null;
 
@@ -28,7 +28,7 @@ export class RequestAuthenticator {
     }
 
     if (!payload) {
-      const refreshCookie = await this.cookieService.get(ADMIN_REFRESH_KEY);
+      const refreshCookie = await this.cookieService.get(AUTH_COOKIE_KEYS.refresh);
       if (!refreshCookie) {
         return { payload: null, refreshedTokens: null, needsClear: true };
       }

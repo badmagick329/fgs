@@ -1,5 +1,6 @@
 'use client';
 
+import { API, ROUTES } from '@/lib/consts';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -15,7 +16,7 @@ export default function SetupForm() {
     setError(null);
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/admin/setup', {
+      const res = await fetch(API.admin.setup, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -25,7 +26,7 @@ export default function SetupForm() {
         setError(json?.message ?? 'Setup failed.');
         return;
       }
-      router.replace('/registrations');
+      router.replace(ROUTES.registrations);
     } catch {
       setError('Setup failed.');
     } finally {

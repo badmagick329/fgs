@@ -1,13 +1,14 @@
 'use client';
 
+import { API, QUERY_KEYS } from '@/lib/consts';
 import { registrationListResultSchema } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export default function useRegistrationList() {
   const q = useQuery({
-    queryKey: ['registrations'],
+    queryKey: QUERY_KEYS.registrations,
     queryFn: async () => {
-      const res = await fetch('/api/register');
+      const res = await fetch(API.register);
       if (res.status === 401) {
         throw new Error('Authentication required.');
       }

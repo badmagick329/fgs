@@ -1,5 +1,6 @@
 'use client';
 
+import { API, QUERY_KEYS } from '@/lib/consts';
 import { adminUsersResponseSchema } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
@@ -16,7 +17,7 @@ export type AdminUsersData = {
 };
 
 async function getAdminUsers() {
-  const res = await fetch('/api/admin/users');
+  const res = await fetch(API.admin.users);
   if (!res.ok) {
     const json = await res.json().catch(() => null);
     throw new Error(json?.message ?? 'Failed to load admin users.');
@@ -31,7 +32,7 @@ async function getAdminUsers() {
 
 export function useAdminUsersList() {
   const query = useQuery({
-    queryKey: ['admin-users'],
+    queryKey: QUERY_KEYS.adminUsers,
     queryFn: getAdminUsers,
   });
 

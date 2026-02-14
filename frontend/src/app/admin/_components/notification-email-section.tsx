@@ -1,3 +1,4 @@
+import { API, QUERY_KEYS } from '@/lib/consts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -46,9 +47,9 @@ export function NotificationEmailSection() {
   });
 
   const configQuery = useQuery({
-    queryKey: ['admin-config'],
+    queryKey: QUERY_KEYS.adminConfig,
     queryFn: async (): Promise<AdminConfig> => {
-      const res = await fetch('/api/admin/config');
+      const res = await fetch(API.admin.config);
       if (!res.ok) {
         throw new Error('Failed to load config.');
       }
@@ -65,7 +66,7 @@ export function NotificationEmailSection() {
     mutationFn: async ({
       notificationEmail,
     }: NotificationEmailFormValues): Promise<AdminConfig> => {
-      const res = await fetch('/api/admin/config', {
+      const res = await fetch(API.admin.config, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notificationEmail }),
@@ -82,7 +83,7 @@ export function NotificationEmailSection() {
     },
     onSuccess: (config) => {
       setStatus({ tone: 'success', message: 'Saved notification email.' });
-      queryClient.setQueryData<AdminConfig>(['admin-config'], config);
+      queryClient.setQueryData<AdminConfig>(QUERY_KEYS.adminConfig, config);
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : 'Update failed.';

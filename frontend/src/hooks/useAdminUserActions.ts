@@ -1,5 +1,6 @@
 'use client';
 
+import { API, QUERY_KEYS } from '@/lib/consts';
 import { adminActionResponseSchema } from '@/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -21,7 +22,7 @@ export function useAdminUserActions() {
       adminId: number;
       isSuperAdmin: boolean;
     }) => {
-      const res = await fetch(`/api/admin/users/${adminId}`, {
+      const res = await fetch(API.admin.userById(adminId), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isSuperAdmin }),
@@ -33,13 +34,13 @@ export function useAdminUserActions() {
       return json;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminUsers });
     },
   });
 
   const removeAdminMutation = useMutation({
     mutationFn: async (adminId: number) => {
-      const res = await fetch(`/api/admin/users/${adminId}`, {
+      const res = await fetch(API.admin.userById(adminId), {
         method: 'DELETE',
       });
       const json = await res.json().catch(() => null);
@@ -53,7 +54,7 @@ export function useAdminUserActions() {
       return parsed.data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminUsers });
     },
   });
 

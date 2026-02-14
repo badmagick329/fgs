@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { RequestAuthenticator } from '@/lib/serveronly/domain/request-authenticator';
-import { ADMIN_ACCESS_KEY, ADMIN_REFRESH_KEY } from '@/lib/consts';
+import { AUTH_COOKIE_KEYS } from '@/lib/consts';
 import { createCookieMock, createTokenMock } from '@/test/mock-factories';
 
 const sessionIssuerMock = {
@@ -15,7 +15,7 @@ describe('RequestAuthenticator', () => {
   it('returns payload from valid access token', async () => {
     const cookie = createCookieMock({
       get: mock(async (name: string) =>
-        name === ADMIN_ACCESS_KEY ? 'access' : undefined
+        name === AUTH_COOKIE_KEYS.access ? 'access' : undefined
       ),
     });
     const token = createTokenMock({
@@ -33,8 +33,8 @@ describe('RequestAuthenticator', () => {
   it('uses refresh flow when access token invalid', async () => {
     const cookie = createCookieMock({
       get: mock(async (name: string) => {
-        if (name === ADMIN_ACCESS_KEY) return 'bad';
-        if (name === ADMIN_REFRESH_KEY) return 'refresh';
+        if (name === AUTH_COOKIE_KEYS.access) return 'bad';
+        if (name === AUTH_COOKIE_KEYS.refresh) return 'refresh';
         return undefined;
       }),
     });
@@ -74,7 +74,7 @@ describe('RequestAuthenticator', () => {
   it('returns clear-needed when refresh fails', async () => {
     const cookie = createCookieMock({
       get: mock(async (name: string) =>
-        name === ADMIN_REFRESH_KEY ? 'refresh' : undefined
+        name === AUTH_COOKIE_KEYS.refresh ? 'refresh' : undefined
       ),
     });
     const token = createTokenMock();
