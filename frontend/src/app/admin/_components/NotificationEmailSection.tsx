@@ -1,10 +1,17 @@
-import { API, QUERY_KEYS } from '@/lib/consts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import type { AdminConfig } from './admin-types';
+import { API, QUERY_KEYS } from '@/lib/consts';
+
+type AdminConfig = {
+  id: number;
+  notification_email: string;
+  updated_by_admin_user_id: number;
+  updated_at: string;
+  updated_by_email: string;
+} | null;
 
 const notificationEmailFormSchema = z.object({
   notificationEmail: z.email('Enter a valid email address.'),
