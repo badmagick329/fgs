@@ -1,14 +1,11 @@
+import type { IConfig } from '@/domain';
 import {
   type DatabaseConfig,
   type EmailConfig,
   databaseConfigSchema,
   emailConfigSchema,
-} from '@/infrastructure/config/schemas';
+} from '@/domain/schemas';
 import { z } from 'zod';
-
-interface IConfig {
-  read(): EmailConfig;
-}
 
 class Config implements IConfig {
   constructor(private readonly notificationEmail: string) {}

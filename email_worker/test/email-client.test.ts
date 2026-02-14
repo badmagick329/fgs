@@ -5,7 +5,7 @@ import { createMockConfig } from '@/infrastructure/config';
 import { EmailClient } from '@/infrastructure/email/email-client';
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { type ResendResponse, mockSend } from './setup';
-import { testConfig } from './testConfig';
+import { testConfig } from './test-config';
 
 beforeEach(() => {
   mockSend.mockClear();

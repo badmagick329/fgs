@@ -1,6 +1,5 @@
-import type { IdResult, Registration } from '@/core/domain';
-import type { IUserRepository } from '@/core/interfaces';
-import type { Result } from '@/types/result';
+import type { IdResult, Registration, Result } from '@/domain';
+import type { IUserRepository } from '@/domain/interfaces';
 import { Pool } from 'pg';
 
 export class DB implements IUserRepository {
@@ -47,6 +46,7 @@ export class DB implements IUserRepository {
       const res = await this.pool.query<Registration>(`
     SELECT * FROM registrations
     WHERE email_status != 'success' AND retry_count < 3
+    ORDER BY registered_at ASC, id ASC
   `);
       if (res.rowCount != null) {
         return { ok: true, data: res.rows };

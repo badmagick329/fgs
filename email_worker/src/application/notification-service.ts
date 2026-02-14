@@ -1,4 +1,7 @@
-import type { INotificationSender, IUserRepository } from './interfaces';
+import type {
+  INotificationSender,
+  IUserRepository,
+} from '../domain/interfaces';
 
 export class NotificationService {
   private db: IUserRepository;

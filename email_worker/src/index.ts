@@ -1,5 +1,5 @@
 import { DB } from '@/infrastructure/db/db';
-import { NotificationService } from './core/notification-service';
+import { NotificationService } from './application/notification-service';
 import { createConfig, getDatabaseConfig } from './infrastructure/config';
 import { getWorkerInterval } from './infrastructure/config/interval';
 import { EmailClient } from './infrastructure/email/email-client';
@@ -14,17 +14,14 @@ async function main(): Promise<void> {
   const emailClient = new EmailClient(emailConfig);
 
   const workerInterval = getWorkerInterval();
-  if (!workerInterval.ok) return process.exit(1);
+  if (workerInterval == null) return process.exit(1);
 
   const service = new NotificationService(db, emailClient);
   await service.processUnsentNotifications();
   console.log(
-    `[${new Date().toISOString()}] - [Main] Starting notification worker. Next run in ${Math.ceil(workerInterval.data / 1000)} seconds`
+    `[${new Date().toISOString()}] - [Main] Starting notification worker. Next run in ${Math.ceil(workerInterval / 1000)} seconds`
   );
-  setInterval(
-    service.processUnsentNotifications.bind(service),
-    workerInterval.data
-  );
+  setInterval(service.processUnsentNotifications.bind(service), workerInterval);
 }
 
 main().catch((error) => {

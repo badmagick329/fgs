@@ -1,4 +1,4 @@
-import type { Notification } from '@/core/domain';
+import type { Notification } from '@/domain';
 
 export function EmailTemplate({ payload }: Notification) {
   return (
