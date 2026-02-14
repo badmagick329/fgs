@@ -9,9 +9,9 @@ export class EmailClient implements INotificationSender {
   private readonly SENDER: string;
   private readonly DESTINATION: string;
   constructor(config: EmailConfig) {
-    this.API_KEY = config.RESEND_API_KEY;
-    this.SENDER = config.SENDER_EMAIL_ADDRESS;
-    this.DESTINATION = config.DESTINATION_EMAIL_ADDRESS;
+    this.API_KEY = config.resend_api_key;
+    this.SENDER = config.sender_email_address;
+    this.DESTINATION = config.destination_email_address;
   }
 
   async send({

@@ -1,4 +1,3 @@
-// Import your actual functions
 import { getDatabaseConfig } from '@/infrastructure/config';
 import { DB } from '@/infrastructure/db/db';
 import {
@@ -13,25 +12,22 @@ import { testConfig } from './test-config';
 
 const dbConfig = getDatabaseConfig(testConfig);
 
-const db = new DB(dbConfig.DATABASE_URL);
+const db = new DB(dbConfig.database_url);
 
 describe('Database Functions', () => {
-  // Set up schema once before all tests
   beforeAll(async () => {
-    await DB.initializeSchema(dbConfig.DATABASE_URL);
+    await DB.initializeSchema(dbConfig.database_url);
   });
 
-  // CLEANUP: Empty the table before every test
   beforeEach(async () => {
-    // Safety check to ensure we are not nuking prod
-    if (!dbConfig.DATABASE_URL?.includes('test')) {
+    if (!dbConfig.database_url?.includes('test')) {
       throw new Error('DANGER: Running tests against non-test DB!');
     }
     await db.query('TRUNCATE TABLE registrations RESTART IDENTITY CASCADE');
   });
 
   afterAll(async () => {
-    await db.close(); // Close test connection
+    await db.close();
   });
 
   // --- TESTS ---

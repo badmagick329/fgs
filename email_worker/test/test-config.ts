@@ -1,6 +1,6 @@
 export const testConfig = {
-  RESEND_API_KEY: 're_123',
-  SENDER_EMAIL_ADDRESS: 'verified@example.com',
-  DESTINATION_EMAIL_ADDRESS: 'admin@example.com',
-  DATABASE_URL: 'postgresql://testuser:testpassword@localhost:5433/testdb',
+  resend_api_key: 're_123',
+  sender_email_address: 'verified@example.com',
+  destination_email_address: 'admin@example.com',
+  database_url: 'postgresql://testuser:testpassword@localhost:5433/testdb',
 };
