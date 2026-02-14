@@ -23,8 +23,6 @@ services:
       POSTGRES_DB: "testdb"
     ports:
       - "5433:5432"
-    env_file:
-      - ./email_worker/.env.test
     tmpfs:
       - /var/lib/postgresql/data # Runs in RAM for speed!
     healthcheck:
