@@ -1,14 +1,18 @@
 import { redirect } from 'next/navigation';
-import { countAdmins } from '@/lib/serveronly/db';
+import { getServerContainer } from '@/lib/serveronly/container';
 import SetupForm from './SetupForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminSetupPage() {
-  const adminCount = await countAdmins();
+  const { adminManagementService } = getServerContainer();
+  const adminCount = await adminManagementService.countAdmins();
   if (adminCount > 0) {
     redirect('/admin/login');
   }
 
   return <SetupForm />;
 }
+
+
+

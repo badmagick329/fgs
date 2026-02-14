@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import {
-  applyRefreshedAuthCookies,
-  requireAdminRouteAuth,
-} from '@/lib/serveronly/auth/admin-route-auth';
+import { getServerContainer } from '@/lib/serveronly/container';
 
 export async function GET() {
-  const authResult = await requireAdminRouteAuth();
+  const { adminAccessService } = getServerContainer();
+  const authResult = await adminAccessService.requireAdminRouteAuth();
   if (!authResult.ok) {
     return authResult.response;
   }
@@ -19,6 +17,9 @@ export async function GET() {
     },
   });
 
-  applyRefreshedAuthCookies(res, auth.refreshedTokens);
+  adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
   return res;
 }
+
+
+

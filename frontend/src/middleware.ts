@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAccessToken } from './lib/serveronly/auth/jwt';
+import { AccessToken } from '@/lib/middleware/access-token';
+
+const tokenVerifier = new AccessToken(process.env.ADMIN_JWT_SECRET ?? '');
 
 const isProtectedPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
@@ -67,7 +69,7 @@ export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get('admin_access')?.value;
   if (accessToken) {
     try {
-      await verifyAccessToken(accessToken);
+      await tokenVerifier.verify(accessToken);
       return NextResponse.next();
     } catch {
       // fall through to refresh

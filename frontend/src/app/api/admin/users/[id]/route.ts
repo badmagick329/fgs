@@ -1,20 +1,14 @@
 import { updateSuperAdminSchema } from '@/types';
 import { AdminActionError } from '@/types/auth';
 import { NextResponse } from 'next/server';
-import {
-  applyRefreshedAuthCookies,
-  requireAdminRouteAuth,
-} from '@/lib/serveronly/auth/admin-route-auth';
-import {
-  removeAdminUserWithGuards,
-  updateAdminSuperStatusWithGuards,
-} from '@/lib/serveronly/auth/auth';
+import { getServerContainer } from '@/lib/serveronly/container';
 
 export async function DELETE(
   _req: Request,
   context: { params: Promise<{ id: string }> | { id: string } }
 ) {
-  const authResult = await requireAdminRouteAuth();
+  const { adminAccessService, adminManagementService } = getServerContainer();
+  const authResult = await adminAccessService.requireAdminRouteAuth();
   if (!authResult.ok) {
     return authResult.response;
   }
@@ -30,13 +24,13 @@ export async function DELETE(
   }
 
   try {
-    await removeAdminUserWithGuards({
+    await adminManagementService.removeAdminUserWithGuards({
       actingAdminId: Number(auth.payload.sub),
       targetAdminId,
     });
 
     const res = NextResponse.json({ ok: true });
-    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   } catch (error) {
     const message =
@@ -45,7 +39,7 @@ export async function DELETE(
         : 'Failed to remove admin.';
     const status = error instanceof AdminActionError ? error.status : 500;
     const res = NextResponse.json({ ok: false, message }, { status });
-    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   }
 }
@@ -54,7 +48,8 @@ export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> | { id: string } }
 ) {
-  const authResult = await requireAdminRouteAuth();
+  const { adminAccessService, adminManagementService } = getServerContainer();
+  const authResult = await adminAccessService.requireAdminRouteAuth();
   if (!authResult.ok) {
     return authResult.response;
   }
@@ -79,7 +74,7 @@ export async function PATCH(
   }
 
   try {
-    const updatedAdmin = await updateAdminSuperStatusWithGuards({
+    const updatedAdmin = await adminManagementService.updateAdminSuperStatusWithGuards({
       actingAdminId: Number(auth.payload.sub),
       targetAdminId,
       isSuperAdmin: parsed.data.isSuperAdmin,
@@ -92,7 +87,7 @@ export async function PATCH(
         is_super_admin: updatedAdmin.is_super_admin,
       },
     });
-    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   } catch (error) {
     const message =
@@ -101,7 +96,10 @@ export async function PATCH(
         : 'Failed to update admin role.';
     const status = error instanceof AdminActionError ? error.status : 500;
     const res = NextResponse.json({ ok: false, message }, { status });
-    applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
     return res;
   }
 }
+
+
+
