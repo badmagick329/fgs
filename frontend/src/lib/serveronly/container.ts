@@ -67,10 +67,13 @@ declare global {
   var __fgsServerContainer: ServerContainer | undefined;
 }
 
-const productionContainer = createServerContainer();
+let productionContainer: ServerContainer | undefined;
 
 export const getServerContainer = (): ServerContainer => {
   if (process.env.NODE_ENV === 'production') {
+    if (!productionContainer) {
+      productionContainer = createServerContainer();
+    }
     return productionContainer;
   }
 
