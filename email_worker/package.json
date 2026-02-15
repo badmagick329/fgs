@@ -18,6 +18,7 @@
   "scripts": {
     "start": "bun ./src/index.ts",
     "test": "bun test  --preload ./test/setup.ts",
+    "test:integration": "cd .. && bun test ./email_worker/test/integration --preload ./email_worker/test/integration/setup.ts",
     "test:watch": "bun test --watch"
   },
   "dependencies": {
