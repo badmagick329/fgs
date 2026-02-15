@@ -1,16 +1,8 @@
 import { mock } from 'bun:test';
 
-export type ResendResponse =
-  | { data: { id: string }; error: null }
-  | {
-      data: null;
-      error: { name?: string; message: string };
-    };
-
 export const mockSend = mock(
-  async (payload: any): Promise<ResendResponse> => ({
-    data: { id: 'test-id' },
-    error: null,
+  async (payload: any): Promise<{ error: undefined | 'mock-error' }> => ({
+    error: undefined,
   })
 );
 

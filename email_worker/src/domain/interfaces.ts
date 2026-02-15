@@ -1,7 +1,8 @@
 import { type Notification, type Registration, type Result } from '.';
 
+export type NotificationResult = 'success' | 'fail' | 'missing_email';
 export interface INotificationSender {
-  send(data: Notification): Promise<Result<{ providerId: string }, string>>;
+  send(data: Notification): Promise<NotificationResult>;
 }
 
 export interface IUserRepository {

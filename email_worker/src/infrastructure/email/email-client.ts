@@ -21,12 +21,10 @@ export class EmailClient implements INotificationSender {
     this.log = loggerFactory('EmailClient');
   }
 
-  async send({
-    payload,
-  }: Notification): Promise<Result<{ providerId: string }, string>> {
+  async send({ payload }: Notification) {
     const resend = new Resend(this.API_KEY);
     try {
-      const { data, error } = await resend.emails.send({
+      const { error } = await resend.emails.send({
         from: `Registration Form <${this.SENDER}>`,
         to: `${this.DESTINATION}`,
         subject: 'New Student Registration',
@@ -37,15 +35,12 @@ export class EmailClient implements INotificationSender {
 
       if (error) {
         this.log.error('Resend API Error:', error);
-        return { ok: false, error: error.message };
+        return 'fail';
       }
-      return { ok: true, data: { providerId: data.id ?? '' } };
+      return 'success';
     } catch (err) {
       this.log.error('Unexpected Email Error', err);
-      return {
-        ok: false,
-        error: err instanceof Error ? err.message : 'Unknown Error',
-      };
+      return 'fail';
     }
   }
 }
