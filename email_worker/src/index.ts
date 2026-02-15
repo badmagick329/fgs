@@ -15,11 +15,16 @@ const log = _loggerFactory('Main');
 async function main(): Promise<void> {
   const dbConfig = getDatabaseConfig();
   const db = await DB.create(dbConfig.database_url, _loggerFactory);
-
   const notificationEmail =
     (await db.getNotificationEmail())?.notification_email ?? '';
   const emailConfig = emailConfigReader(notificationEmail);
-  const emailClient = new EmailClient(emailConfig, _loggerFactory);
+  const emailClient = new EmailClient(
+    {
+      ...emailConfig,
+      getDestinationEmailAddress: db.getNotificationEmail.bind(db),
+    },
+    _loggerFactory
+  );
 
   const workerInterval = getWorkerInterval(_loggerFactory('getWorkerInterval'));
   if (workerInterval == null) return process.exit(1);

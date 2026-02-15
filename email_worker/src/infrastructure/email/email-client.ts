@@ -1,5 +1,4 @@
 import type { Notification } from '@/domain/interfaces';
-import type { Result } from '@/domain/interfaces';
 import {
   type INotificationSender,
   type Logger,
@@ -7,24 +6,34 @@ import {
   type NotificationResult,
 } from '@/domain/interfaces';
 import { type EmailConfig } from '@/domain/schemas';
+import { DB } from '@/infrastructure/db/db';
 import { EmailTemplate } from '@/infrastructure/email/templates/email-template';
 import { Resend } from 'resend';
+
+type DbClient = InstanceType<typeof DB>;
+type NotificationEmailData = ReturnType<DbClient['getNotificationEmail']>;
 
 export class EmailClient implements INotificationSender {
   private readonly API_KEY: string;
   private readonly SENDER: string;
-  private readonly DESTINATION: string;
+  private readonly getDestinationEmailAddress: () => NotificationEmailData;
   private readonly log: Logger;
 
-  constructor(config: EmailConfig, loggerFactory: LoggerFactory) {
+  constructor(
+    config: EmailConfig & {
+      getDestinationEmailAddress: () => NotificationEmailData;
+    },
+    loggerFactory: LoggerFactory
+  ) {
     this.API_KEY = config.resend_api_key;
     this.SENDER = config.sender_email_address;
-    this.DESTINATION = config.destination_email_address;
+    this.getDestinationEmailAddress = config.getDestinationEmailAddress;
     this.log = loggerFactory('EmailClient');
   }
 
   async send({ payload }: Notification): Promise<NotificationResult> {
-    const destination = this.DESTINATION?.trim();
+    const destination = (await this.getDestinationEmailAddress())
+      ?.notification_email;
 
     if (!destination) {
       this.log.error('Missing destination email address');
@@ -35,7 +44,7 @@ export class EmailClient implements INotificationSender {
     try {
       const { error } = await resend.emails.send({
         from: `Registration Form <${this.SENDER}>`,
-        to: `${this.DESTINATION}`,
+        to: `${destination}`,
         subject: 'New Student Registration',
         react: EmailTemplate({
           payload,
