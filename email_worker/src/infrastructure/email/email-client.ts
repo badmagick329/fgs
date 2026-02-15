@@ -32,11 +32,11 @@ export class EmailClient implements INotificationSender {
   }
 
   async send({ payload }: Notification): Promise<NotificationResult> {
-    const destination = (await this.getNotificationEmailData())
+    const notificationEmailAddress = (await this.getNotificationEmailData())
       ?.notification_email;
 
-    if (!destination) {
-      this.log.error('Missing destination email address');
+    if (!notificationEmailAddress) {
+      this.log.error('Missing notificatin email address');
       return 'missing_email';
     }
 
@@ -44,7 +44,7 @@ export class EmailClient implements INotificationSender {
     try {
       const { error } = await resend.emails.send({
         from: `Registration Form <${this.SENDER}>`,
-        to: `${destination}`,
+        to: `${notificationEmailAddress}`,
         subject: 'New Student Registration',
         react: EmailTemplate({
           payload,

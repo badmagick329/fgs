@@ -67,7 +67,7 @@ describe('sendEmail', () => {
     });
   });
 
-  describe('Missing destination address handling', () => {
+  describe('Missing notification address handling', () => {
     const emailConfig = mockEmailConfigReader(testConfig);
     const loggerFactory = mockLoggerFactory('info');
 
@@ -81,7 +81,7 @@ describe('sendEmail', () => {
       loggerFactory
     );
 
-    test('handles missing destination email address', async () => {
+    test('handles missing notification email address', async () => {
       const result = await emailClient.send({ payload: [] });
       expect(result).toEqual('missing_email');
     });
