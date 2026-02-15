@@ -1,16 +1,28 @@
-import { MockEmailConfigReader } from '@/infrastructure/config';
+import { mockEmailConfigReader } from '@/infrastructure/config';
 import { EmailClient } from '@/infrastructure/email/email-client';
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { mockLoggerFactory } from './mock-logger';
 import { mockSend } from './setup';
-import { testConfig } from './test-config';
+
+const testConfig = {
+  resend_api_key: 're_123',
+  sender_email_address: 'verified@example.com',
+  destination_email_address: 'admin@example.com',
+  database_url: 'postgresql://testuser:testpassword@localhost:5433/testdb',
+};
+
+const missingDestinationConfig = {
+  resend_api_key: 're_123',
+  sender_email_address: 'verified@example.com',
+  destination_email_address: '',
+};
 
 beforeEach(() => {
   mockSend.mockClear();
 });
 
 describe('sendEmail', () => {
-  const emailConfig = new MockEmailConfigReader(testConfig).read();
+  const emailConfig = mockEmailConfigReader(testConfig);
   const loggerFactory = mockLoggerFactory('info');
 
   describe('Success Paths', () => {
@@ -44,9 +56,15 @@ describe('sendEmail', () => {
     });
   });
 
-  describe('Missing sender address handling', () => {
-    test('handles missing sender email address', async () => {
-      // TODO: implement
+  describe('Missing destination address handling', () => {
+    const emailConfig = mockEmailConfigReader(missingDestinationConfig);
+    const loggerFactory = mockLoggerFactory('info');
+
+    const emailClient = new EmailClient(emailConfig, loggerFactory);
+
+    test('handles missing destination email address', async () => {
+      const result = await emailClient.send({ payload: [] });
+      expect(result).toEqual('missing_email');
     });
   });
 });

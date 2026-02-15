@@ -2,11 +2,11 @@ import { DB } from '@/infrastructure/db/db';
 import { loggerFactory } from '@/infrastructure/logger';
 import { NotificationService } from './application/notification-service';
 import {
-  EmailConfigReader,
+  emailConfigReader,
   getDatabaseConfig,
   getLoggerLevel,
+  getWorkerInterval,
 } from './infrastructure/config';
-import { getWorkerInterval } from './infrastructure/config/interval';
 import { EmailClient } from './infrastructure/email/email-client';
 
 const _loggerFactory = loggerFactory(getLoggerLevel());
@@ -18,7 +18,7 @@ async function main(): Promise<void> {
 
   const notificationEmail =
     (await db.getNotificationEmail())?.notification_email ?? '';
-  const emailConfig = new EmailConfigReader(notificationEmail).read();
+  const emailConfig = emailConfigReader(notificationEmail);
   const emailClient = new EmailClient(emailConfig, _loggerFactory);
 
   const workerInterval = getWorkerInterval(_loggerFactory('getWorkerInterval'));

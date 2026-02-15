@@ -1,4 +1,5 @@
-import type { Notification, Result } from '@/domain';
+import type { Notification } from '@/domain/interfaces';
+import type { Result } from '@/domain/interfaces';
 import {
   type INotificationSender,
   type Logger,
@@ -23,6 +24,13 @@ export class EmailClient implements INotificationSender {
   }
 
   async send({ payload }: Notification): Promise<NotificationResult> {
+    const destination = this.DESTINATION?.trim();
+
+    if (!destination) {
+      this.log.error('Missing destination email address');
+      return 'missing_email';
+    }
+
     const resend = new Resend(this.API_KEY);
     try {
       const { error } = await resend.emails.send({
@@ -38,6 +46,7 @@ export class EmailClient implements INotificationSender {
         this.log.error('Resend API Error:', error);
         return 'fail';
       }
+      this.log.info('Emails sent successfully');
       return 'success';
     } catch (err) {
       this.log.error('Unexpected Email Error', err);

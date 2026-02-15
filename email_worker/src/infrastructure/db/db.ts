@@ -1,4 +1,5 @@
-import type { IdResult, Registration, Result } from '@/domain';
+import type { IdResult, Registration } from '@/domain/interfaces';
+import type { Result } from '@/domain/interfaces';
 import type {
   IUserRepository,
   Logger,
