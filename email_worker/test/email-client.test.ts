@@ -43,4 +43,10 @@ describe('sendEmail', () => {
       expect(result).toEqual('fail');
     });
   });
+
+  describe('Missing sender address handling', () => {
+    test('handles missing sender email address', async () => {
+      // TODO: implement
+    });
+  });
 });
