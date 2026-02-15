@@ -61,7 +61,7 @@ export class NotificationService {
 
     if (sendResult === 'missing_email') {
       this.log.warn(
-        'Missing destination email. Skipping DB status updates this cycle.'
+        'Missing notification email. Skipping DB status updates this cycle.'
       );
       return;
     }

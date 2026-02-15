@@ -22,13 +22,10 @@ export function getWorkerInterval(log: Logger): number | null {
   return workerInterval;
 }
 
-export function emailConfigReader(
-  notificationEmail: string
-): IEmailConfigReader {
+export function emailConfigReader(): IEmailConfigReader {
   return readConfigFromSchema(emailConfigSchema, {
     resend_api_key: process.env.RESEND_API_KEY,
     sender_email_address: process.env.SENDER_EMAIL_ADDRESS,
-    destination_email_address: notificationEmail,
   });
 }
 
