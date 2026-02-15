@@ -65,6 +65,8 @@ export class NotificationService {
         `Failed to mark notifications as sent! - ${successUpdate.error}`
       );
     }
-    this.log.info('All notifications processed successfully');
+    this.log.info(
+      `${notificationIds.length} notifications processed successfully`
+    );
   }
 }
