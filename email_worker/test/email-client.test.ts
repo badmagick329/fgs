@@ -5,9 +5,9 @@ import { mockLoggerFactory } from './mock-logger';
 import { mockSend } from './setup';
 
 const testConfig = {
-  resend_api_key: 're_123',
-  sender_email_address: 'verified@example.com',
-  database_url: 'postgresql://testuser:testpassword@localhost:5433/testdb',
+  resendApiKey: 're_123',
+  senderEmailAddress: 'verified@example.com',
+  databaseUrl: 'postgresql://testuser:testpassword@localhost:5433/testdb',
 };
 
 const getNotificationEmailData = async () => ({

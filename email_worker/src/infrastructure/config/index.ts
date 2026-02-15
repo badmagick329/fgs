@@ -24,8 +24,8 @@ export function getWorkerInterval(log: Logger): number | null {
 
 export function emailConfigReader(): IEmailConfigReader {
   return readConfigFromSchema(emailConfigSchema, {
-    resend_api_key: process.env.RESEND_API_KEY,
-    sender_email_address: process.env.SENDER_EMAIL_ADDRESS,
+    resendApiKey: process.env.RESEND_API_KEY,
+    senderEmailAddress: process.env.SENDER_EMAIL_ADDRESS,
   });
 }
 
