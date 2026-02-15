@@ -59,6 +59,13 @@ export class NotificationService {
       return;
     }
 
+    if (sendResult === 'missing_email') {
+      this.log.warn(
+        'Missing destination email. Skipping DB status updates this cycle.'
+      );
+      return;
+    }
+
     const successUpdate = await this.db.setSuccessStatus(notificationIds);
     if (!successUpdate.ok) {
       this.log.error(
