@@ -86,4 +86,38 @@ describe('sendEmail', () => {
       expect(result).toEqual('missing_email');
     });
   });
+
+  describe('Email client picks up updated notification address', async () => {
+    const emailConfig = mockEmailConfigReader(testConfig);
+    const loggerFactory = mockLoggerFactory('info');
+    type NotificationEmailData = {
+      notification_email: string;
+      updated_by_admin_user_id: number;
+      updated_at: Date;
+    } | null;
+
+    let notificationEmailData: NotificationEmailData = {
+      notification_email: 'old@example.com',
+      updated_by_admin_user_id: 1,
+      updated_at: new Date(),
+    };
+
+    const emailClient = new EmailClient(
+      {
+        ...emailConfig,
+        getNotificationEmailData: async () => notificationEmailData,
+      },
+      loggerFactory
+    );
+
+    test('uses updated notification email address', async () => {
+      const first = await emailClient.send({ payload: [] });
+      expect(first).toEqual('success');
+
+      notificationEmailData = null;
+
+      const second = await emailClient.send({ payload: [] });
+      expect(second).toEqual('missing_email');
+    });
+  });
 });
