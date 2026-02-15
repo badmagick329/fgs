@@ -49,8 +49,7 @@ export class NotificationService {
     sendResult: Awaited<ReturnType<typeof this.notificationClient.send>>,
     notificationIds: number[]
   ) {
-    if (!sendResult.ok) {
-      this.log.error(`Failed to send: ${sendResult.error}`);
+    if (sendResult === 'fail') {
       const failUpdate = await this.db.setFailedStatus(notificationIds);
       if (!failUpdate.ok) {
         this.log.error(
