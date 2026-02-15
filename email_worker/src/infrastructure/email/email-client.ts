@@ -3,6 +3,7 @@ import {
   type INotificationSender,
   type Logger,
   type LoggerFactory,
+  type NotificationResult,
 } from '@/domain/interfaces';
 import { type EmailConfig } from '@/domain/schemas';
 import { EmailTemplate } from '@/infrastructure/email/templates/email-template';
@@ -21,7 +22,7 @@ export class EmailClient implements INotificationSender {
     this.log = loggerFactory('EmailClient');
   }
 
-  async send({ payload }: Notification) {
+  async send({ payload }: Notification): Promise<NotificationResult> {
     const resend = new Resend(this.API_KEY);
     try {
       const { error } = await resend.emails.send({
