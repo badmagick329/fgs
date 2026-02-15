@@ -36,7 +36,7 @@ export class EmailClient implements INotificationSender {
       ?.notification_email;
 
     if (!notificationEmailAddress) {
-      this.log.error('Missing notificatin email address');
+      this.log.error('Missing notification email address');
       return 'missing_email';
     }
 
