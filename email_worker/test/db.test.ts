@@ -9,7 +9,10 @@ import {
   it,
 } from 'bun:test';
 import { mockLoggerFactory } from './mock-logger';
-import { testConfig } from './test-config';
+
+export const testConfig = {
+  database_url: 'postgresql://testuser:testpassword@localhost:5433/testdb',
+};
 
 const dbConfig = getDatabaseConfig(testConfig);
 
