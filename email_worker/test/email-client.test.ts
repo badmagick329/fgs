@@ -1,6 +1,7 @@
 import { MockEmailConfigReader } from '@/infrastructure/config';
 import { EmailClient } from '@/infrastructure/email/email-client';
 import { beforeEach, describe, expect, test } from 'bun:test';
+import { mockLoggerFactory } from './mock-logger';
 import { type ResendResponse, mockSend } from './setup';
 import { testConfig } from './test-config';
 
@@ -12,7 +13,8 @@ beforeEach(() => {
 describe('sendEmail', () => {
   // SECTION 1: SUCCESS SCENARIOS
   const emailConfig = new MockEmailConfigReader(testConfig).read();
-  const emailClient = new EmailClient(emailConfig);
+  const loggerFactory = mockLoggerFactory('info');
+  const emailClient = new EmailClient(emailConfig, loggerFactory);
 
   describe('Success Paths', () => {
     test('returns ok: true when Resend succeeds', async () => {

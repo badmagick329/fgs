@@ -11,7 +11,8 @@ export class EmailConfigReader implements IEmailConfigReader {
   constructor(private readonly notificationEmail: string) {}
   read() {
     return readConfigFromSchema(emailConfigSchema, {
-      ...process.env,
+      resend_api_key: process.env.RESEND_API_KEY,
+      sender_email_address: process.env.SENDER_EMAIL_ADDRESS,
       destination_email_address: this.notificationEmail,
     });
   }

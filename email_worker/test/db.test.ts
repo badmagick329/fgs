@@ -8,15 +8,19 @@ import {
   expect,
   it,
 } from 'bun:test';
+import { mockLoggerFactory } from './mock-logger';
 import { testConfig } from './test-config';
 
 const dbConfig = getDatabaseConfig(testConfig);
 
-const db = new DB(dbConfig.database_url);
+const loggerFactory = mockLoggerFactory('info');
+const log = loggerFactory('DB');
+
+const db = new DB(dbConfig.database_url, log);
 
 describe('Database Functions', () => {
   beforeAll(async () => {
-    await DB.initializeSchema(dbConfig.database_url);
+    await DB.initializeSchema(dbConfig.database_url, log);
   });
 
   beforeEach(async () => {
