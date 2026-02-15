@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   const emailClient = new EmailClient(
     {
       ...emailConfig,
-      getDestinationEmailAddress: db.getNotificationEmail.bind(db),
+      getNotificationEmailData: db.getNotificationEmail.bind(db),
     },
     _loggerFactory
   );

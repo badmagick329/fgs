@@ -7,15 +7,14 @@ import { mockSend } from './setup';
 const testConfig = {
   resend_api_key: 're_123',
   sender_email_address: 'verified@example.com',
-  destination_email_address: 'admin@example.com',
   database_url: 'postgresql://testuser:testpassword@localhost:5433/testdb',
 };
 
-const missingDestinationConfig = {
-  resend_api_key: 're_123',
-  sender_email_address: 'verified@example.com',
-  destination_email_address: '',
-};
+const getNotificationEmailData = async () => ({
+  notification_email: 'to@example.com',
+  updated_by_admin_user_id: 1,
+  updated_at: new Date(),
+});
 
 beforeEach(() => {
   mockSend.mockClear();
@@ -27,14 +26,26 @@ describe('sendEmail', () => {
 
   describe('Success Paths', () => {
     test('returns ok: true when Resend succeeds', async () => {
-      const emailClient = new EmailClient(emailConfig, loggerFactory);
+      const emailClient = new EmailClient(
+        {
+          ...emailConfig,
+          getNotificationEmailData,
+        },
+        loggerFactory
+      );
       const result = await emailClient.send({ payload: [] });
       expect(result).toEqual('success');
     });
   });
 
   describe('Error Handling', () => {
-    const emailClient = new EmailClient(emailConfig, loggerFactory);
+    const emailClient = new EmailClient(
+      {
+        ...emailConfig,
+        getNotificationEmailData,
+      },
+      loggerFactory
+    );
     test('handles a Provider Error (API Rejection)', async () => {
       mockSend.mockImplementationOnce(
         async (): Promise<{ error: undefined | 'mock-error' }> => ({
@@ -57,10 +68,18 @@ describe('sendEmail', () => {
   });
 
   describe('Missing destination address handling', () => {
-    const emailConfig = mockEmailConfigReader(missingDestinationConfig);
+    const emailConfig = mockEmailConfigReader(testConfig);
     const loggerFactory = mockLoggerFactory('info');
 
-    const emailClient = new EmailClient(emailConfig, loggerFactory);
+    const emailClient = new EmailClient(
+      {
+        ...emailConfig,
+        getNotificationEmailData: async () => {
+          return null;
+        },
+      },
+      loggerFactory
+    );
 
     test('handles missing destination email address', async () => {
       const result = await emailClient.send({ payload: [] });

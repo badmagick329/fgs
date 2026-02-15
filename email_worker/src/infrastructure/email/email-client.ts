@@ -16,23 +16,23 @@ type NotificationEmailData = ReturnType<DbClient['getNotificationEmail']>;
 export class EmailClient implements INotificationSender {
   private readonly API_KEY: string;
   private readonly SENDER: string;
-  private readonly getDestinationEmailAddress: () => NotificationEmailData;
+  private readonly getNotificationEmailData: () => NotificationEmailData;
   private readonly log: Logger;
 
   constructor(
     config: EmailConfig & {
-      getDestinationEmailAddress: () => NotificationEmailData;
+      getNotificationEmailData: () => NotificationEmailData;
     },
     loggerFactory: LoggerFactory
   ) {
     this.API_KEY = config.resend_api_key;
     this.SENDER = config.sender_email_address;
-    this.getDestinationEmailAddress = config.getDestinationEmailAddress;
+    this.getNotificationEmailData = config.getNotificationEmailData;
     this.log = loggerFactory('EmailClient');
   }
 
   async send({ payload }: Notification): Promise<NotificationResult> {
-    const destination = (await this.getDestinationEmailAddress())
+    const destination = (await this.getNotificationEmailData())
       ?.notification_email;
 
     if (!destination) {
