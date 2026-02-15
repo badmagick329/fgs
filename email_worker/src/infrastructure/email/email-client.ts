@@ -46,7 +46,6 @@ export class EmailClient implements INotificationSender {
         this.log.error('Resend API Error:', error);
         return 'fail';
       }
-      this.log.info('Emails sent successfully');
       return 'success';
     } catch (err) {
       this.log.error('Unexpected Email Error', err);
