@@ -1,31 +1,40 @@
 import type {
   INotificationSender,
   IUserRepository,
+  Logger,
+  LoggerFactory,
 } from '../domain/interfaces';
 
 export class NotificationService {
-  private db: IUserRepository;
-  private notificationClient: INotificationSender;
-  constructor(db: IUserRepository, notificationClient: INotificationSender) {
+  private readonly db: IUserRepository;
+  private readonly notificationClient: INotificationSender;
+  private readonly log: Logger;
+
+  constructor(
+    db: IUserRepository,
+    notificationClient: INotificationSender,
+    loggerFactory: LoggerFactory
+  ) {
     this.db = db;
     this.notificationClient = notificationClient;
+    this.log = loggerFactory('NotificationService');
   }
   async processUnsentNotifications() {
-    this.log('Checking Notifications');
+    this.log.info('Checking Notifications');
 
     const fetchResult = await this.db.getPending();
     if (!fetchResult.ok) {
-      this.logError(fetchResult.error);
+      this.log.error(fetchResult.error);
       return;
     }
 
     if (fetchResult.data.length === 0) {
-      this.log('No pending notifications found');
+      this.log.info('No pending notifications found');
       return;
     }
 
     const notifications = fetchResult.data;
-    this.log(`Fetched ${notifications.length} pending Notifications`);
+    this.log.info(`Fetched ${notifications.length} pending Notifications`);
     const sendResult = await this.notificationClient.send({
       payload: notifications,
     });
@@ -41,10 +50,10 @@ export class NotificationService {
     notificationIds: number[]
   ) {
     if (!sendResult.ok) {
-      console.error(`Failed to send: ${sendResult.error}`);
+      this.log.error(`Failed to send: ${sendResult.error}`);
       const failUpdate = await this.db.setFailedStatus(notificationIds);
       if (!failUpdate.ok) {
-        this.logError(
+        this.log.error(
           `Failed to mark notifications as failed! - ${failUpdate.error}`
         );
       }
@@ -53,22 +62,10 @@ export class NotificationService {
 
     const successUpdate = await this.db.setSuccessStatus(notificationIds);
     if (!successUpdate.ok) {
-      this.logError(
+      this.log.error(
         `Failed to mark notifications as sent! - ${successUpdate.error}`
       );
     }
-    this.log('All notifications processed successfully');
-  }
-
-  private logError(error: string) {
-    console.error(
-      `[${new Date().toISOString()}] - [NotificationService] - ${error}`
-    );
-  }
-
-  private log(msg: string) {
-    console.log(
-      `[${new Date().toISOString()}] - [NotificationService] - ${msg}`
-    );
+    this.log.info('All notifications processed successfully');
   }
 }

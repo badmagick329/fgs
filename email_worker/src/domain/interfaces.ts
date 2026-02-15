@@ -25,3 +25,13 @@ export interface IUserRepository {
     >
   >;
 }
+
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+export type LogLevelNumber = 0 | 1 | 2 | 3;
+export interface Logger {
+  error(...args: any[]): void;
+  warn(...args: any[]): void;
+  info(...args: any[]): void;
+  debug(...args: any[]): void;
+}
+export type LoggerFactory = (source: string) => Logger;

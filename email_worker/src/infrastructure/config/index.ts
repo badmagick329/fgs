@@ -1,4 +1,4 @@
-import type { IConfig } from '@/domain';
+import type { IConfig as IEmailConfigReader } from '@/domain';
 import {
   type DatabaseConfig,
   type EmailConfig,
@@ -7,7 +7,7 @@ import {
 } from '@/domain/schemas';
 import { z } from 'zod';
 
-export class Config implements IConfig {
+export class EmailConfigReader implements IEmailConfigReader {
   constructor(private readonly notificationEmail: string) {}
   read() {
     return readConfigFromSchema(emailConfigSchema, {
@@ -16,7 +16,7 @@ export class Config implements IConfig {
     });
   }
 }
-export class MockConfig implements IConfig {
+export class MockEmailConfigReader implements IEmailConfigReader {
   constructor(private readonly testValues: EmailConfig) {}
   read() {
     return readConfigFromSchema(emailConfigSchema, {
@@ -31,17 +31,26 @@ export function getDatabaseConfig(
   return readConfigFromSchema(databaseConfigSchema, source);
 }
 
+export function getLoggerLevel() {
+  const level = process.env.LOG_EVEL?.trim().toLocaleLowerCase();
+  switch (level) {
+    case 'error':
+    case 'warn':
+    case 'info':
+    case 'debug':
+      return level;
+    default:
+      console.warn(`Invalid LOG_LEVEL value: ${level}. Defaulting to "info".`);
+      return 'info';
+  }
+}
+
+/**
+ * Crashes if config is invalid
+ */
 function readConfigFromSchema<T>(
   schema: z.ZodType<T>,
   data: Record<string, unknown>
 ): T {
-  const parsed = schema.safeParse(data);
-
-  if (!parsed.success) {
-    console.error('❌ Invalid environment variables:');
-    console.error(JSON.stringify(z.treeifyError(parsed.error), null, 2));
-    throw new Error('Invalid environment variables');
-  }
-
-  return parsed.data;
+  return schema.parse(data);
 }
