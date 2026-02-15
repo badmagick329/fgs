@@ -1,4 +1,4 @@
-import { MockConfig } from '@/infrastructure/config';
+import { MockEmailConfigReader } from '@/infrastructure/config';
 import { EmailClient } from '@/infrastructure/email/email-client';
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { type ResendResponse, mockSend } from './setup';
@@ -11,7 +11,7 @@ beforeEach(() => {
 
 describe('sendEmail', () => {
   // SECTION 1: SUCCESS SCENARIOS
-  const emailConfig = new MockConfig(testConfig).read();
+  const emailConfig = new MockEmailConfigReader(testConfig).read();
   const emailClient = new EmailClient(emailConfig);
 
   describe('Success Paths', () => {

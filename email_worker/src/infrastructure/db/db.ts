@@ -1,32 +1,41 @@
 import type { IdResult, Registration, Result } from '@/domain';
-import type { IUserRepository } from '@/domain/interfaces';
+import type {
+  IUserRepository,
+  Logger,
+  LoggerFactory,
+} from '@/domain/interfaces';
 import { Pool } from 'pg';
 
 export class DB implements IUserRepository {
   private static schemaInitByConnection = new Map<string, Promise<void>>();
   private readonly pool: Pool;
   private readonly connectionString: string;
+  private readonly log: Logger;
 
-  static async initializeSchema(connectionString: string): Promise<void> {
-    console.log(
-      `${new Date().toISOString()} - [DB] - Initializing database schema...`
-    );
+  static async initializeSchema(
+    connectionString: string,
+    log: Logger
+  ): Promise<void> {
+    log.info('Initializing database schema...');
     const init =
       this.schemaInitByConnection.get(connectionString) ??
       ensureSchema(connectionString);
     this.schemaInitByConnection.set(connectionString, init);
     await init;
-    console.log(
-      `${new Date().toISOString()} - [DB] - Database schema initialization complete.`
-    );
+    log.info('Database schema initialization complete.');
   }
 
-  static async create(connectionString: string): Promise<DB> {
-    await this.initializeSchema(connectionString);
-    return new DB(connectionString);
+  static async create(
+    connectionString: string,
+    loggerFactory: LoggerFactory
+  ): Promise<DB> {
+    const log = loggerFactory('DB');
+    await this.initializeSchema(connectionString, log);
+    return new DB(connectionString, log);
   }
 
-  constructor(connectionString: string) {
+  constructor(connectionString: string, log: Logger) {
+    this.log = log;
     this.connectionString = connectionString;
     this.pool = new Pool({
       connectionString: this.connectionString,
@@ -53,7 +62,7 @@ export class DB implements IUserRepository {
       }
       return { ok: false, error: 'No rows returned' };
     } catch (err: any) {
-      console.error('getPendingNotificationData DB Error:', err);
+      this.log.error('getPendingNotificationData DB Error:', err);
       return {
         ok: false,
         error: `Database error: ${err.message}`,
@@ -95,7 +104,7 @@ export class DB implements IUserRepository {
         error: { message: 'Notification status not set to "failed"', ids: ids },
       };
     } catch (err: any) {
-      console.error('setFailedNotificationStatus DB Error:', err);
+      this.log.error('setFailedNotificationStatus DB Error:', err);
       return {
         ok: false,
         error: { message: `Database error: ${err.message}`, ids: ids },
@@ -138,7 +147,7 @@ export class DB implements IUserRepository {
         },
       };
     } catch (err: any) {
-      console.error('setSuccessNotificationStatus DB Error:', err);
+      this.log.error('setSuccessNotificationStatus DB Error:', err);
       return {
         ok: false,
         error: { message: `Database error: ${err.message}`, ids: ids },
