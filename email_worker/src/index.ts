@@ -14,7 +14,7 @@ const log = _loggerFactory('Main');
 
 async function main(): Promise<void> {
   const dbConfig = getDatabaseConfig();
-  const db = await DB.create(dbConfig.database_url, _loggerFactory);
+  const db = await DB.create(dbConfig.databaseUrl, _loggerFactory);
 
   const emailConfig = emailConfigReader();
   const emailClient = new EmailClient(

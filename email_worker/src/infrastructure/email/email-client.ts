@@ -14,8 +14,8 @@ type DbClient = InstanceType<typeof DB>;
 type NotificationEmailData = ReturnType<DbClient['getNotificationEmail']>;
 
 export class EmailClient implements INotificationSender {
-  private readonly API_KEY: string;
-  private readonly SENDER: string;
+  private readonly apiKey: string;
+  private readonly sender: string;
   private readonly getNotificationEmailData: () => NotificationEmailData;
   private readonly log: Logger;
 
@@ -25,8 +25,8 @@ export class EmailClient implements INotificationSender {
     },
     loggerFactory: LoggerFactory
   ) {
-    this.API_KEY = config.resend_api_key;
-    this.SENDER = config.sender_email_address;
+    this.apiKey = config.resendApiKey;
+    this.sender = config.senderEmailAddress;
     this.getNotificationEmailData = config.getNotificationEmailData;
     this.log = loggerFactory('EmailClient');
   }
@@ -40,10 +40,10 @@ export class EmailClient implements INotificationSender {
       return 'missing_email';
     }
 
-    const resend = new Resend(this.API_KEY);
+    const resend = new Resend(this.apiKey);
     try {
       const { error } = await resend.emails.send({
-        from: `Registration Form <${this.SENDER}>`,
+        from: `Registration Form <${this.sender}>`,
         to: `${notificationEmailAddress}`,
         subject: 'New Student Registration',
         react: EmailTemplate({

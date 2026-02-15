@@ -11,7 +11,7 @@ import {
 import { mockLoggerFactory } from './mock-logger';
 
 export const testConfig = {
-  database_url: 'postgresql://testuser:testpassword@localhost:5433/testdb',
+  databaseUrl: 'postgresql://testuser:testpassword@localhost:5433/testdb',
 };
 
 const dbConfig = getDatabaseConfig(testConfig);
@@ -19,15 +19,15 @@ const dbConfig = getDatabaseConfig(testConfig);
 const loggerFactory = mockLoggerFactory('info');
 const log = loggerFactory('DB');
 
-const db = new DB(dbConfig.database_url, log);
+const db = new DB(dbConfig.databaseUrl, log);
 
 describe('Database Functions', () => {
   beforeAll(async () => {
-    await DB.initializeSchema(dbConfig.database_url, log);
+    await DB.initializeSchema(dbConfig.databaseUrl, log);
   });
 
   beforeEach(async () => {
-    if (!dbConfig.database_url?.includes('test')) {
+    if (!dbConfig.databaseUrl?.includes('test')) {
       throw new Error('DANGER: Running tests against non-test DB!');
     }
     await db.query('TRUNCATE TABLE registrations RESTART IDENTITY CASCADE');
