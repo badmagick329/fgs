@@ -31,6 +31,7 @@ const server = Bun.serve({
   async fetch(request: Request): Promise<Response> {
     const bodyText = await request.text();
     let parsedBody: unknown = null;
+    const requestHeaders: Record<string, string> = {};
 
     if (bodyText.length > 0) {
       try {
@@ -40,10 +41,14 @@ const server = Bun.serve({
       }
     }
 
+    request.headers.forEach((value, key) => {
+      requestHeaders[key] = value;
+    });
+
     capturedRequests.push({
       method: request.method,
       path: new URL(request.url).pathname,
-      headers: Object.fromEntries(request.headers.entries()),
+      headers: requestHeaders,
       body: parsedBody,
     });
 
@@ -91,4 +96,3 @@ afterAll(() => {
   process.env.SENDER_EMAIL_ADDRESS = previousEnv.SENDER_EMAIL_ADDRESS;
   process.env.RESEND_BASE_URL = previousEnv.RESEND_BASE_URL;
 });
-
