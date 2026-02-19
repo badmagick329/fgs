@@ -5,6 +5,23 @@ import { Result, errorsFromZod } from '@/lib/result';
 import { getServerContainer } from '@/lib/serveronly/container';
 import { errorMessageFromErrors } from '@/lib/utils';
 
+function getClientIp(req: Request): string {
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    const firstIp = forwardedFor.split(',')[0]?.trim();
+    if (firstIp) {
+      return firstIp;
+    }
+  }
+
+  const realIp = req.headers.get('x-real-ip')?.trim();
+  if (realIp) {
+    return realIp;
+  }
+
+  return 'unknown';
+}
+
 export async function GET() {
   const { adminAccessService, registrationService } = getServerContainer();
   const authResult = await adminAccessService.requireAdminRouteAuth({
@@ -44,7 +61,23 @@ export async function GET() {
 export async function POST(
   req: Request
 ): Promise<NextResponse<Result<Registration>>> {
-  const { registrationService } = getServerContainer();
+  const { registrationService, registrationAntiSpamService } =
+    getServerContainer();
+
+  const clientIp = getClientIp(req);
+  const rateLimitResult = registrationAntiSpamService.checkRateLimit({
+    ip: clientIp,
+    route: API.register,
+  });
+  if (!rateLimitResult.ok) {
+    return NextResponse.json(
+      {
+        ok: false as const,
+        message: rateLimitResult.message,
+      },
+      { status: rateLimitResult.status }
+    );
+  }
 
   const body = await req.json().catch(() => {});
   const createdParsed = createRegistrationSchema.safeParse(body);
@@ -57,6 +90,48 @@ export async function POST(
         errors,
       },
       { status: 400 }
+    );
+  }
+
+  const honeypotResult = registrationAntiSpamService.checkHoneypot(
+    createdParsed.data.honeypot
+  );
+  if (!honeypotResult.ok) {
+    return NextResponse.json(
+      {
+        ok: false as const,
+        message: honeypotResult.message,
+      },
+      { status: honeypotResult.status }
+    );
+  }
+
+  const submitTimeResult = registrationAntiSpamService.checkMinimumSubmitTime(
+    createdParsed.data.formStartedAt
+  );
+  if (!submitTimeResult.ok) {
+    return NextResponse.json(
+      {
+        ok: false as const,
+        message: submitTimeResult.message,
+      },
+      { status: submitTimeResult.status }
+    );
+  }
+
+  const payloadCooldownResult =
+    registrationAntiSpamService.checkPayloadCooldown({
+      firstName: createdParsed.data.firstName,
+      lastName: createdParsed.data.lastName,
+      email: createdParsed.data.email,
+    });
+  if (!payloadCooldownResult.ok) {
+    return NextResponse.json(
+      {
+        ok: false as const,
+        message: payloadCooldownResult.message,
+      },
+      { status: payloadCooldownResult.status }
     );
   }
 
@@ -81,8 +156,11 @@ export async function POST(
     );
   }
 
+  registrationAntiSpamService.markPayloadSubmitted({
+    firstName: createdParsed.data.firstName,
+    lastName: createdParsed.data.lastName,
+    email: createdParsed.data.email,
+  });
+
   return NextResponse.json(creationResult, { status: 201 });
 }
-
-
-

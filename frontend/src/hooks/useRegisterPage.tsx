@@ -1,5 +1,4 @@
 'use client';
-import { API } from '@/lib/consts';
 import {
   type CreateRegistration,
   createRegistrationSchema,
@@ -7,10 +6,28 @@ import {
 } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { API } from '@/lib/consts';
+
+function getRequestErrorMessage(status: number, fallback?: string) {
+  if (status === 429) {
+    return 'Too many attempts. Please wait a few minutes and try again.';
+  }
+
+  if (status === 409) {
+    return 'This registration was already submitted recently. Please wait before trying again.';
+  }
+
+  if (status === 400) {
+    return fallback ?? 'Please review your details and try submitting again.';
+  }
+
+  return fallback ?? 'An unexpected error occurred. Please try again later.';
+}
 
 export default function useRegisterPage() {
+  const formStartedAtRef = useRef(Date.now());
   const [status, setStatus] = useState<string | null>(null);
 
   const {
@@ -32,26 +49,41 @@ export default function useRegisterPage() {
         body: JSON.stringify(values),
       });
 
-      const json = await res.json();
+      const json = await res.json().catch(() => undefined);
       const parsed = registrationResultSchema.safeParse(json);
       if (!parsed.success) {
-        throw new Error('Invalid response from server.');
+        throw new Error(getRequestErrorMessage(res.status));
       }
+
+      if (!res.ok && !parsed.data.ok) {
+        throw new Error(
+          getRequestErrorMessage(res.status, parsed.data.message)
+        );
+      }
+
       return parsed.data;
     },
     onError: (error) => {
       console.error('Registration error:', error);
-      setStatus('An unexpected error occurred. Please try again later.');
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred. Please try again later.';
+      setStatus(message);
     },
   });
 
   async function onSubmit(values: CreateRegistration) {
     setStatus(null);
     try {
-      const json = await registerMutation.mutateAsync(values);
+      const json = await registerMutation.mutateAsync({
+        ...values,
+        formStartedAt: formStartedAtRef.current,
+      });
       if (json.ok) {
         setStatus('Registered!');
         reset();
+        formStartedAtRef.current = Date.now();
         return;
       }
 
@@ -70,8 +102,11 @@ export default function useRegisterPage() {
           message: json.message ?? 'An unexpected error occurred.',
         });
       }
-    } catch {
-      const message = 'An unexpected error occurred. Please try again later.';
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred. Please try again later.';
       setStatus(message);
       setError('root.server', { type: 'server', message });
     }
