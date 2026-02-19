@@ -1,6 +1,5 @@
 'use client';
 
-import { API } from '@/lib/consts';
 import {
   type CreateRegistration,
   createRegistrationSchema,
@@ -8,10 +7,28 @@ import {
 } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { API } from '@/lib/consts';
+
+function getRequestErrorMessage(status: number, fallback?: string) {
+  if (status === 429) {
+    return 'Too many attempts. Please wait a few minutes and try again.';
+  }
+
+  if (status === 409) {
+    return 'This registration was already submitted.';
+  }
+
+  if (status === 400) {
+    return fallback ?? 'Please review your details and try submitting again.';
+  }
+
+  return fallback ?? 'Unable to submit right now. Please try again shortly.';
+}
 
 export default function AdmissionInterestForm() {
+  const formStartedAtRef = useRef(Date.now());
   const [status, setStatus] = useState<{
     tone: 'success';
     message: string;
@@ -29,6 +46,7 @@ export default function AdmissionInterestForm() {
       firstName: '',
       lastName: '',
       email: '',
+      honeypot: '',
     },
   });
 
@@ -40,10 +58,16 @@ export default function AdmissionInterestForm() {
         body: JSON.stringify(values),
       });
 
-      const payload = await res.json();
+      const payload = await res.json().catch(() => undefined);
       const parsed = registrationResultSchema.safeParse(payload);
       if (!parsed.success) {
-        throw new Error('Invalid response from server.');
+        throw new Error(getRequestErrorMessage(res.status));
+      }
+
+      if (!res.ok && !parsed.data.ok) {
+        throw new Error(
+          getRequestErrorMessage(res.status, parsed.data.message)
+        );
       }
 
       return parsed.data;
@@ -54,9 +78,13 @@ export default function AdmissionInterestForm() {
     setStatus(null);
     setError('root.server', { type: 'server', message: '' });
     try {
-      const result = await submitInterest.mutateAsync(values);
+      const result = await submitInterest.mutateAsync({
+        ...values,
+        formStartedAt: formStartedAtRef.current,
+      });
       if (result.ok) {
         reset();
+        formStartedAtRef.current = Date.now();
         setStatus({
           tone: 'success',
           message:
@@ -79,8 +107,11 @@ export default function AdmissionInterestForm() {
           message: result.message,
         });
       }
-    } catch {
-      const message = 'Unable to submit right now. Please try again shortly.';
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unable to submit right now. Please try again shortly.';
       setError('root.server', { type: 'server', message });
     }
   }
@@ -176,6 +207,17 @@ export default function AdmissionInterestForm() {
         )}
       </div>
 
+      <div aria-hidden='true' className='hidden'>
+        <label htmlFor='website'>Website</label>
+        <input
+          id='website'
+          type='text'
+          tabIndex={-1}
+          autoComplete='off'
+          {...register('honeypot')}
+        />
+      </div>
+
       <p className='mt-4 text-xs text-muted-foreground'>
         This registers admission interest only and does not confirm enrollment.
       </p>
@@ -195,10 +237,7 @@ export default function AdmissionInterestForm() {
       )}
 
       {status && (
-        <p
-          role='status'
-          className='mt-3 text-xs text-emerald-700'
-        >
+        <p role='status' className='mt-3 text-xs text-emerald-700'>
           {status.message}
         </p>
       )}

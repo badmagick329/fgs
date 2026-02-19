@@ -20,13 +20,17 @@ export const createRegistrationSchema = z.object({
   firstName: z.string().trim().nonempty({ error: 'First name is required' }),
   lastName: z.string().trim().nonempty({ error: 'Last name is required' }),
   email: z.email({ error: 'Invalid email address' }),
+  honeypot: z.string().optional(),
+  formStartedAt: z.number().finite().optional(),
 });
 
 export type CreateRegistration = z.infer<typeof createRegistrationSchema>;
 
 export const adminCredentialsSchema = z.object({
   email: z.email({ error: 'Invalid email address' }),
-  password: z.string().min(8, { error: 'Password must be at least 8 characters' }),
+  password: z
+    .string()
+    .min(8, { error: 'Password must be at least 8 characters' }),
 });
 
 export type AdminCredentials = z.infer<typeof adminCredentialsSchema>;
