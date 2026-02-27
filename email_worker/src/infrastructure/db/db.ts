@@ -1,10 +1,10 @@
-import type { IdResult, Registration } from '@/domain/interfaces';
-import type { Result } from '@/domain/interfaces';
 import type {
-  IUserRepository,
-  Logger,
-  LoggerFactory,
+  IdResult,
+  LoggerCreator,
+  Registration,
 } from '@/domain/interfaces';
+import type { Result } from '@/domain/interfaces';
+import type { IUserRepository, Logger } from '@/domain/interfaces';
 import { Pool } from 'pg';
 
 export class DB implements IUserRepository {
@@ -28,9 +28,9 @@ export class DB implements IUserRepository {
 
   static async create(
     connectionString: string,
-    loggerFactory: LoggerFactory
+    loggerCreator: LoggerCreator
   ): Promise<DB> {
-    const log = loggerFactory('DB');
+    const log = loggerCreator('DB');
     await this.initializeSchema(connectionString, log);
     return new DB(connectionString, log);
   }

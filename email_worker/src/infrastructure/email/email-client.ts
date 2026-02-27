@@ -2,7 +2,7 @@ import type { Notification } from '@/domain/interfaces';
 import {
   type INotificationSender,
   type Logger,
-  type LoggerFactory,
+  type LoggerCreator,
   type NotificationResult,
 } from '@/domain/interfaces';
 import { type EmailConfig } from '@/domain/schemas';
@@ -23,12 +23,12 @@ export class EmailClient implements INotificationSender {
     config: EmailConfig & {
       getNotificationEmailData: () => NotificationEmailData;
     },
-    loggerFactory: LoggerFactory
+    loggerCreator: LoggerCreator
   ) {
     this.apiKey = config.resendApiKey;
     this.sender = config.senderEmailAddress;
     this.getNotificationEmailData = config.getNotificationEmailData;
-    this.log = loggerFactory('EmailClient');
+    this.log = loggerCreator('EmailClient');
   }
 
   async send({ payload }: Notification): Promise<NotificationResult> {

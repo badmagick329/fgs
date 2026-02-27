@@ -2,7 +2,7 @@ import type {
   INotificationSender,
   IUserRepository,
   Logger,
-  LoggerFactory,
+  LoggerCreator,
 } from '../domain/interfaces';
 
 export class NotificationService {
@@ -13,11 +13,11 @@ export class NotificationService {
   constructor(
     db: IUserRepository,
     notificationClient: INotificationSender,
-    loggerFactory: LoggerFactory
+    loggerCreator: LoggerCreator
   ) {
     this.db = db;
     this.notificationClient = notificationClient;
-    this.log = loggerFactory('NotificationService');
+    this.log = loggerCreator('NotificationService');
   }
   async processUnsentNotifications() {
     this.log.info('Checking Notifications');
