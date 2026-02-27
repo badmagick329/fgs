@@ -35,7 +35,8 @@ export interface Logger {
   info(...args: any[]): void;
   debug(...args: any[]): void;
 }
-export type LoggerFactory = (source: string) => Logger;
+export type LoggerCreator = (source: string) => Logger;
+export type LoggerFactory = (level: LogLevel) => LoggerCreator;
 
 export type Result<S, F> = Success<S> | Failure<F>;
 
