@@ -227,7 +227,7 @@ export default function AdmissionInterestForm() {
         disabled={isDisabled}
         className='fgs-btn-primary mt-4 w-full justify-center disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto'
       >
-        {isDisabled ? 'Submitting...' : 'Register Interest'}
+        {isDisabled ? 'Submitting...' : 'Start Registration'}
       </button>
 
       {errors.root?.server?.message && (
