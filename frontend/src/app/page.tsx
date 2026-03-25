@@ -1,5 +1,5 @@
-import { getPreviewPage } from '@/app/_previews';
-import { resolvePreview } from '@/app/_previews/resolver';
+import { PreviewPage } from '@/app/_preview';
+import { shouldShowPreview } from '@/app/_preview/resolver';
 import UnderConstruction from '@/app/_components/UnderConstruction';
 
 export default async function Home({
@@ -8,10 +8,7 @@ export default async function Home({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const previewId = resolvePreview(sp);
-
-  if (previewId) {
-    const PreviewPage = getPreviewPage(previewId);
+  if (shouldShowPreview(sp)) {
     return <PreviewPage />;
   }
 

@@ -20,7 +20,7 @@ export default function ContactSection() {
           </article>
         </div>
         <div className='mt-6'>
-          <h3 className='fgs-subheading'>Admission Interest Form</h3>
+          <h3 className='fgs-subheading'>Registration Form</h3>
           <p className='fgs-copy mt-2'>
             Share student details so our admissions team can follow up with next
             steps.

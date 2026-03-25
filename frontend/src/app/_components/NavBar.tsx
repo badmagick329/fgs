@@ -2,7 +2,6 @@ import Image from 'next/image';
 
 export type SectionId =
   | 'about'
-  | 'founders'
   | 'ceo-message'
   | 'why-fgs'
   | 'join'
