@@ -64,10 +64,14 @@ export const achievementsContent = {
 
 export const galleryContent = {
   title: 'Student Life Gallery',
-  cards: [
-    'Classroom Learning',
-    'Co-Curricular Activities',
-    'Events & Celebrations',
-    'Sports & Teamwork',
+  images: [
+    { src: '/img01.webp', alt: 'Student life gallery image 1' },
+    { src: '/img04.webp', alt: 'Student life gallery image 2' },
+    { src: '/img05.webp', alt: 'Student life gallery image 2' },
+    { src: '/img06.webp', alt: 'Student life gallery image 3' },
+    { src: '/img07.webp', alt: 'Student life gallery image 4' },
+    { src: '/img08.webp', alt: 'Student life gallery image 5' },
+    { src: '/img09.webp', alt: 'Student life gallery image 6' },
+    { src: '/img12.webp', alt: 'Student life gallery image 8' },
   ],
 };

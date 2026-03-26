@@ -1,3 +1,4 @@
+import GalleryImageCard from '@/app/_marketing/sections/GalleryImageCard';
 import { galleryContent } from '../content';
 
 export default function GallerySection() {
@@ -8,11 +9,13 @@ export default function GallerySection() {
           <h2 className='fgs-heading mt-3'>{galleryContent.title}</h2>
         </div>
 
-        <div className='mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
-          {galleryContent.cards.map((card) => (
-            <article key={card} className='fgs-card'>
-              <div className='fgs-placeholder aspect-4/3 text-xs'>{card}</div>
-            </article>
+        <div className='mt-6 grid justify-items-center gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+          {galleryContent.images.map((image) => (
+            <GalleryImageCard
+              key={image.src}
+              src={image.src}
+              alt={image.alt}
+            />
           ))}
         </div>
       </div>
