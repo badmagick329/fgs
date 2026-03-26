@@ -1,4 +1,4 @@
-import FoundersSection from '@/app/_marketing/sections/FoundersSections';
+import FoundersSection from '@/app/_marketing/sections/FoundersSection';
 
 export default function AboutSection() {
   return (

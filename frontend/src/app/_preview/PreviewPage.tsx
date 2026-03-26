@@ -1,17 +1,17 @@
-import ContactSection from '@/app/_components/ContactSection';
-import JoinSection from '@/app/_components/JoinSection';
-import WhyFgsSection from '@/app/_components/WhyFgsSection';
 import PreviewShell from '@/app/_marketing/PreviewShell';
-import { previewOneNavItems } from '@/app/_marketing/content';
+import { marketingNavItems } from '@/app/_marketing/content';
 import AboutSection from '@/app/_marketing/sections/AboutSection';
 import CeoMessageSection from '@/app/_marketing/sections/CeoMessageSection';
+import ContactSection from '@/app/_marketing/sections/ContactSection';
 import GallerySection from '@/app/_marketing/sections/GallerySection';
 import HighlightsStrip from '@/app/_marketing/sections/HighlightsStrip';
+import JoinSection from '@/app/_marketing/sections/JoinSection';
 import MarketingHero from '@/app/_marketing/sections/MarketingHero';
+import WhyFgsSection from '@/app/_marketing/sections/WhyFgsSection';
 
 export default function PreviewPage() {
   return (
-    <PreviewShell navItems={previewOneNavItems}>
+    <PreviewShell navItems={marketingNavItems}>
       <MarketingHero />
       <CeoMessageSection />
       <AboutSection />
