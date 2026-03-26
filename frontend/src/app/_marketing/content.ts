@@ -1,6 +1,6 @@
 import type { MarketingNavItem, MarketingParagraphBlock } from './types';
 
-export const previewOneNavItems: MarketingNavItem[] = [
+export const marketingNavItems: MarketingNavItem[] = [
   { id: 'ceo-message', label: 'CEO Message' },
   { id: 'about', label: 'About' },
   { id: 'why-fgs', label: 'Why FGS' },
@@ -62,16 +62,97 @@ export const achievementsContent = {
   ],
 };
 
+export const whyFgsContent = {
+  title: 'Why Join Farooqi Grammar School?',
+  reasons: [
+    {
+      title: 'Strong Academic Foundation',
+      description:
+        'At Farooqi Grammar School, we focus on building clear concepts and excellent exam preparation so students achieve strong academic results and lifelong learning habits.',
+    },
+    {
+      title: 'Character with Culture',
+      description:
+        'The school aims to provide quality English-medium education within our cultural, religious, and historical framework, ensuring students grow with strong values alongside modern knowledge.',
+    },
+    {
+      title: 'Individual Attention',
+      description:
+        'We believe every child matters. With focused classroom support and caring teachers, students receive the attention they need to succeed.',
+    },
+    {
+      title: 'Affordable Quality Education',
+      description:
+        'High standards do not have to mean high fees. Farooqi Grammar School is committed to making quality education accessible to families from all backgrounds.',
+    },
+    {
+      title: 'Holistic Development',
+      description:
+        'Beyond textbooks, students participate in co-curricular activities, competitions and events, confidence-building opportunities, and moral and personality development.',
+    },
+    {
+      title: 'Safe & Nurturing Environment',
+      description:
+        'We provide a disciplined, respectful, and child-friendly atmosphere where students feel secure and motivated to learn.',
+    },
+    {
+      title: 'Vision for the Future',
+      description:
+        'Our mission is to empower students with knowledge, confidence, and values so they become responsible and successful members of society.',
+    },
+  ],
+};
+
 export const galleryContent = {
   title: 'Student Life Gallery',
   images: [
     { src: '/img01.webp', alt: 'Student life gallery image 1' },
     { src: '/img04.webp', alt: 'Student life gallery image 2' },
-    { src: '/img05.webp', alt: 'Student life gallery image 2' },
-    { src: '/img06.webp', alt: 'Student life gallery image 3' },
-    { src: '/img07.webp', alt: 'Student life gallery image 4' },
-    { src: '/img08.webp', alt: 'Student life gallery image 5' },
-    { src: '/img09.webp', alt: 'Student life gallery image 6' },
+    { src: '/img05.webp', alt: 'Student life gallery image 3' },
+    { src: '/img06.webp', alt: 'Student life gallery image 4' },
+    { src: '/img07.webp', alt: 'Student life gallery image 5' },
+    { src: '/img08.webp', alt: 'Student life gallery image 6' },
+    { src: '/img09.webp', alt: 'Student life gallery image 7' },
     { src: '/img12.webp', alt: 'Student life gallery image 8' },
   ],
+};
+
+export const joinContent = {
+  title: 'Join FGS',
+  cards: [
+    {
+      title: 'Admissions',
+      description:
+        'Register your interest and we will contact you with the next steps.',
+      cta: {
+        href: '#contact',
+        label: 'Start Admission',
+        className: 'fgs-btn-primary',
+      },
+    },
+    {
+      title: 'Career Opportunities',
+      description:
+        'Join a mission-focused team committed to student success and continuous growth.',
+      cta: {
+        href: '#contact',
+        label: 'View Opportunities',
+        className: 'fgs-btn-secondary',
+      },
+    },
+  ],
+};
+
+export const contactContent = {
+  title: 'Contact',
+  details: [
+    { title: 'Phone', value: '+92 000 0000000' },
+    { title: 'Email', value: 'info@farooqigrammar.school' },
+    { title: 'Address', value: 'FGS Campus, Lahore, Pakistan' },
+  ],
+  form: {
+    title: 'Registration Form',
+    description:
+      'Share student details so our admissions team can follow up with next steps.',
+  },
 };

@@ -1,7 +1,13 @@
-import type { SectionId } from '@/app/_components/NavBar';
+export type MarketingSectionId =
+  | 'about'
+  | 'ceo-message'
+  | 'why-fgs'
+  | 'join'
+  | 'gallery'
+  | 'contact';
 
 export type MarketingNavItem = {
-  id: SectionId;
+  id: MarketingSectionId;
   label: string;
 };
 

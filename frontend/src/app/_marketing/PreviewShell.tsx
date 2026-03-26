@@ -1,5 +1,5 @@
-import LandingFooter from '@/app/_components/LandingFooter';
-import NavBar from '@/app/_components/NavBar';
+import MarketingFooter from './MarketingFooter';
+import MarketingNav from './MarketingNav';
 import type { MarketingNavItem } from './types';
 
 type PreviewShellProps = {
@@ -13,9 +13,9 @@ export default function PreviewShell({
 }: PreviewShellProps) {
   return (
     <main id='top' className='min-h-screen bg-fgs-surface text-fgs-ink'>
-      <NavBar items={navItems} />
+      <MarketingNav items={navItems} />
       {children}
-      <LandingFooter items={navItems} />
+      <MarketingFooter items={navItems} />
     </main>
   );
 }

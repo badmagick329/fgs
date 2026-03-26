@@ -10,44 +10,7 @@ import {
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { useEffect, useRef, useState } from 'react';
-
-const reasons = [
-  {
-    title: 'Strong Academic Foundation',
-    description:
-      'At Farooqi Grammar School, we focus on building clear concepts and excellent exam preparation so students achieve strong academic results and lifelong learning habits.',
-  },
-  {
-    title: 'Character with Culture',
-    description:
-      'The school aims to provide quality English-medium education within our cultural, religious, and historical framework, ensuring students grow with strong values alongside modern knowledge.',
-  },
-  {
-    title: 'Individual Attention',
-    description:
-      'We believe every child matters. With focused classroom support and caring teachers, students receive the attention they need to succeed.',
-  },
-  {
-    title: 'Affordable Quality Education',
-    description:
-      'High standards do not have to mean high fees. Farooqi Grammar School is committed to making quality education accessible to families from all backgrounds.',
-  },
-  {
-    title: 'Holistic Development',
-    description:
-      'Beyond textbooks, students participate in co-curricular activities, competitions and events, confidence-building opportunities, and moral and personality development.',
-  },
-  {
-    title: 'Safe & Nurturing Environment',
-    description:
-      'We provide a disciplined, respectful, and child-friendly atmosphere where students feel secure and motivated to learn.',
-  },
-  {
-    title: 'Vision for the Future',
-    description:
-      'Our mission is to empower students with knowledge, confidence, and values so they become responsible and successful members of society.',
-  },
-];
+import { whyFgsContent } from '../content';
 
 export default function WhyFgsSection() {
   const autoplay = useRef(
@@ -86,7 +49,7 @@ export default function WhyFgsSection() {
   return (
     <section id='why-fgs' className='fgs-section reveal'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-        <h2 className='fgs-heading'>Why Join Farooqi Grammar School?</h2>
+        <h2 className='fgs-heading'>{whyFgsContent.title}</h2>
         <Carousel
           setApi={setApi}
           plugins={[autoplay.current]}
@@ -94,7 +57,7 @@ export default function WhyFgsSection() {
           className='mt-6 px-10 sm:px-12'
         >
           <CarouselContent className='items-start'>
-            {reasons.map((item) => (
+            {whyFgsContent.reasons.map((item) => (
               <CarouselItem
                 key={item.title}
                 className='basis-full sm:basis-1/2 lg:basis-1/3'

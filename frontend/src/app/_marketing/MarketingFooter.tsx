@@ -1,10 +1,10 @@
-import { type SectionId } from '@/app/_components/NavBar';
+import type { MarketingNavItem } from './types';
 
-type LandingFooterProps = {
-  items: { id: SectionId; label: string }[];
+type MarketingFooterProps = {
+  items: MarketingNavItem[];
 };
 
-export default function LandingFooter({ items }: LandingFooterProps) {
+export default function MarketingFooter({ items }: MarketingFooterProps) {
   return (
     <footer className='border-t border-border bg-card'>
       <div className='mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8'>

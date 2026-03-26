@@ -1,23 +1,11 @@
 import Image from 'next/image';
+import type { MarketingNavItem } from './types';
 
-export type SectionId =
-  | 'about'
-  | 'ceo-message'
-  | 'why-fgs'
-  | 'join'
-  | 'gallery'
-  | 'contact';
-
-type NavItem = {
-  id: SectionId;
-  label: string;
+type MarketingNavProps = {
+  items: MarketingNavItem[];
 };
 
-type NavBarProps = {
-  items: NavItem[];
-};
-
-export default function NavBar({ items }: NavBarProps) {
+export default function MarketingNav({ items }: MarketingNavProps) {
   return (
     <header className='sticky top-0 z-50 border-b border-border bg-card/90 backdrop-blur-sm'>
       <div className='mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8'>
