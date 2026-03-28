@@ -4,7 +4,7 @@ import { heroContent } from '../content';
 export default function MarketingHero() {
   return (
     <section className='fgs-hero'>
-      <div className='mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24'>
+      <div className='mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20'>
         <div className='reveal space-y-6'>
           <p className='inline-flex rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-foreground'>
             {heroContent.eyebrow}
@@ -19,25 +19,25 @@ export default function MarketingHero() {
             <a className='fgs-btn-primary' href={heroContent.primaryCta.href}>
               {heroContent.primaryCta.label}
             </a>
-            <a className='fgs-btn-secondary' href={heroContent.secondaryCta.href}>
+            <a
+              className='fgs-btn-secondary'
+              href={heroContent.secondaryCta.href}
+            >
               {heroContent.secondaryCta.label}
             </a>
           </div>
         </div>
 
-        <div className='reveal space-y-4'>
-          <div className='rounded-2xl border border-border bg-card p-6 shadow-sm'>
+        <div className='reveal'>
+          <div className='rounded-[1.75rem] border border-border bg-card p-8 shadow-sm sm:p-10'>
             <Image
               src='/fgs-logo.png'
               alt='FGS logo'
               width={220}
               height={220}
-              className='mx-auto h-auto w-35 sm:w-45'
+              className='mx-auto h-auto w-44 sm:w-52'
               priority
             />
-          </div>
-          <div className='fgs-placeholder aspect-16/10'>
-            {heroContent.showcaseLabel}
           </div>
         </div>
       </div>
