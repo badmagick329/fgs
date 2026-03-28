@@ -27,7 +27,7 @@ function getRequestErrorMessage(status: number, fallback?: string) {
   return fallback ?? 'Unable to submit right now. Please try again shortly.';
 }
 
-export default function AdmissionInterestForm() {
+export default function RegistrationForm() {
   const formStartedAtRef = useRef(Date.now());
   const [status, setStatus] = useState<{
     tone: 'success';
@@ -217,10 +217,6 @@ export default function AdmissionInterestForm() {
           {...register('honeypot')}
         />
       </div>
-
-      <p className='mt-4 text-xs text-muted-foreground'>
-        This registers admission interest only and does not confirm enrollment.
-      </p>
 
       <button
         type='submit'

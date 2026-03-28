@@ -15,7 +15,6 @@ export const heroContent = {
     'A values-driven learning environment where students grow in knowledge, confidence, and purpose.',
   primaryCta: { href: '#contact', label: 'Apply for Admission' },
   secondaryCta: { href: '#gallery', label: 'Explore Student Life' },
-  showcaseLabel: 'Student Life Gallery Preview',
 };
 
 export const ceoMessageContent: MarketingParagraphBlock = {
@@ -145,10 +144,35 @@ export const joinContent = {
 
 export const contactContent = {
   title: 'Contact',
-  details: [
-    { title: 'Phone', value: '+92 000 0000000' },
-    { title: 'Email', value: 'info@farooqigrammar.school' },
-    { title: 'Address', value: 'FGS Campus, Lahore, Pakistan' },
+  shared: {
+    title: 'Get in Touch',
+    email: 'info@farooqigrammar.school',
+  },
+  campusesTitle: 'Campuses',
+  campuses: [
+    {
+      name: 'Boys Campus',
+      phones: ['042-37731101', '042-37703255', '042-37726943'],
+      address:
+        '11 Shafi Street, Kacha Ravi Rd, Data Gunj Buksh Town, Lahore, 54000, Pakistan',
+    },
+    {
+      name: 'Girls Campus',
+      phones: ['042-37731101', '042-37703255', '042-37726943'],
+      address:
+        '12 Shafi Street, Kacha Ravi Rd, Data Gunj Buksh Town, Lahore, 54000, Pakistan',
+    },
+    {
+      name: 'Kids Campus',
+      phones: ['042-37726073', '042-37130138'],
+      address: 'Placeholder',
+    },
+    {
+      name: 'Edward Road Campus',
+      phones: ['042-37237556'],
+      address:
+        '2-Edward Roard, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
+    },
   ],
   form: {
     title: 'Registration Form',
