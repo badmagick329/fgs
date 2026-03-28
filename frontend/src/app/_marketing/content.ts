@@ -155,23 +155,27 @@ export const contactContent = {
       phones: ['042-37731101', '042-37703255', '042-37726943'],
       address:
         '11 Shafi Street, Kacha Ravi Rd, Data Gunj Buksh Town, Lahore, 54000, Pakistan',
+      mapUrl: 'https://maps.app.goo.gl/o5dqafF5sEvSB5Xd7',
     },
     {
       name: 'Girls Campus',
       phones: ['042-37731101', '042-37703255', '042-37726943'],
       address:
         '12 Shafi Street, Kacha Ravi Rd, Data Gunj Buksh Town, Lahore, 54000, Pakistan',
+      mapUrl: 'https://maps.app.goo.gl/o5dqafF5sEvSB5Xd7',
     },
     {
       name: 'Kids Campus',
       phones: ['042-37726073', '042-37130138'],
       address: 'H7QW+9PM, Ameen Park Karim Park, Lahore, Pakistan',
+      mapUrl: 'https://maps.app.goo.gl/L42sT8JcjhaoEnN3A',
     },
     {
       name: 'Edward Road Campus',
       phones: ['042-37237556'],
       address:
         '2-Edward Roard, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
+      mapUrl: 'https://maps.app.goo.gl/WVFeJu9PwpdPEvem9',
     },
   ],
   form: {

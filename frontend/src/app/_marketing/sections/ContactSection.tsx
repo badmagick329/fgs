@@ -34,6 +34,14 @@ export default function ContactSection() {
                 <div className='mt-4'>
                   <p className='text-fgs-ink text-sm font-medium'>Address</p>
                   <p className='fgs-copy mt-1.5'>{campus.address}</p>
+                  <a
+                    className='fgs-link mt-3 inline-flex text-sm font-medium text-brand-blue'
+                    href={campus.mapUrl}
+                    target='_blank'
+                    rel='noreferrer'
+                  >
+                    View on Map
+                  </a>
                 </div>
               </article>
             ))}
