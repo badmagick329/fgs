@@ -165,7 +165,7 @@ export const contactContent = {
     {
       name: 'Kids Campus',
       phones: ['042-37726073', '042-37130138'],
-      address: 'Placeholder',
+      address: 'H7QW+9PM, Ameen Park Karim Park, Lahore, Pakistan',
     },
     {
       name: 'Edward Road Campus',
@@ -175,8 +175,11 @@ export const contactContent = {
     },
   ],
   form: {
-    title: 'Registration Form',
-    description:
-      'Share student details so our admissions team can follow up with next steps.',
+    title: 'Registration',
+    description: 'Book an appointment with our admissions team.',
+    cta: {
+      href: 'https://cal.com/your-booking-link',
+      label: 'Book Registration Appointment',
+    },
   },
 };
