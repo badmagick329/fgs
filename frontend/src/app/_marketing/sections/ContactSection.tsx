@@ -25,9 +25,13 @@ export default function ContactSection() {
                   <p className='text-fgs-ink text-sm font-medium'>Phone</p>
                   <div className='mt-1.5 space-y-1'>
                     {campus.phones.map((phone) => (
-                      <p key={phone} className='fgs-copy'>
-                        {phone}
-                      </p>
+                      <a
+                        key={phone.href}
+                        className='fgs-copy block text-brand-blue hover:underline'
+                        href={phone.href}
+                      >
+                        {phone.display}
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -35,7 +39,7 @@ export default function ContactSection() {
                   <p className='text-fgs-ink text-sm font-medium'>Address</p>
                   <p className='fgs-copy mt-1.5'>{campus.address}</p>
                   <a
-                    className='fgs-link mt-3 inline-flex text-sm font-medium text-brand-blue'
+                    className='mt-3 inline-flex items-center justify-center rounded-lg border border-brand-blue px-3 py-2 text-sm font-medium text-brand-blue transition-colors hover:bg-brand-blue hover:text-white'
                     href={campus.mapUrl}
                     target='_blank'
                     rel='noreferrer'
