@@ -4,6 +4,7 @@ export type MarketingSectionId =
   | 'why-fgs'
   | 'join'
   | 'gallery'
+  | 'registration'
   | 'contact';
 
 export type MarketingNavItem = {

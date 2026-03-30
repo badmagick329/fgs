@@ -53,7 +53,7 @@ export default function ContactSection() {
           </div>
         </div>
 
-        <div className='mt-6'>
+        <div id='registration' className='mt-6 scroll-mt-24'>
           <h3 className='fgs-subheading'>{contactContent.form.title}</h3>
           <p className='fgs-copy mt-2'>{contactContent.form.description}</p>
           <div className='mt-4'>

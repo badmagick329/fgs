@@ -5,6 +5,7 @@ export const marketingNavItems: MarketingNavItem[] = [
   { id: 'about', label: 'About' },
   { id: 'why-fgs', label: 'Why FGS' },
   { id: 'gallery', label: 'Gallery' },
+  { id: 'registration', label: 'Registration' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -13,7 +14,7 @@ export const heroContent = {
   title: 'Building future leaders at Farooqi Grammar School.',
   description:
     'A values-driven learning environment where students grow in knowledge, confidence, and purpose.',
-  primaryCta: { href: '#contact', label: 'Apply for Admission' },
+  primaryCta: { href: '#registration', label: 'Apply for Admission' },
   secondaryCta: { href: '#gallery', label: 'Explore Student Life' },
 };
 
@@ -124,7 +125,7 @@ export const joinContent = {
       description:
         'Register your interest and we will contact you with the next steps.',
       cta: {
-        href: '#contact',
+        href: '#registration',
         label: 'Start Admission',
         className: 'fgs-btn-primary',
       },
