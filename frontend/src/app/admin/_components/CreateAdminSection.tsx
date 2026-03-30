@@ -74,7 +74,6 @@ export function CreateAdminSection() {
     onError: (error) => {
       const message =
         error instanceof Error ? error.message : 'Failed to create admin.';
-      setStatus({ tone: 'error', message });
       setError('root.server', { type: 'server', message });
     },
   });
@@ -181,16 +180,8 @@ export function CreateAdminSection() {
             {errors.root.server.message}
           </p>
         )}
-        {status && (
-          <p
-            className={
-              status.tone === 'error'
-                ? 'text-sm text-error'
-                : 'text-sm text-fgs-ink'
-            }
-          >
-            {status.message}
-          </p>
+        {status && status.tone === 'success' && (
+          <p className='text-sm text-fgs-ink'>{status.message}</p>
         )}
       </form>
     </section>
