@@ -60,10 +60,13 @@ export interface IdResult {
 
 export type Registration = {
   id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  registration_message: string;
+  student_name: string;
+  parent_name: string;
+  class_name: string;
+  mobile_number: string;
+  campus: string;
+  preferred_appointment_at: string;
+  registration_message: string | null;
   registered_at: string;
   updated_at: string | null;
   email_status: status;

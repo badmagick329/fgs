@@ -54,7 +54,7 @@ export class DB implements IUserRepository {
   async getPending(): Promise<Result<Registration[], string>> {
     try {
       const res = await this.pool.query<Registration>(`
-    SELECT * FROM registrations
+    SELECT * FROM registration_requests
     WHERE email_status != 'success' AND retry_count < 3
     ORDER BY registered_at ASC, id ASC
   `);
@@ -82,7 +82,7 @@ export class DB implements IUserRepository {
     try {
       const res = await this.pool.query<IdResult>(
         `
-    UPDATE registrations
+    UPDATE registration_requests
     SET email_status = 'failed', retry_count = retry_count + 1
     WHERE id = ANY($1::int[]) 
       AND retry_count < 3
@@ -124,7 +124,7 @@ export class DB implements IUserRepository {
     try {
       const res = await this.pool.query<IdResult>(
         `
-    UPDATE registrations
+    UPDATE registration_requests
     SET email_status = 'success'
     WHERE id = ANY($1::int[])
     RETURNING id

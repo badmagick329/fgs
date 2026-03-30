@@ -1,11 +1,14 @@
-import { Result } from '@/lib/result';
 import { Registration } from '@/types';
+import { Result } from '@/lib/result';
 
 export interface IRegistrationRepository {
   getRegistrations(): Promise<Result<Registration[]>>;
   createRegistration(input: {
-    firstName: string;
-    lastName: string;
-    email: string;
+    studentName: string;
+    parentName: string;
+    className: string;
+    mobileNumber: string;
+    campus: string;
+    preferredAppointmentAt: string;
   }): Promise<Result<Registration>>;
 }

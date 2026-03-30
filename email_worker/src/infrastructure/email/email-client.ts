@@ -45,7 +45,7 @@ export class EmailClient implements INotificationSender {
       const { error } = await resend.emails.send({
         from: `Registration Form <${this.sender}>`,
         to: `${notificationEmailAddress}`,
-        subject: 'New Student Registration',
+        subject: 'New Student Registration Request',
         react: EmailTemplate({
           payload,
         }),

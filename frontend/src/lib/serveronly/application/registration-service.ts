@@ -16,9 +16,12 @@ export class RegistrationService {
   }
 
   async createRegistration(input: {
-    firstName: string;
-    lastName: string;
-    email: string;
+    studentName: string;
+    parentName: string;
+    className: string;
+    mobileNumber: string;
+    campus: string;
+    preferredAppointmentAt: string;
   }): Promise<Result<Registration>> {
     return this.registrationRepository.createRegistration(input);
   }
@@ -27,5 +30,3 @@ export class RegistrationService {
     return this.notifier.sendMessage(input);
   }
 }
-
-

@@ -38,7 +38,14 @@ export default function useRegisterPage() {
     formState: { errors, isSubmitting },
   } = useForm<CreateRegistration>({
     resolver: zodResolver(createRegistrationSchema),
-    defaultValues: { firstName: '', lastName: '', email: '' },
+    defaultValues: {
+      studentName: '',
+      parentName: '',
+      className: '',
+      mobileNumber: '',
+      preferredAppointmentAt: '',
+      honeypot: '',
+    },
   });
 
   const registerMutation = useMutation({

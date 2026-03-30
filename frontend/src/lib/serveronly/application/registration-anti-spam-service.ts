@@ -115,9 +115,12 @@ export class RegistrationAntiSpamService {
   }
 
   checkPayloadCooldown(input: {
-    firstName: string;
-    lastName: string;
-    email: string;
+    studentName: string;
+    parentName: string;
+    className: string;
+    mobileNumber: string;
+    campus: string;
+    preferredAppointmentAt: string;
   }): AntiSpamCheckResult {
     const nowMs = this.clock.nowMs();
     this.pruneExpiredEntries(nowMs);
@@ -136,9 +139,12 @@ export class RegistrationAntiSpamService {
   }
 
   markPayloadSubmitted(input: {
-    firstName: string;
-    lastName: string;
-    email: string;
+    studentName: string;
+    parentName: string;
+    className: string;
+    mobileNumber: string;
+    campus: string;
+    preferredAppointmentAt: string;
   }) {
     const nowMs = this.clock.nowMs();
     this.pruneExpiredEntries(nowMs);
@@ -148,15 +154,23 @@ export class RegistrationAntiSpamService {
   }
 
   private createPayloadKey(input: {
-    firstName: string;
-    lastName: string;
-    email: string;
+    studentName: string;
+    parentName: string;
+    className: string;
+    mobileNumber: string;
+    campus: string;
+    preferredAppointmentAt: string;
   }): string {
-    const normalizedFirstName = input.firstName.trim().toLowerCase();
-    const normalizedLastName = input.lastName.trim().toLowerCase();
-    const normalizedEmail = input.email.trim().toLowerCase();
-
-    return `${normalizedFirstName}|${normalizedLastName}|${normalizedEmail}`;
+    return [
+      input.studentName,
+      input.parentName,
+      input.className,
+      input.mobileNumber,
+      input.campus,
+      input.preferredAppointmentAt,
+    ]
+      .map((value) => value.trim().toLowerCase())
+      .join('|');
   }
 
   private pruneExpiredEntries(nowMs: number) {

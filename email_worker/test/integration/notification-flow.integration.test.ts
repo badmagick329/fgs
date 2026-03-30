@@ -41,7 +41,7 @@ async function resetTables() {
       admin_config,
       admin_refresh_tokens,
       admin_users,
-      registrations
+      registration_requests
     RESTART IDENTITY CASCADE
   `);
 }
@@ -70,16 +70,29 @@ async function seedRegistrations(rows: Array<{ email: string; retryCount?: numbe
   for (const row of rows) {
     await db.query(
       `
-        INSERT INTO registrations (
-          first_name,
-          last_name,
-          email,
+        INSERT INTO registration_requests (
+          student_name,
+          parent_name,
+          class_name,
+          mobile_number,
+          campus,
+          preferred_appointment_at,
           registration_message,
           email_status,
           retry_count
-        ) VALUES ($1, $2, $3, $4, $5, $6)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
-      ['First', 'Last', row.email, 'hello', 'pending', row.retryCount ?? 0]
+      [
+        'First',
+        'Parent',
+        'Class 5',
+        row.email,
+        'Boys Campus',
+        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        'hello',
+        'pending',
+        row.retryCount ?? 0,
+      ]
     );
   }
 }
@@ -132,10 +145,10 @@ describeIfIntegrationSetup('Notification flow integration', () => {
     };
     expect(body.from).toBe('Registration Form <verified@example.com>');
     expect(body.to).toBe('notify@example.com');
-    expect(body.subject).toBe('New Student Registration');
+    expect(body.subject).toBe('New Student Registration Request');
 
     const result = await db.query(
-      'SELECT email_status, retry_count FROM registrations ORDER BY id ASC'
+      'SELECT email_status, retry_count FROM registration_requests ORDER BY id ASC'
     );
     expect(result.rows.length).toBe(2);
     for (const row of result.rows) {
@@ -158,7 +171,7 @@ describeIfIntegrationSetup('Notification flow integration', () => {
     expect(sentRequests.length).toBe(1);
 
     const result = await db.query(
-      'SELECT email_status, retry_count FROM registrations ORDER BY id ASC'
+      'SELECT email_status, retry_count FROM registration_requests ORDER BY id ASC'
     );
     expect(result.rows.length).toBe(2);
     for (const row of result.rows) {
@@ -167,7 +180,7 @@ describeIfIntegrationSetup('Notification flow integration', () => {
     }
 
     const successCount = await db.query(
-      `SELECT COUNT(*)::int AS count FROM registrations WHERE email_status = 'success'`
+      `SELECT COUNT(*)::int AS count FROM registration_requests WHERE email_status = 'success'`
     );
     expect(successCount.rows[0]?.count).toBe(0);
   });
@@ -184,7 +197,7 @@ describeIfIntegrationSetup('Notification flow integration', () => {
     expect(sentRequests.length).toBe(0);
 
     const result = await db.query(
-      'SELECT email_status, retry_count FROM registrations ORDER BY id ASC'
+      'SELECT email_status, retry_count FROM registration_requests ORDER BY id ASC'
     );
     expect(result.rows.length).toBe(2);
     expect(result.rows[0]?.email_status).toBe('pending');

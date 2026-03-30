@@ -1,9 +1,12 @@
 -- Database initialization script
-CREATE TABLE IF NOT EXISTS registrations (
+CREATE TABLE IF NOT EXISTS registration_requests (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    email TEXT NOT NULL,
+    student_name TEXT NOT NULL,
+    parent_name TEXT NOT NULL,
+    class_name TEXT NOT NULL,
+    mobile_number TEXT NOT NULL,
+    campus TEXT NOT NULL,
+    preferred_appointment_at TIMESTAMPTZ NOT NULL,
     registration_message TEXT,
     registered_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ,
@@ -49,12 +52,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Attach the trigger to the registrations table
+-- Attach the trigger to the registration_requests table
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at') THEN
         CREATE TRIGGER set_updated_at
-        BEFORE UPDATE ON registrations
+        BEFORE UPDATE ON registration_requests
         FOR EACH ROW
         EXECUTE FUNCTION update_updated_at_column();
     END IF;

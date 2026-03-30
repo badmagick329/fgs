@@ -10,15 +10,19 @@ import {
 import useRegistrationList from '@/hooks/useRegistrationList';
 import { Registration } from '@/types';
 import Image from 'next/image';
+import { formatPakistanAppointment } from '@/lib/registration';
 import { AdminActions } from '../admin/_components/AdminActions';
 
 const tableHeaders = [
   'ID',
-  'Email Status',
-  'First Name',
-  'Last Name',
-  'Email',
+  'Campus',
+  'Student Name',
+  'Parent Name',
+  'Class',
+  'Mobile Number',
+  'Preferred Appointment',
   'Registered At',
+  'Email Status',
   'Retry Count',
 ];
 
@@ -116,7 +120,7 @@ export default function RegistrationList() {
           <div>
             <h2 className='fgs-heading'>Registrations</h2>
             <p className='fgs-copy mt-2'>
-              Admission interest submissions received from the landing page.
+              Admission registration requests received from the landing page.
             </p>
           </div>
           <AdminActions navigationHref='/admin' navigationLabel='Admin tools' />
@@ -167,13 +171,18 @@ function RegistrationTable({
                 className='odd:bg-card even:bg-fgs-surface/55'
               >
                 <TableCell>{r.id}</TableCell>
-                <TableCell className='capitalize'>{r.email_status}</TableCell>
-                <TableCell>{r.first_name}</TableCell>
-                <TableCell>{r.last_name}</TableCell>
-                <TableCell>{r.email}</TableCell>
+                <TableCell>{r.campus}</TableCell>
+                <TableCell>{r.student_name}</TableCell>
+                <TableCell>{r.parent_name}</TableCell>
+                <TableCell>{r.class_name}</TableCell>
+                <TableCell>{r.mobile_number}</TableCell>
                 <TableCell>
-                  {r.registered_at?.toLocaleString() ?? 'N/A'}
+                  {formatPakistanAppointment(r.preferred_appointment_at)}
                 </TableCell>
+                <TableCell>
+                  {formatPakistanAppointment(r.registered_at)}
+                </TableCell>
+                <TableCell className='capitalize'>{r.email_status}</TableCell>
                 <TableCell>{r.retry_count}</TableCell>
               </TableRow>
             ))
