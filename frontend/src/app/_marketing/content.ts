@@ -186,7 +186,7 @@ export const contactContent = {
       name: 'Edward Road Campus',
       phones: [{ display: '042-37237556', href: 'tel:+924237237556' }],
       address:
-        '2-Edward Roard, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
+        '1-Edward Roard, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
       mapUrl: 'https://maps.app.goo.gl/WVFeJu9PwpdPEvem9',
     },
   ],
