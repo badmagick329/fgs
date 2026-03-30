@@ -67,9 +67,12 @@ describe('RegistrationAntiSpamService', () => {
     const clock = new FakeClock(100_000);
     const service = new RegistrationAntiSpamService(clock);
     const payload = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
+      studentName: 'John Doe',
+      parentName: 'Jane Doe',
+      className: 'Class 5',
+      mobileNumber: '03001234567',
+      campus: 'Boys Campus',
+      preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
     };
 
     const firstCheck = service.checkPayloadCooldown(payload);
@@ -88,9 +91,12 @@ describe('RegistrationAntiSpamService', () => {
     const clock = new FakeClock(100_000);
     const service = new RegistrationAntiSpamService(clock);
     const payload = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
+      studentName: 'John Doe',
+      parentName: 'Jane Doe',
+      className: 'Class 5',
+      mobileNumber: '03001234567',
+      campus: 'Boys Campus',
+      preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
     };
 
     service.markPayloadSubmitted(payload);

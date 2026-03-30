@@ -121,9 +121,12 @@ export async function POST(
 
   const payloadCooldownResult =
     registrationAntiSpamService.checkPayloadCooldown({
-      firstName: createdParsed.data.firstName,
-      lastName: createdParsed.data.lastName,
-      email: createdParsed.data.email,
+      studentName: createdParsed.data.studentName,
+      parentName: createdParsed.data.parentName,
+      className: createdParsed.data.className,
+      mobileNumber: createdParsed.data.mobileNumber,
+      campus: createdParsed.data.campus,
+      preferredAppointmentAt: createdParsed.data.preferredAppointmentAt,
     });
   if (!payloadCooldownResult.ok) {
     return NextResponse.json(
@@ -136,9 +139,12 @@ export async function POST(
   }
 
   const creationResult = await registrationService.createRegistration({
-    firstName: createdParsed.data.firstName,
-    lastName: createdParsed.data.lastName,
-    email: createdParsed.data.email,
+    studentName: createdParsed.data.studentName,
+    parentName: createdParsed.data.parentName,
+    className: createdParsed.data.className,
+    mobileNumber: createdParsed.data.mobileNumber,
+    campus: createdParsed.data.campus,
+    preferredAppointmentAt: createdParsed.data.preferredAppointmentAt,
   });
 
   if (!creationResult.ok) {
@@ -157,9 +163,12 @@ export async function POST(
   }
 
   registrationAntiSpamService.markPayloadSubmitted({
-    firstName: createdParsed.data.firstName,
-    lastName: createdParsed.data.lastName,
-    email: createdParsed.data.email,
+    studentName: createdParsed.data.studentName,
+    parentName: createdParsed.data.parentName,
+    className: createdParsed.data.className,
+    mobileNumber: createdParsed.data.mobileNumber,
+    campus: createdParsed.data.campus,
+    preferredAppointmentAt: createdParsed.data.preferredAppointmentAt,
   });
 
   return NextResponse.json(creationResult, { status: 201 });

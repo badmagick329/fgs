@@ -6,6 +6,8 @@ import {
   databaseConfigSchema,
   emailConfigSchema,
 } from '@/domain/schemas';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import { z } from 'zod';
 
 export function getWorkerInterval(log: Logger): number | null {
@@ -40,7 +42,12 @@ export function mockEmailConfigReader(
 export function getDatabaseConfig(
   source: Record<string, unknown> = process.env
 ): DatabaseConfig {
-  return readConfigFromSchema(databaseConfigSchema, source);
+  return readConfigFromSchema(databaseConfigSchema, {
+    databaseUrl:
+      source.databaseUrl ??
+      source.DATABASE_URL ??
+      readEnvValueFromFallbackFiles('DATABASE_URL'),
+  });
 }
 
 export function getLoggerLevel() {
@@ -65,4 +72,27 @@ function readConfigFromSchema<T>(
   data: Record<string, unknown>
 ): T {
   return schema.parse(data);
+}
+
+function readEnvValueFromFallbackFiles(key: string) {
+  const candidatePaths = [
+    path.resolve(process.cwd(), '.env.local'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), '../frontend/.env.local'),
+    path.resolve(process.cwd(), '../frontend/.env'),
+  ];
+
+  for (const candidatePath of candidatePaths) {
+    if (!existsSync(candidatePath)) {
+      continue;
+    }
+
+    const content = readFileSync(candidatePath, 'utf8');
+    const match = content.match(new RegExp(`^${key}=(.+)$`, 'm'));
+    if (match?.[1]) {
+      return match[1].trim().replace(/^['"]|['"]$/g, '');
+    }
+  }
+
+  return undefined;
 }

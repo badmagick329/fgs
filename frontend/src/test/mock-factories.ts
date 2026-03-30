@@ -1,3 +1,4 @@
+import { Registration } from '@/types';
 import { mock } from 'bun:test';
 import { Result } from '@/lib/result';
 import {
@@ -9,7 +10,6 @@ import {
   IRegistrationRepository,
   IToken,
 } from '@/lib/serveronly/domain/interfaces';
-import { Registration } from '@/types';
 
 export function createAdminRepositoryTransactionMock(
   overrides: Partial<IAdminRepositoryTransaction> = {}
@@ -132,9 +132,12 @@ export function createRegistrationRepositoryMock(
     ok: true,
     data: {
       id: 1,
-      first_name: 'Test',
-      last_name: 'User',
-      email: 'test@example.com',
+      student_name: 'Test Student',
+      parent_name: 'Test Parent',
+      class_name: 'Class 5',
+      mobile_number: '03001234567',
+      campus: 'Boys Campus',
+      preferred_appointment_at: new Date('2026-04-01T08:00:00+05:00'),
       registration_message: null,
       registered_at: new Date(),
       updated_at: null,

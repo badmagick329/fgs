@@ -1,3 +1,4 @@
+import RegistrationForm from '@/app/_components/RegistrationForm';
 import { contactContent } from '../content';
 
 export default function ContactSection() {
@@ -55,14 +56,9 @@ export default function ContactSection() {
         <div className='mt-6'>
           <h3 className='fgs-subheading'>{contactContent.form.title}</h3>
           <p className='fgs-copy mt-2'>{contactContent.form.description}</p>
-          <a
-            className='fgs-btn-primary mt-4 inline-flex'
-            href={contactContent.form.cta.href}
-            target='_blank'
-            rel='noreferrer'
-          >
-            {contactContent.form.cta.label}
-          </a>
+          <div className='mt-4'>
+            <RegistrationForm />
+          </div>
         </div>
       </div>
     </section>

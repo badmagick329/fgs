@@ -191,10 +191,9 @@ export const contactContent = {
   ],
   form: {
     title: 'Registration',
-    description: 'Book an appointment with our admissions team.',
-    cta: {
-      href: 'https://cal.com/your-booking-link',
-      label: 'Book Registration Appointment',
-    },
+    description:
+      'Register your interest and our admissions team will contact you with the next steps.',
+    scheduleNote:
+      'Monday to Thursday and Saturday: 8:00 AM to 2:00 PM. Friday: 8:00 AM to 12:00 PM.',
   },
 };

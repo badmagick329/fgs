@@ -1,5 +1,3 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, mock } from 'bun:test';
-import { PoolClient } from 'pg';
 import {
   acquireGlobalTestDbLock,
   closePool,
@@ -8,6 +6,16 @@ import {
   releaseGlobalTestDbLock,
   resetTables,
 } from '@/test/db-test-utils';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+} from 'bun:test';
+import { PoolClient } from 'pg';
 
 mock.module('server-only', () => ({}));
 
@@ -17,11 +25,10 @@ describe('RegistrationRepository integration', () => {
   let lockClient: PoolClient;
 
   beforeAll(async () => {
-    const { RegistrationRepository } = await import(
-      '@/lib/serveronly/infrastructure/registration-repository'
-    );
+    const { RegistrationRepository } =
+      await import('@/lib/serveronly/infrastructure/registration-repository');
     repo = new RegistrationRepository(pool);
-    lockClient = await acquireGlobalTestDbLock(pool) as PoolClient;
+    lockClient = (await acquireGlobalTestDbLock(pool)) as PoolClient;
     await ensureSchema(pool);
   });
 
@@ -36,9 +43,12 @@ describe('RegistrationRepository integration', () => {
 
   it('creates registration and lists registrations', async () => {
     const create = await repo.createRegistration({
-      firstName: 'A',
-      lastName: 'B',
-      email: 'a@example.com',
+      studentName: 'A',
+      parentName: 'B',
+      className: 'Class 5',
+      mobileNumber: '03001234567',
+      campus: 'Boys Campus',
+      preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
     });
     expect(create.ok).toBeTrue();
 
@@ -49,14 +59,17 @@ describe('RegistrationRepository integration', () => {
 
   it('returns parse errors when row shape invalid', async () => {
     await pool.query(`
-      INSERT INTO registrations (
-        first_name,
-        last_name,
-        email,
+      INSERT INTO registration_requests (
+        student_name,
+        parent_name,
+        class_name,
+        mobile_number,
+        campus,
+        preferred_appointment_at,
         registered_at,
         email_status,
         retry_count
-      ) VALUES ('A', 'B', 'invalid-email', NOW(), 'pending', 0)
+      ) VALUES ('A', 'B', '', '03001234567', 'Invalid Campus', NOW(), NOW(), 'pending', 0)
     `);
 
     const list = await repo.getRegistrations();

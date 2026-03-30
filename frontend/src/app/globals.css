@@ -8,10 +8,15 @@
   --font-mono: var(--font-geist-mono);
   --color-ring: var(--ring);
   --color-border: var(--fgs-border);
+  --color-input: var(--fgs-border);
   --color-muted-foreground: var(--fgs-muted);
   --color-card: var(--fgs-white);
+  --color-popover: var(--fgs-white);
+  --color-popover-foreground: var(--fgs-ink);
   --color-primary: var(--fgs-gold);
   --color-primary-foreground: var(--fgs-ink);
+  --color-accent: var(--fgs-surface);
+  --color-accent-foreground: var(--fgs-ink);
   --color-destructive: var(--fgs-error-strong);
   --color-destructive-foreground: var(--fgs-white);
   --color-error: var(--fgs-error);

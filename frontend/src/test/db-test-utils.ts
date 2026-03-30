@@ -48,6 +48,21 @@ export async function ensureSchema(pool: Pool) {
       email_status TEXT NOT NULL DEFAULT 'pending',
       retry_count INTEGER NOT NULL DEFAULT 0
     );
+
+    CREATE TABLE IF NOT EXISTS registration_requests (
+      id SERIAL PRIMARY KEY,
+      student_name TEXT NOT NULL,
+      parent_name TEXT NOT NULL,
+      class_name TEXT NOT NULL,
+      mobile_number TEXT NOT NULL,
+      campus TEXT NOT NULL,
+      preferred_appointment_at TIMESTAMPTZ NOT NULL,
+      registration_message TEXT NULL,
+      registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NULL,
+      email_status TEXT NOT NULL DEFAULT 'pending',
+      retry_count INTEGER NOT NULL DEFAULT 0
+    );
   `);
 }
 
@@ -57,7 +72,8 @@ export async function resetTables(pool: Pool) {
       admin_config,
       admin_refresh_tokens,
       admin_users,
-      registrations
+      registrations,
+      registration_requests
     RESTART IDENTITY CASCADE;
   `);
 }
@@ -66,6 +82,7 @@ export async function dropSchema(pool: Pool) {
   await pool.query(`
     DROP TABLE IF EXISTS admin_config;
     DROP TABLE IF EXISTS admin_refresh_tokens;
+    DROP TABLE IF EXISTS registration_requests;
     DROP TABLE IF EXISTS registrations;
     DROP TABLE IF EXISTS admin_users;
   `);

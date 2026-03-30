@@ -1,10 +1,25 @@
 import * as z from 'zod';
+import {
+  REGISTRATION_CAMPUSES,
+  isValidRegistrationAppointment,
+} from '@/lib/registration';
+
+export const registrationCampusSchema = z.enum(REGISTRATION_CAMPUSES);
 
 export const registrationSchema = z.object({
   id: z.number().positive(),
-  first_name: z.string().trim().nonempty({ error: 'First name is required' }),
-  last_name: z.string().trim().nonempty({ error: 'Last name is required' }),
-  email: z.email({ error: 'Invalid email address' }),
+  student_name: z
+    .string()
+    .trim()
+    .nonempty({ error: 'Student name is required' }),
+  parent_name: z.string().trim().nonempty({ error: 'Parent name is required' }),
+  class_name: z.string().trim().nonempty({ error: 'Class is required' }),
+  mobile_number: z
+    .string()
+    .trim()
+    .nonempty({ error: 'Mobile number is required' }),
+  campus: registrationCampusSchema,
+  preferred_appointment_at: z.coerce.date(),
   registration_message: z.string().nullable(),
   registered_at: z.coerce.date(),
   updated_at: z.coerce.date().nullable(),
@@ -17,9 +32,24 @@ export const registrationListSchema = z.array(registrationSchema);
 export type Registration = z.infer<typeof registrationSchema>;
 
 export const createRegistrationSchema = z.object({
-  firstName: z.string().trim().nonempty({ error: 'First name is required' }),
-  lastName: z.string().trim().nonempty({ error: 'Last name is required' }),
-  email: z.email({ error: 'Invalid email address' }),
+  studentName: z
+    .string()
+    .trim()
+    .nonempty({ error: 'Student name is required' }),
+  parentName: z.string().trim().nonempty({ error: 'Parent name is required' }),
+  className: z.string().trim().nonempty({ error: 'Class is required' }),
+  mobileNumber: z
+    .string()
+    .trim()
+    .nonempty({ error: 'Mobile number is required' }),
+  campus: registrationCampusSchema,
+  preferredAppointmentAt: z
+    .string()
+    .trim()
+    .nonempty({ error: 'Preferred appointment is required' })
+    .refine(isValidRegistrationAppointment, {
+      error: 'Select a valid appointment date and time.',
+    }),
   honeypot: z.string().optional(),
   formStartedAt: z.number().finite().optional(),
 });

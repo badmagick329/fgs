@@ -1,5 +1,19 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   type CreateRegistration,
   createRegistrationSchema,
@@ -7,9 +21,19 @@ import {
 } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { API } from '@/lib/consts';
+import { contactContent } from '@/app/_marketing/content';
+import {
+  REGISTRATION_CAMPUSES,
+  combinePakistanDateAndTime,
+  getRegistrationTimeOptions,
+  isRegistrationDateAvailable,
+} from '@/lib/registration';
+import { cn } from '@/lib/utils';
 
 function getRequestErrorMessage(status: number, fallback?: string) {
   if (status === 429) {
@@ -33,22 +57,36 @@ export default function RegistrationForm() {
     tone: 'success';
     message: string;
   } | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     setError,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateRegistration>({
     resolver: zodResolver(createRegistrationSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
+      studentName: '',
+      parentName: '',
+      className: '',
+      mobileNumber: '',
+      preferredAppointmentAt: '',
       honeypot: '',
     },
   });
+
+  const selectedTime = watch('preferredAppointmentAt')
+    ? watch('preferredAppointmentAt').slice(11, 16)
+    : '';
+  const timeOptions = selectedDate
+    ? getRegistrationTimeOptions(selectedDate)
+    : [];
 
   const submitInterest = useMutation({
     mutationFn: async (values: CreateRegistration) => {
@@ -74,6 +112,17 @@ export default function RegistrationForm() {
     },
   });
 
+  function syncPreferredAppointment(date?: Date, time?: string) {
+    if (!date || !time) {
+      setValue('preferredAppointmentAt', '', { shouldValidate: true });
+      return;
+    }
+
+    setValue('preferredAppointmentAt', combinePakistanDateAndTime(date, time), {
+      shouldValidate: true,
+    });
+  }
+
   async function onSubmit(values: CreateRegistration) {
     setStatus(null);
     setError('root.server', { type: 'server', message: '' });
@@ -84,6 +133,7 @@ export default function RegistrationForm() {
       });
       if (result.ok) {
         reset();
+        setSelectedDate(undefined);
         formStartedAtRef.current = Date.now();
         setStatus({
           tone: 'success',
@@ -127,85 +177,250 @@ export default function RegistrationForm() {
       <div className='grid gap-4 sm:grid-cols-2'>
         <div className='sm:col-span-1'>
           <label
-            htmlFor='firstName'
+            htmlFor='studentName'
             className='text-fgs-ink text-sm font-medium'
           >
-            Student First Name
+            Student Name
           </label>
           <input
-            id='firstName'
+            id='studentName'
             type='text'
-            autoComplete='given-name'
-            {...register('firstName')}
-            aria-invalid={!!errors.firstName}
-            aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+            {...register('studentName')}
+            aria-invalid={!!errors.studentName}
+            aria-describedby={
+              errors.studentName ? 'studentName-error' : undefined
+            }
             className='mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
-            placeholder="Student's First Name"
+            placeholder='Student name'
           />
-          {errors.firstName?.message && (
+          {errors.studentName?.message && (
             <p
-              id='firstName-error'
+              id='studentName-error'
               role='alert'
               className='mt-1.5 text-xs text-error'
             >
-              {errors.firstName.message}
+              {errors.studentName.message}
             </p>
           )}
         </div>
 
         <div className='sm:col-span-1'>
           <label
-            htmlFor='lastName'
+            htmlFor='parentName'
             className='text-fgs-ink text-sm font-medium'
           >
-            Student Last Name
+            Parent Name
           </label>
           <input
-            id='lastName'
+            id='parentName'
             type='text'
-            autoComplete='family-name'
-            {...register('lastName')}
-            aria-invalid={!!errors.lastName}
-            aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+            {...register('parentName')}
+            aria-invalid={!!errors.parentName}
+            aria-describedby={
+              errors.parentName ? 'parentName-error' : undefined
+            }
             className='mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
-            placeholder="Student's Last Name"
+            placeholder='Parent name'
           />
-          {errors.lastName?.message && (
+          {errors.parentName?.message && (
             <p
-              id='lastName-error'
+              id='parentName-error'
               role='alert'
               className='mt-1.5 text-xs text-error'
             >
-              {errors.lastName.message}
+              {errors.parentName.message}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className='mt-4 grid gap-4 sm:grid-cols-2'>
+        <div className='sm:col-span-1'>
+          <label
+            htmlFor='className'
+            className='text-fgs-ink text-sm font-medium'
+          >
+            Class
+          </label>
+          <input
+            id='className'
+            type='text'
+            {...register('className')}
+            aria-invalid={!!errors.className}
+            aria-describedby={errors.className ? 'className-error' : undefined}
+            className='mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+            placeholder='Class'
+          />
+          {errors.className?.message && (
+            <p
+              id='className-error'
+              role='alert'
+              className='mt-1.5 text-xs text-error'
+            >
+              {errors.className.message}
+            </p>
+          )}
+        </div>
+
+        <div className='sm:col-span-1'>
+          <label
+            htmlFor='mobileNumber'
+            className='text-fgs-ink text-sm font-medium'
+          >
+            Mobile Number
+          </label>
+          <input
+            id='mobileNumber'
+            type='tel'
+            inputMode='numeric'
+            {...register('mobileNumber')}
+            onInput={(event) => {
+              event.currentTarget.value = event.currentTarget.value.replace(
+                /\D+/g,
+                ''
+              );
+            }}
+            aria-invalid={!!errors.mobileNumber}
+            aria-describedby={
+              errors.mobileNumber ? 'mobileNumber-error' : undefined
+            }
+            className='mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+            placeholder='03XXXXXXXXX'
+          />
+          {errors.mobileNumber?.message && (
+            <p
+              id='mobileNumber-error'
+              role='alert'
+              className='mt-1.5 text-xs text-error'
+            >
+              {errors.mobileNumber.message}
             </p>
           )}
         </div>
       </div>
 
       <div className='mt-4'>
-        <label htmlFor='email' className='text-fgs-ink text-sm font-medium'>
-          Parent Email
-        </label>
-        <input
-          id='email'
-          type='email'
-          autoComplete='email'
-          {...register('email')}
-          aria-invalid={!!errors.email}
-          aria-describedby={errors.email ? 'email-error' : undefined}
-          className='mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
-          placeholder='parent@example.com'
+        <label className='text-fgs-ink text-sm font-medium'>Campus</label>
+        <Controller
+          name='campus'
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger
+                aria-invalid={!!errors.campus}
+                className='mt-1.5 w-full rounded-lg'
+              >
+                <SelectValue placeholder='Select campus' />
+              </SelectTrigger>
+              <SelectContent>
+                {REGISTRATION_CAMPUSES.map((campus) => (
+                  <SelectItem key={campus} value={campus}>
+                    {campus}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         />
-        {errors.email?.message && (
-          <p
-            id='email-error'
-            role='alert'
-            className='mt-1.5 text-xs text-error'
-          >
-            {errors.email.message}
+        {errors.campus?.message && (
+          <p role='alert' className='mt-1.5 text-xs text-error'>
+            {errors.campus.message}
           </p>
         )}
       </div>
+
+      <div className='mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr),220px]'>
+        <div>
+          <label className='text-fgs-ink text-sm font-medium'>
+            Preferred Appointment Date
+          </label>
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type='button'
+                variant='outline'
+                className={cn(
+                  'mt-1.5 w-full justify-between rounded-lg',
+                  !selectedDate && 'text-muted-foreground'
+                )}
+              >
+                {selectedDate ? format(selectedDate, 'PPP') : 'Select date'}
+                <CalendarIcon className='size-4 opacity-60' />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0' align='start'>
+              <Calendar
+                mode='single'
+                selected={selectedDate}
+                onSelect={(date) => {
+                  setSelectedDate(date);
+                  setCalendarOpen(false);
+
+                  if (!date) {
+                    syncPreferredAppointment(undefined, undefined);
+                    return;
+                  }
+
+                  const nextTimeOptions = getRegistrationTimeOptions(date);
+                  if (
+                    !nextTimeOptions.some(
+                      (option) => option.value === selectedTime
+                    )
+                  ) {
+                    syncPreferredAppointment(date, undefined);
+                    return;
+                  }
+
+                  syncPreferredAppointment(date, selectedTime);
+                }}
+                disabled={(date) => !isRegistrationDateAvailable(date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div>
+          <label className='text-fgs-ink text-sm font-medium'>
+            Preferred Time
+          </label>
+          <Select
+            value={selectedTime}
+            onValueChange={(value) =>
+              syncPreferredAppointment(selectedDate, value)
+            }
+            disabled={!selectedDate}
+          >
+            <SelectTrigger
+              aria-invalid={!!errors.preferredAppointmentAt}
+              className='mt-1.5 w-full rounded-lg'
+            >
+              <SelectValue
+                placeholder={selectedDate ? 'Select time' : 'Pick date first'}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {timeOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <p className='mt-2 text-xs text-muted-foreground'>
+        {contactContent.form.scheduleNote}
+      </p>
+
+      <input type='hidden' {...register('preferredAppointmentAt')} />
+
+      {errors.preferredAppointmentAt?.message && (
+        <p role='alert' className='mt-1.5 text-xs text-error'>
+          {errors.preferredAppointmentAt.message}
+        </p>
+      )}
 
       <div aria-hidden='true' className='hidden'>
         <label htmlFor='website'>Website</label>

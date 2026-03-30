@@ -8,6 +8,18 @@ async function loadRoute() {
   return import('@/app/api/register/route');
 }
 
+function createValidPayload() {
+  return {
+    studentName: 'Student Name',
+    parentName: 'Parent Name',
+    className: 'Class 5',
+    mobileNumber: '03001234567',
+    campus: 'Boys Campus',
+    preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
+    formStartedAt: Date.now() - 5000,
+  };
+}
+
 function createAntiSpamServiceMock(overrides: Record<string, unknown> = {}) {
   return {
     checkRateLimit: mock(() => ({ ok: true })),
@@ -53,11 +65,56 @@ describe('/api/register', () => {
 
     const req = new Request('http://localhost', {
       method: 'POST',
-      body: JSON.stringify({ firstName: '', lastName: '', email: 'bad' }),
+      body: JSON.stringify({ studentName: '' }),
     });
 
     const res = await POST(req);
     expect(res.status).toBe(400);
+  });
+
+  it('POST creates registration with new payload shape', async () => {
+    const { POST } = await loadRoute();
+    const antiSpamService = createAntiSpamServiceMock();
+    const createRegistration = mock(async () => ({
+      ok: true as const,
+      data: {
+        id: 1,
+        student_name: 'Student Name',
+        parent_name: 'Parent Name',
+        class_name: 'Class 5',
+        mobile_number: '03001234567',
+        campus: 'Boys Campus',
+        preferred_appointment_at: new Date('2026-04-01T08:00:00+05:00'),
+        registration_message: null,
+        registered_at: new Date(),
+        updated_at: null,
+        email_status: 'pending',
+        retry_count: 0,
+      },
+    }));
+    getServerContainer.mockReturnValue({
+      registrationAntiSpamService: antiSpamService,
+      registrationService: {
+        createRegistration,
+      },
+    });
+
+    const payload = createValidPayload();
+    const req = new Request('http://localhost', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(201);
+    expect(createRegistration).toHaveBeenCalledWith({
+      studentName: payload.studentName,
+      parentName: payload.parentName,
+      className: payload.className,
+      mobileNumber: payload.mobileNumber,
+      campus: payload.campus,
+      preferredAppointmentAt: payload.preferredAppointmentAt,
+    });
   });
 
   it('POST returns 500 and notifies on create failure', async () => {
@@ -77,12 +134,7 @@ describe('/api/register', () => {
 
     const req = new Request('http://localhost', {
       method: 'POST',
-      body: JSON.stringify({
-        firstName: 'A',
-        lastName: 'B',
-        email: 'a@example.com',
-        formStartedAt: Date.now() - 5000,
-      }),
+      body: JSON.stringify(createValidPayload()),
     });
 
     const res = await POST(req);
@@ -109,12 +161,7 @@ describe('/api/register', () => {
 
     const req = new Request('http://localhost', {
       method: 'POST',
-      body: JSON.stringify({
-        firstName: 'A',
-        lastName: 'B',
-        email: 'a@example.com',
-        formStartedAt: Date.now() - 5000,
-      }),
+      body: JSON.stringify(createValidPayload()),
     });
 
     const res = await POST(req);
@@ -141,11 +188,8 @@ describe('/api/register', () => {
     const req = new Request('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
-        firstName: 'A',
-        lastName: 'B',
-        email: 'a@example.com',
+        ...createValidPayload(),
         honeypot: 'bot-value',
-        formStartedAt: Date.now() - 5000,
       }),
     });
 
@@ -173,9 +217,7 @@ describe('/api/register', () => {
     const req = new Request('http://localhost', {
       method: 'POST',
       body: JSON.stringify({
-        firstName: 'A',
-        lastName: 'B',
-        email: 'a@example.com',
+        ...createValidPayload(),
         formStartedAt: Date.now(),
       }),
     });
@@ -203,12 +245,7 @@ describe('/api/register', () => {
 
     const req = new Request('http://localhost', {
       method: 'POST',
-      body: JSON.stringify({
-        firstName: 'A',
-        lastName: 'B',
-        email: 'a@example.com',
-        formStartedAt: Date.now() - 5000,
-      }),
+      body: JSON.stringify(createValidPayload()),
     });
 
     const res = await POST(req);
