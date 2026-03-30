@@ -14,6 +14,14 @@ CREATE TABLE IF NOT EXISTS registration_requests (
     retry_count INT DEFAULT 0 NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS email_worker_status (
+    id INT PRIMARY KEY CHECK (id = 1),
+    last_started_at TIMESTAMPTZ,
+    last_finished_at TIMESTAMPTZ,
+    next_run_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS admin_users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
@@ -94,6 +102,17 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'set_admin_config_updated_at') THEN
         CREATE TRIGGER set_admin_config_updated_at
         BEFORE UPDATE ON admin_config
+        FOR EACH ROW
+        EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
+
+-- Attach the trigger to the email_worker_status table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'set_email_worker_status_updated_at') THEN
+        CREATE TRIGGER set_email_worker_status_updated_at
+        BEFORE UPDATE ON email_worker_status
         FOR EACH ROW
         EXECUTE FUNCTION update_updated_at_column();
     END IF;

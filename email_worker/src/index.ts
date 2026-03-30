@@ -29,11 +29,14 @@ async function main(): Promise<void> {
   if (workerInterval == null) return process.exit(1);
 
   const service = new NotificationService(db, emailClient, _loggerFactory);
-  await service.processUnsentNotifications();
+  await service.processUnsentNotifications(workerInterval);
   log.info(
     `Starting notification worker. Next run in ${Math.ceil(workerInterval / 1000)} seconds`
   );
-  setInterval(service.processUnsentNotifications.bind(service), workerInterval);
+  setInterval(
+    () => void service.processUnsentNotifications(workerInterval),
+    workerInterval
+  );
 }
 
 main().catch((error) => {

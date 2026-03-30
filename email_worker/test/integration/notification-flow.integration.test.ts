@@ -41,7 +41,8 @@ async function resetTables() {
       admin_config,
       admin_refresh_tokens,
       admin_users,
-      registration_requests
+      registration_requests,
+      email_worker_status
     RESTART IDENTITY CASCADE
   `);
 }
@@ -129,7 +130,7 @@ describeIfIntegrationSetup('Notification flow integration', () => {
       { email: 'b@example.com' },
     ]);
 
-    await service.processUnsentNotifications();
+    await service.processUnsentNotifications(600000);
 
     const sentRequests = resendMockState?.getRequests() ?? [];
     expect(sentRequests.length).toBe(1);
@@ -165,7 +166,7 @@ describeIfIntegrationSetup('Notification flow integration', () => {
       { email: 'd@example.com', retryCount: 0 },
     ]);
 
-    await service.processUnsentNotifications();
+    await service.processUnsentNotifications(600000);
 
     const sentRequests = resendMockState?.getRequests() ?? [];
     expect(sentRequests.length).toBe(1);
@@ -191,7 +192,7 @@ describeIfIntegrationSetup('Notification flow integration', () => {
       { email: 'f@example.com', retryCount: 2 },
     ]);
 
-    await service.processUnsentNotifications();
+    await service.processUnsentNotifications(600000);
 
     const sentRequests = resendMockState?.getRequests() ?? [];
     expect(sentRequests.length).toBe(0);

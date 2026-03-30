@@ -31,6 +31,16 @@ export const registrationListSchema = z.array(registrationSchema);
 
 export type Registration = z.infer<typeof registrationSchema>;
 
+export const emailWorkerStatusSchema = z.object({
+  id: z.literal(1),
+  last_started_at: z.coerce.date().nullable(),
+  last_finished_at: z.coerce.date().nullable(),
+  next_run_at: z.coerce.date().nullable(),
+  updated_at: z.coerce.date(),
+});
+
+export type EmailWorkerStatus = z.infer<typeof emailWorkerStatusSchema>;
+
 export const createRegistrationSchema = z.object({
   studentName: z
     .string()
@@ -128,4 +138,7 @@ export const resultSchema = <T extends z.ZodTypeAny>(data: T) =>
 export const registrationResultSchema = resultSchema(registrationSchema);
 export const registrationListResultSchema = resultSchema(
   registrationListSchema
+);
+export const emailWorkerStatusResultSchema = resultSchema(
+  emailWorkerStatusSchema.nullable()
 );

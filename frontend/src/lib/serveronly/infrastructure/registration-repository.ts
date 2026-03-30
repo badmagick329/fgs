@@ -1,5 +1,9 @@
-import { Registration } from '@/types';
-import { registrationListSchema, registrationSchema } from '@/types';
+import { EmailWorkerStatus, Registration } from '@/types';
+import {
+  emailWorkerStatusSchema,
+  registrationListSchema,
+  registrationSchema,
+} from '@/types';
 import { Pool } from 'pg';
 import 'server-only';
 import { Result, errorsFromZod } from '@/lib/result';
@@ -20,6 +24,31 @@ export class RegistrationRepository implements IRegistrationRepository {
       return {
         ok: false,
         message: 'There was an error fetching the data.',
+        errors: errorsFromZod(parsed.error),
+      };
+    }
+
+    return { ok: true, data: parsed.data };
+  }
+
+  async getEmailWorkerStatus(): Promise<Result<EmailWorkerStatus | null>> {
+    const res = await this.pool.query(`
+      SELECT *
+      FROM email_worker_status
+      WHERE id = 1
+    `);
+    const row = res.rows[0] ?? null;
+
+    if (row == null) {
+      return { ok: true, data: null };
+    }
+
+    const parsed = emailWorkerStatusSchema.safeParse(row);
+    if (!parsed.success) {
+      console.error('getEmailWorkerStatus validation error', parsed.error);
+      return {
+        ok: false,
+        message: 'There was an error fetching the email worker status.',
         errors: errorsFromZod(parsed.error),
       };
     }

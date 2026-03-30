@@ -1,4 +1,4 @@
-import { Registration } from '@/types';
+import { EmailWorkerStatus, Registration } from '@/types';
 import { mock } from 'bun:test';
 import { Result } from '@/lib/result';
 import {
@@ -128,6 +128,10 @@ export function createRegistrationRepositoryMock(
     ok: true,
     data: [],
   };
+  const getEmailWorkerStatusResult: Result<EmailWorkerStatus | null> = {
+    ok: true,
+    data: null,
+  };
   const createRegistrationResult: Result<Registration> = {
     ok: true,
     data: {
@@ -148,6 +152,7 @@ export function createRegistrationRepositoryMock(
 
   return {
     getRegistrations: mock(async () => getRegistrationsResult),
+    getEmailWorkerStatus: mock(async () => getEmailWorkerStatusResult),
     createRegistration: mock(async () => createRegistrationResult),
     ...overrides,
   };

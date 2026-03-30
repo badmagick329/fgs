@@ -1,5 +1,6 @@
 export const API = {
   register: '/api/register',
+  registerStatus: '/api/register/status',
   admin: {
     login: '/api/admin/login',
     logout: '/api/admin/logout',

@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import { Registration } from '@/types';
 import Image from 'next/image';
 import { formatPakistanAppointment } from '@/lib/registration';
 import { AdminActions } from '../admin/_components/AdminActions';
+import useRegistrationEmailStatus from '@/hooks/useRegistrationEmailStatus';
 
 const tableHeaders = [
   'ID',
@@ -28,6 +30,7 @@ const tableHeaders = [
 
 export default function RegistrationList() {
   const { isLoading, isError, error, data } = useRegistrationList();
+  const emailStatusQuery = useRegistrationEmailStatus();
   const backdrop = (
     <>
       <div
@@ -125,11 +128,71 @@ export default function RegistrationList() {
           </div>
           <AdminActions navigationHref='/admin' navigationLabel='Admin tools' />
         </div>
+        <EmailRoundStatus
+          isLoading={emailStatusQuery.isLoading}
+          isError={emailStatusQuery.isError}
+          nextRunAt={emailStatusQuery.data?.next_run_at ?? null}
+          lastFinishedAt={emailStatusQuery.data?.last_finished_at ?? null}
+        />
         <RegistrationTable registrations={registrations} />
         {logoWatermark}
       </div>
     </main>
   );
+}
+
+function EmailRoundStatus({
+  isLoading,
+  isError,
+  nextRunAt,
+  lastFinishedAt,
+}: {
+  isLoading: boolean;
+  isError: boolean;
+  nextRunAt: Date | null;
+  lastFinishedAt: Date | null;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  let title = 'Email notifications';
+  let body = 'Worker schedule has not been recorded yet.';
+
+  if (isLoading) {
+    body = 'Loading next email round...';
+  } else if (isError) {
+    body = 'Unable to load the next email round.';
+  } else if (nextRunAt) {
+    const diffMs = nextRunAt.getTime() - now;
+    if (diffMs > 0) {
+      body = `Next email round in ${formatCountdown(diffMs)}.`;
+    } else {
+      body = 'Next email round is due any moment.';
+    }
+  }
+
+  return (
+    <section className='mt-6 rounded-2xl border border-border bg-card p-4 shadow-sm'>
+      <h3 className='fgs-subheading'>{title}</h3>
+      <p className='fgs-copy mt-2'>{body}</p>
+      {lastFinishedAt && (
+        <p className='mt-2 text-xs text-muted-foreground'>
+          Last completed: {formatPakistanAppointment(lastFinishedAt)}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function formatCountdown(diffMs: number) {
+  const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
 }
 
 function RegistrationTable({
