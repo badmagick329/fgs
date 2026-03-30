@@ -19,17 +19,22 @@ export class NotificationService {
     this.notificationClient = notificationClient;
     this.log = loggerCreator('NotificationService');
   }
-  async processUnsentNotifications() {
+  async processUnsentNotifications(workerIntervalMs: number) {
+    await this.db.markWorkerCycleStarted(
+      new Date(Date.now() + workerIntervalMs)
+    );
     this.log.info('Checking Notifications');
 
     const fetchResult = await this.db.getPending();
     if (!fetchResult.ok) {
       this.log.error(fetchResult.error);
+      await this.db.markWorkerCycleFinished();
       return;
     }
 
     if (fetchResult.data.length === 0) {
       this.log.info('No pending notifications found');
+      await this.db.markWorkerCycleFinished();
       return;
     }
 
@@ -43,6 +48,7 @@ export class NotificationService {
       sendResult,
       notifications.map((d) => d.id)
     );
+    await this.db.markWorkerCycleFinished();
   }
 
   private async processSendResult(

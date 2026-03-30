@@ -1,4 +1,4 @@
-import { Registration } from '@/types';
+import { EmailWorkerStatus, Registration } from '@/types';
 import { Result } from '@/lib/result';
 import {
   INotifier,
@@ -13,6 +13,10 @@ export class RegistrationService {
 
   async getRegistrations() {
     return this.registrationRepository.getRegistrations();
+  }
+
+  async getEmailWorkerStatus(): Promise<Result<EmailWorkerStatus | null>> {
+    return this.registrationRepository.getEmailWorkerStatus();
   }
 
   async createRegistration(input: {

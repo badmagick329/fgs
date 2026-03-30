@@ -1,8 +1,9 @@
-import { Registration } from '@/types';
+import { EmailWorkerStatus, Registration } from '@/types';
 import { Result } from '@/lib/result';
 
 export interface IRegistrationRepository {
   getRegistrations(): Promise<Result<Registration[]>>;
+  getEmailWorkerStatus(): Promise<Result<EmailWorkerStatus | null>>;
   createRegistration(input: {
     studentName: string;
     parentName: string;

@@ -7,6 +7,8 @@ export interface INotificationSender {
 
 export interface IUserRepository {
   getPending(): Promise<Result<Registration[], string>>;
+  markWorkerCycleStarted(nextRunAt: Date): Promise<void>;
+  markWorkerCycleFinished(): Promise<void>;
 
   setFailedStatus(
     ids: number[]

@@ -31,7 +31,7 @@ describe('Database Functions', () => {
       throw new Error('DANGER: Running tests against non-test DB!');
     }
     await db.query(
-      'TRUNCATE TABLE registration_requests RESTART IDENTITY CASCADE'
+      'TRUNCATE TABLE registration_requests, email_worker_status RESTART IDENTITY CASCADE'
     );
   });
 

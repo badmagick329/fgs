@@ -71,6 +71,30 @@ export class DB implements IUserRepository {
     }
   }
 
+  async markWorkerCycleStarted(nextRunAt: Date): Promise<void> {
+    await this.pool.query(
+      `
+        INSERT INTO email_worker_status (id, last_started_at, next_run_at, updated_at)
+        VALUES (1, NOW(), $1, NOW())
+        ON CONFLICT (id) DO UPDATE
+        SET last_started_at = NOW(),
+            next_run_at = EXCLUDED.next_run_at,
+            updated_at = NOW()
+      `,
+      [nextRunAt.toISOString()]
+    );
+  }
+
+  async markWorkerCycleFinished(): Promise<void> {
+    await this.pool.query(`
+      INSERT INTO email_worker_status (id, last_finished_at, updated_at)
+      VALUES (1, NOW(), NOW())
+      ON CONFLICT (id) DO UPDATE
+      SET last_finished_at = NOW(),
+          updated_at = NOW()
+    `);
+  }
+
   async setFailedStatus(
     ids: number[]
   ): Promise<

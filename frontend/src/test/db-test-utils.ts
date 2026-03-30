@@ -63,6 +63,14 @@ export async function ensureSchema(pool: Pool) {
       email_status TEXT NOT NULL DEFAULT 'pending',
       retry_count INTEGER NOT NULL DEFAULT 0
     );
+
+    CREATE TABLE IF NOT EXISTS email_worker_status (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      last_started_at TIMESTAMPTZ NULL,
+      last_finished_at TIMESTAMPTZ NULL,
+      next_run_at TIMESTAMPTZ NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
   `);
 }
 
@@ -73,7 +81,8 @@ export async function resetTables(pool: Pool) {
       admin_refresh_tokens,
       admin_users,
       registrations,
-      registration_requests
+      registration_requests,
+      email_worker_status
     RESTART IDENTITY CASCADE;
   `);
 }
@@ -82,6 +91,7 @@ export async function dropSchema(pool: Pool) {
   await pool.query(`
     DROP TABLE IF EXISTS admin_config;
     DROP TABLE IF EXISTS admin_refresh_tokens;
+    DROP TABLE IF EXISTS email_worker_status;
     DROP TABLE IF EXISTS registration_requests;
     DROP TABLE IF EXISTS registrations;
     DROP TABLE IF EXISTS admin_users;
