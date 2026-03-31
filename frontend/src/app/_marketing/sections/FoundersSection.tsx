@@ -28,8 +28,14 @@ export default function FoundersSection() {
           </div>
           <div className='mt-6 grid gap-4 sm:grid-cols-2'>
             <div className='rounded-3xl p-3'>
-              <div className='fgs-placeholder mx-auto aspect-square max-w-[16rem] text-xs'>
-                Founder Image Placeholder 1
+              <div className='mx-auto max-w-[16rem] overflow-hidden rounded-2xl border border-border'>
+                <Image
+                  src='/asim.webp'
+                  alt='Respected Madam Zahida Asim Farooqi'
+                  width={640}
+                  height={640}
+                  className='aspect-square h-auto w-full object-cover'
+                />
               </div>
             </div>
             <div className='rounded-3xl p-3'>
