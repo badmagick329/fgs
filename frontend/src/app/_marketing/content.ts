@@ -198,3 +198,8 @@ export const contactContent = {
       'Monday to Thursday and Saturday: 8:00 AM to 2:00 PM. Friday: 8:00 AM to 12:00 PM.',
   },
 };
+
+export const acknowledgementContent = {
+  title: 'Acknowledgement',
+  body: 'We are ever grateful and appreciative of Uzair Asim Farooqi, the beloved and youngest son of Sir Asim Farooqi and Mrs. Asim Farooqi, for designing and creating this website.',
+};

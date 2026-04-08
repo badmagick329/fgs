@@ -3,7 +3,7 @@ import { contactContent } from '../content';
 
 export default function ContactSection() {
   return (
-    <section id='contact' className='fgs-section reveal pb-20'>
+    <section id='contact' className='fgs-section reveal'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <h2 className='fgs-heading'>{contactContent.title}</h2>
         <article className='fgs-card mt-6'>

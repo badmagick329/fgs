@@ -1,6 +1,7 @@
 import PreviewShell from '@/app/_marketing/PreviewShell';
 import { marketingNavItems } from '@/app/_marketing/content';
 import AboutSection from '@/app/_marketing/sections/AboutSection';
+import AcknowledgementSection from '@/app/_marketing/sections/AcknowledgementSection';
 import CeoMessageSection from '@/app/_marketing/sections/CeoMessageSection';
 import ContactSection from '@/app/_marketing/sections/ContactSection';
 import GallerySection from '@/app/_marketing/sections/GallerySection';
@@ -19,6 +20,7 @@ export default function PreviewPage() {
       <WhyFgsSection />
       <GallerySection />
       <ContactSection />
+      <AcknowledgementSection />
     </PreviewShell>
   );
 }
