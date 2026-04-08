@@ -30,7 +30,7 @@ export default function FoundersSection() {
             <div className='rounded-3xl p-3'>
               <div className='mx-auto max-w-[16rem] overflow-hidden rounded-2xl border border-border'>
                 <Image
-                  src='/asim.webp'
+                  src='/asim_2.webp'
                   alt='Respected Madam Zahida Asim Farooqi'
                   width={640}
                   height={640}
