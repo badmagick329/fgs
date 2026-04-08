@@ -1,6 +1,7 @@
 import { EmailWorkerStatus, Registration } from '@/types';
 import { mock } from 'bun:test';
 import { Result } from '@/lib/result';
+import { createFutureRegistrationAppointmentDate } from '@/test/registration-test-utils';
 import {
   IAdminRepository,
   IAdminRepositoryTransaction,
@@ -141,7 +142,7 @@ export function createRegistrationRepositoryMock(
       class_name: 'Class 5',
       mobile_number: '03001234567',
       campus: 'FGS Ravi Road Boys Campus',
-      preferred_appointment_at: new Date('2026-04-01T08:00:00+05:00'),
+      preferred_appointment_at: createFutureRegistrationAppointmentDate(),
       registration_message: null,
       registered_at: new Date(),
       updated_at: null,
