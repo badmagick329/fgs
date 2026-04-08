@@ -140,7 +140,7 @@ export function createRegistrationRepositoryMock(
       parent_name: 'Test Parent',
       class_name: 'Class 5',
       mobile_number: '03001234567',
-      campus: 'Boys Campus',
+      campus: 'FGS Ravi Road Boys Campus',
       preferred_appointment_at: new Date('2026-04-01T08:00:00+05:00'),
       registration_message: null,
       registered_at: new Date(),
