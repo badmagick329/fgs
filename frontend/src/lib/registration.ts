@@ -1,8 +1,8 @@
 export const REGISTRATION_CAMPUSES = [
-  'Boys Campus',
-  'Girls Campus',
-  'Kids Campus',
-  'Edward Road Campus',
+  'FGS Ravi Road Boys Campus',
+  'FGS Ravi Road Girls Campus',
+  'FGS Ravi Road Kids Campus',
+  'FGS Edward Road (PG to Matric)',
 ] as const;
 
 export type RegistrationCampus = (typeof REGISTRATION_CAMPUSES)[number];
