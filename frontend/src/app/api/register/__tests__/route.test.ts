@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import {
+  createFutureRegistrationAppointmentAt,
+  createFutureRegistrationAppointmentDate,
+} from '@/test/registration-test-utils';
 
 mock.module('server-only', () => ({}));
 const getServerContainer = mock(() => ({}));
@@ -14,8 +18,8 @@ function createValidPayload() {
     parentName: 'Parent Name',
     className: 'Class 5',
     mobileNumber: '03001234567',
-    campus: 'Boys Campus',
-    preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
+    campus: 'FGS Ravi Road Boys Campus',
+    preferredAppointmentAt: createFutureRegistrationAppointmentAt(),
     formStartedAt: Date.now() - 5000,
   };
 }
@@ -83,8 +87,8 @@ describe('/api/register', () => {
         parent_name: 'Parent Name',
         class_name: 'Class 5',
         mobile_number: '03001234567',
-        campus: 'Boys Campus',
-        preferred_appointment_at: new Date('2026-04-01T08:00:00+05:00'),
+        campus: 'FGS Ravi Road Boys Campus',
+        preferred_appointment_at: createFutureRegistrationAppointmentDate(),
         registration_message: null,
         registered_at: new Date(),
         updated_at: null,

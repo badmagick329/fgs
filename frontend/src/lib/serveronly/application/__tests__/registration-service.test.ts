@@ -4,6 +4,7 @@ import {
 } from '@/test/mock-factories';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { RegistrationService } from '@/lib/serveronly/application/registration-service';
+import { createFutureRegistrationAppointmentAt } from '@/test/registration-test-utils';
 
 describe('RegistrationService', () => {
   beforeEach(() => {
@@ -30,8 +31,8 @@ describe('RegistrationService', () => {
       parentName: 'Parent',
       className: 'Class 5',
       mobileNumber: '03001234567',
-      campus: 'Boys Campus',
-      preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
+      campus: 'FGS Ravi Road Boys Campus',
+      preferredAppointmentAt: createFutureRegistrationAppointmentAt(),
     });
 
     expect(repo.createRegistration).toHaveBeenCalledWith({
@@ -39,8 +40,8 @@ describe('RegistrationService', () => {
       parentName: 'Parent',
       className: 'Class 5',
       mobileNumber: '03001234567',
-      campus: 'Boys Campus',
-      preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
+      campus: 'FGS Ravi Road Boys Campus',
+      preferredAppointmentAt: createFutureRegistrationAppointmentAt(),
     });
   });
 

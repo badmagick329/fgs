@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { RegistrationAntiSpamService } from '@/lib/serveronly/application/registration-anti-spam-service';
 import { IClock } from '@/lib/serveronly/domain/interfaces';
+import { createFutureRegistrationAppointmentAt } from '@/test/registration-test-utils';
 
 class FakeClock implements IClock {
   constructor(private currentMs: number) {}
@@ -71,8 +72,8 @@ describe('RegistrationAntiSpamService', () => {
       parentName: 'Jane Doe',
       className: 'Class 5',
       mobileNumber: '03001234567',
-      campus: 'Boys Campus',
-      preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
+      campus: 'FGS Ravi Road Boys Campus',
+      preferredAppointmentAt: createFutureRegistrationAppointmentAt(),
     };
 
     const firstCheck = service.checkPayloadCooldown(payload);
@@ -95,8 +96,8 @@ describe('RegistrationAntiSpamService', () => {
       parentName: 'Jane Doe',
       className: 'Class 5',
       mobileNumber: '03001234567',
-      campus: 'Boys Campus',
-      preferredAppointmentAt: '2026-04-01T08:00:00+05:00',
+      campus: 'FGS Ravi Road Boys Campus',
+      preferredAppointmentAt: createFutureRegistrationAppointmentAt(),
     };
 
     service.markPayloadSubmitted(payload);
