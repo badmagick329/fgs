@@ -9,7 +9,7 @@ export default async function Home({
 }) {
   const sp = await searchParams;
   if (shouldShowPreview(sp)) {
-    return <PreviewPage />;
+    return <PreviewPage heroVariant={sp.hero} />;
   }
 
   return <UnderConstruction />;

@@ -10,10 +10,18 @@ import JoinSection from '@/app/_marketing/sections/JoinSection';
 import MarketingHero from '@/app/_marketing/sections/MarketingHero';
 import WhyFgsSection from '@/app/_marketing/sections/WhyFgsSection';
 
-export default function PreviewPage() {
+type PreviewPageProps = {
+  heroVariant?: string | string[];
+};
+
+function firstValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default function PreviewPage({ heroVariant }: PreviewPageProps) {
   return (
     <PreviewShell navItems={marketingNavItems}>
-      <MarketingHero />
+      <MarketingHero heroVariant={firstValue(heroVariant)} />
       <CeoMessageSection />
       <AboutSection />
       <HighlightsStrip />
