@@ -152,7 +152,7 @@ export const contactContent = {
   campusesTitle: 'Campuses',
   campuses: [
     {
-      name: 'Boys Campus',
+      name: 'FGS Ravi Road Boys Campus',
       phones: [
         { display: '042-37731101', href: 'tel:+924237731101' },
         { display: '042-37703255', href: 'tel:+924237703255' },
@@ -163,7 +163,7 @@ export const contactContent = {
       mapUrl: 'https://maps.app.goo.gl/o5dqafF5sEvSB5Xd7',
     },
     {
-      name: 'Girls Campus',
+      name: 'FGS Ravi Road Girls Campus',
       phones: [
         { display: '042-37731101', href: 'tel:+924237731101' },
         { display: '042-37703255', href: 'tel:+924237703255' },
@@ -174,7 +174,7 @@ export const contactContent = {
       mapUrl: 'https://maps.app.goo.gl/o5dqafF5sEvSB5Xd7',
     },
     {
-      name: 'Kids Campus',
+      name: 'FGS Ravi Road Kids Campus',
       phones: [
         { display: '042-37726073', href: 'tel:+924237726073' },
         { display: '042-37130138', href: 'tel:+924237130138' },
@@ -183,7 +183,7 @@ export const contactContent = {
       mapUrl: 'https://maps.app.goo.gl/L42sT8JcjhaoEnN3A',
     },
     {
-      name: 'Edward Road Campus',
+      name: 'FGS Edward Road (PG to Matric)',
       phones: [{ display: '042-37237556', href: 'tel:+924237237556' }],
       address:
         '1-Edward Roard, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
