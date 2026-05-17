@@ -320,7 +320,7 @@ export default function MarketingHero({ heroVariant }: MarketingHeroProps) {
     return (
       <section className={heroClassName}>
         <div className='relative overflow-hidden lg:hidden'>
-          <div className='relative min-h-[28rem] sm:min-h-[42rem]'>
+          <div className='relative min-h-112 sm:min-h-168'>
             <ResponsiveHeroImage
               sources={heroPhotos.qsp08935}
               alt='Farooqi Grammar School students standing together'
@@ -328,7 +328,7 @@ export default function MarketingHero({ heroVariant }: MarketingHeroProps) {
               className='absolute inset-0 block h-full w-full'
             />
             <div className='absolute inset-0 bg-black/62' />
-            <div className='relative z-10 flex min-h-[28rem] items-end px-4 py-8 sm:min-h-[42rem] sm:px-6 sm:py-10'>
+            <div className='relative z-10 flex min-h-112 items-end px-4 py-8 sm:min-h-168 sm:px-6 sm:py-10'>
               <HeroCopy tonedDown mobileOverlay />
             </div>
           </div>
