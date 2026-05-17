@@ -106,14 +106,27 @@ export const whyFgsContent = {
 export const galleryContent = {
   title: 'Student Life Gallery',
   images: [
-    { src: '/img01.webp', alt: 'Student life gallery image 1' },
-    { src: '/img04.webp', alt: 'Student life gallery image 2' },
-    { src: '/img05.webp', alt: 'Student life gallery image 3' },
-    { src: '/img06.webp', alt: 'Student life gallery image 4' },
-    { src: '/img07.webp', alt: 'Student life gallery image 5' },
-    { src: '/img08.webp', alt: 'Student life gallery image 6' },
-    { src: '/img09.webp', alt: 'Student life gallery image 7' },
-    { src: '/img12.webp', alt: 'Student life gallery image 8' },
+    {
+      src: '/student-life/qsp08915.webp',
+      alt: 'Farooqi Grammar School students in a classroom activity',
+    },
+    {
+      src: '/student-life/qsp08922.webp',
+      alt: 'Farooqi Grammar School students during a lesson',
+    },
+    {
+      src: '/student-life/qsp08946.webp',
+      alt: 'Farooqi Grammar School students using a tablet together',
+      objectPosition: 'center 28%',
+    },
+    {
+      src: '/student-life/qsp08980.webp',
+      alt: 'Farooqi Grammar School students in a classroom setting',
+    },
+    {
+      src: '/student-life/qsp08984.webp',
+      alt: 'Farooqi Grammar School students learning together',
+    },
   ],
 };
 

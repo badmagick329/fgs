@@ -16,6 +16,12 @@ export default function GallerySection() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const desktopTopRow =
+    galleryContent.images.length === 5
+      ? galleryContent.images.slice(0, 3)
+      : galleryContent.images;
+  const desktopBottomRow =
+    galleryContent.images.length === 5 ? galleryContent.images.slice(3) : [];
 
   useEffect(() => {
     if (!api) {
@@ -45,29 +51,59 @@ export default function GallerySection() {
           <h2 className='fgs-heading mt-3'>{galleryContent.title}</h2>
         </div>
 
-        <div className='mt-6 hidden justify-items-center gap-4 xl:grid xl:grid-cols-4'>
-          {galleryContent.images.map((image) => (
-            <GalleryImageCard
-              key={image.src}
-              src={image.src}
-              alt={image.alt}
-            />
-          ))}
-        </div>
+        {galleryContent.images.length === 5 ? (
+          <div className='mt-6 hidden gap-4 xl:block'>
+            <div className='grid grid-cols-3 gap-5'>
+              {desktopTopRow.map((image) => (
+                <GalleryImageCard
+                  key={image.src}
+                  src={image.src}
+                  alt={image.alt}
+                  objectPosition={image.objectPosition}
+                />
+              ))}
+            </div>
+            <div className='mx-auto mt-5 grid max-w-4xl grid-cols-2 gap-5'>
+              {desktopBottomRow.map((image) => (
+                <GalleryImageCard
+                  key={image.src}
+                  src={image.src}
+                  alt={image.alt}
+                  objectPosition={image.objectPosition}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className='mt-6 hidden justify-items-center gap-4 xl:grid xl:grid-cols-4'>
+            {galleryContent.images.map((image) => (
+              <GalleryImageCard
+                key={image.src}
+                src={image.src}
+                alt={image.alt}
+                objectPosition={image.objectPosition}
+              />
+            ))}
+          </div>
+        )}
 
         <div className='xl:hidden'>
           <Carousel
             setApi={setApi}
             opts={{ align: 'start', loop: true }}
-            className='mt-6 px-10 sm:px-12'
+            className='mt-6 px-4 sm:px-8 lg:px-10'
           >
             <CarouselContent className='items-start'>
               {galleryContent.images.map((image) => (
                 <CarouselItem
                   key={image.src}
-                  className='basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4'
+                  className='basis-[88%] sm:basis-[70%] md:basis-[52%] lg:basis-[38%]'
                 >
-                  <GalleryImageCard src={image.src} alt={image.alt} />
+                  <GalleryImageCard
+                    src={image.src}
+                    alt={image.alt}
+                    objectPosition={image.objectPosition}
+                  />
                 </CarouselItem>
               ))}
             </CarouselContent>
