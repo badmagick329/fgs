@@ -142,16 +142,32 @@ function ResponsiveHeroImage({
   priority?: boolean;
 }) {
   return (
-    <picture className={className}>
-      <source media='(min-width: 768px)' srcSet={sources.lg} />
-      <source media='(min-width: 640px)' srcSet={sources.md} />
-      <img
+    <div className={className}>
+      <Image
         src={sources.sm}
         alt={alt}
-        fetchPriority={priority ? 'high' : undefined}
-        className='h-full w-full object-cover'
+        fill
+        priority={priority}
+        sizes='100vw'
+        className='object-cover sm:hidden'
       />
-    </picture>
+      <Image
+        src={sources.md}
+        alt={alt}
+        fill
+        priority={priority}
+        sizes='100vw'
+        className='hidden object-cover sm:block md:hidden'
+      />
+      <Image
+        src={sources.lg}
+        alt={alt}
+        fill
+        priority={priority}
+        sizes='100vw'
+        className='hidden object-cover md:block'
+      />
+    </div>
   );
 }
 
@@ -173,7 +189,7 @@ function HeroPhoto({
       <ResponsiveHeroImage
         sources={sources}
         alt={alt}
-        className='block h-full w-full'
+        className='relative h-full w-full'
         priority={priority}
       />
     </div>
