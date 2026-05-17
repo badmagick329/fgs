@@ -3,18 +3,24 @@ import Image from 'next/image';
 type GalleryImageCardProps = {
   src: string;
   alt: string;
+  objectPosition?: string;
 };
 
-export default function GalleryImageCard({ src, alt }: GalleryImageCardProps) {
+export default function GalleryImageCard({
+  src,
+  alt,
+  objectPosition = 'center',
+}: GalleryImageCardProps) {
   return (
-    <article className='mx-auto w-full max-w-56'>
-      <div className='relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-xl bg-fgs-surface'>
+    <article className='w-full'>
+      <div className='relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-fgs-surface'>
         <Image
           src={src}
           alt={alt}
           fill
-          sizes='(max-width: 640px) 70vw, (max-width: 1280px) 30vw, 220px'
-          className='object-contain'
+          sizes='(max-width: 640px) 84vw, (max-width: 1280px) 40vw, 360px'
+          className='object-cover'
+          style={{ objectPosition }}
         />
       </div>
     </article>
