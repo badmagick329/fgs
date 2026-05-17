@@ -97,7 +97,7 @@ export default function GallerySection() {
               {galleryContent.images.map((image) => (
                 <CarouselItem
                   key={image.src}
-                  className='basis-[88%] sm:basis-[70%] md:basis-[52%] lg:basis-[38%]'
+                  className='basis-full sm:basis-[70%] md:basis-[52%] lg:basis-[38%]'
                 >
                   <GalleryImageCard
                     src={image.src}
