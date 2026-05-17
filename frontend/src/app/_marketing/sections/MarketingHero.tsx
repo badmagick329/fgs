@@ -107,12 +107,12 @@ function HeroCopy({
         </p>
       ) : null}
       <h1
-        className={`${mobileOverlay ? 'max-w-[11.5ch] text-[2.6rem] leading-[0.98] text-white sm:text-[3rem]' : tonedDown ? 'max-w-[11ch] text-[2.95rem] leading-[1.02] sm:max-w-[10.2ch] sm:text-[2.95rem]' : 'text-4xl sm:text-5xl'} font-semibold leading-tight`}
+        className={`${mobileOverlay ? 'max-w-[14ch] text-[2.2rem] leading-[1.02] text-white sm:text-[3rem]' : tonedDown ? 'max-w-[11ch] text-[2.95rem] leading-[1.02] sm:max-w-[10.2ch] sm:text-[2.95rem]' : 'text-4xl sm:text-5xl'} font-semibold leading-tight`}
       >
         {heroContent.title}
       </h1>
       <p
-        className={`text-base text-muted-foreground ${mobileOverlay ? 'max-w-[22rem] text-[0.98rem] leading-7 text-white/88 sm:max-w-[24rem]' : tonedDown ? 'max-w-lg sm:max-w-md sm:text-[0.98rem]' : 'max-w-xl sm:text-lg'}`}
+        className={`text-base text-muted-foreground ${mobileOverlay ? 'max-w-[18rem] text-[0.95rem] leading-7 text-white/88 sm:max-w-[24rem]' : tonedDown ? 'max-w-lg sm:max-w-md sm:text-[0.98rem]' : 'max-w-xl sm:text-lg'}`}
       >
         {heroContent.description}
       </p>
@@ -264,7 +264,7 @@ function HeroFiveCarousel() {
           {heroFiveSlides.map((slide) => (
             <CarouselItem key={slide.alt} className='pl-0'>
               <div className='relative overflow-hidden'>
-                <div className='relative h-[65vh] min-h-[28rem] sm:h-[70vh] lg:h-[82vh]'>
+                <div className='relative h-[54vh] min-h-[22rem] sm:h-[70vh] lg:h-[82vh]'>
                   <ResponsiveHeroImage
                     sources={slide.src}
                     alt={slide.alt}
@@ -320,7 +320,7 @@ export default function MarketingHero({ heroVariant }: MarketingHeroProps) {
     return (
       <section className={heroClassName}>
         <div className='relative overflow-hidden lg:hidden'>
-          <div className='relative min-h-[38rem] sm:min-h-[42rem]'>
+          <div className='relative min-h-[28rem] sm:min-h-[42rem]'>
             <ResponsiveHeroImage
               sources={heroPhotos.qsp08935}
               alt='Farooqi Grammar School students standing together'
@@ -328,7 +328,7 @@ export default function MarketingHero({ heroVariant }: MarketingHeroProps) {
               className='absolute inset-0 block h-full w-full'
             />
             <div className='absolute inset-0 bg-black/62' />
-            <div className='relative z-10 flex min-h-[38rem] items-end px-4 py-8 sm:min-h-[42rem] sm:px-6 sm:py-10'>
+            <div className='relative z-10 flex min-h-[28rem] items-end px-4 py-8 sm:min-h-[42rem] sm:px-6 sm:py-10'>
               <HeroCopy tonedDown mobileOverlay />
             </div>
           </div>
