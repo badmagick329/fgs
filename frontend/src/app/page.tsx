@@ -1,6 +1,5 @@
 import { PreviewPage } from '@/app/_preview';
 import { shouldShowPreview } from '@/app/_preview/resolver';
-import UnderConstruction from '@/app/_components/UnderConstruction';
 
 export default async function Home({
   searchParams,
@@ -12,5 +11,5 @@ export default async function Home({
     return <PreviewPage heroVariant={sp.hero} />;
   }
 
-  return <UnderConstruction />;
+  return <PreviewPage heroVariant='1' />;
 }
