@@ -27,7 +27,7 @@ export default function CeoMessageSection() {
                   </p>
                 ))}
               </div>
-              <div className='mt-6 rounded-3xl p-3'>
+              <div className='mt-6 hidden rounded-3xl p-3'>
                 <div className='fgs-placeholder mx-auto aspect-square max-w-[16rem] rounded-2xl border border-border'>
                   CEO image placeholder
                 </div>
@@ -47,7 +47,7 @@ export default function CeoMessageSection() {
               </p>
             ))}
           </div>
-          <div className='mt-6 rounded-3xl p-3'>
+          <div className='mt-6 hidden rounded-3xl p-3'>
             <div className='fgs-placeholder mx-auto aspect-square max-w-[16rem] rounded-2xl border border-border'>
               CEO image placeholder
             </div>

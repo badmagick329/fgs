@@ -17,14 +17,48 @@ type MarketingHeroProps = {
 const validHeroVariants = ['1', '2'] as const;
 type HeroVariant = (typeof validHeroVariants)[number];
 
+type ResponsiveHeroSource = {
+  sm: string;
+  md: string;
+  lg: string;
+};
+
 const heroPhotos = {
-  qsp08932: '/hero-new/qsp08932.webp',
-  qsp08935: '/hero-new/qsp08935.webp',
-  qsp08950: '/hero-new/qsp08950.webp',
-  qsp08963: '/hero-new/qsp08963.webp',
-  qsp08973: '/hero-new/qsp08973.webp',
-  qsp08988: '/hero-new/qsp08988.webp',
-  qsp08991: '/hero-new/qsp08991.webp',
+  qsp08932: {
+    sm: '/hero-new/qsp08932_sm.webp',
+    md: '/hero-new/qsp08932.webp',
+    lg: '/hero-new/qsp08932_lg.webp',
+  },
+  qsp08935: {
+    sm: '/hero-new/qsp08935_sm.webp',
+    md: '/hero-new/qsp08935.webp',
+    lg: '/hero-new/qsp08935_lg.webp',
+  },
+  qsp08950: {
+    sm: '/hero-new/qsp08950_sm.webp',
+    md: '/hero-new/qsp08950.webp',
+    lg: '/hero-new/qsp08950_lg.webp',
+  },
+  qsp08963: {
+    sm: '/hero-new/qsp08963_sm.webp',
+    md: '/hero-new/qsp08963.webp',
+    lg: '/hero-new/qsp08963_lg.webp',
+  },
+  qsp08973: {
+    sm: '/hero-new/qsp08973_sm.webp',
+    md: '/hero-new/qsp08973.webp',
+    lg: '/hero-new/qsp08973_lg.webp',
+  },
+  qsp08988: {
+    sm: '/hero-new/qsp08988_sm.webp',
+    md: '/hero-new/qsp08988.webp',
+    lg: '/hero-new/qsp08988_lg.webp',
+  },
+  qsp08991: {
+    sm: '/hero-new/qsp08991_sm.webp',
+    md: '/hero-new/qsp08991.webp',
+    lg: '/hero-new/qsp08991_lg.webp',
+  },
 } as const;
 
 const heroFiveSlides = [
@@ -65,7 +99,7 @@ function HeroCopy({
 }) {
   return (
     <div
-      className={`reveal space-y-6 ${tonedDown ? 'max-w-2xl space-y-5' : ''} ${mobileOverlay ? 'relative z-20 max-w-[21rem] space-y-5' : ''}`}
+      className={`reveal space-y-6 ${tonedDown ? 'max-w-2xl space-y-5' : ''} ${mobileOverlay ? 'relative z-20 max-w-full space-y-5' : ''}`}
     >
       {!tonedDown ? (
         <p className='inline-flex rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-foreground'>
@@ -73,12 +107,12 @@ function HeroCopy({
         </p>
       ) : null}
       <h1
-        className={`${mobileOverlay ? 'max-w-[10.5ch] text-[2.75rem] leading-[0.98] text-white' : tonedDown ? 'max-w-[11ch] text-[2.95rem] leading-[1.02] sm:max-w-[10.2ch] sm:text-[2.95rem]' : 'text-4xl sm:text-5xl'} font-semibold leading-tight`}
+        className={`${mobileOverlay ? 'max-w-[11.5ch] text-[2.6rem] leading-[0.98] text-white sm:text-[3rem]' : tonedDown ? 'max-w-[11ch] text-[2.95rem] leading-[1.02] sm:max-w-[10.2ch] sm:text-[2.95rem]' : 'text-4xl sm:text-5xl'} font-semibold leading-tight`}
       >
         {heroContent.title}
       </h1>
       <p
-        className={`text-base text-muted-foreground ${mobileOverlay ? 'max-w-[19rem] text-[0.98rem] leading-7 text-white/88' : tonedDown ? 'max-w-lg sm:max-w-md sm:text-[0.98rem]' : 'max-w-xl sm:text-lg'}`}
+        className={`text-base text-muted-foreground ${mobileOverlay ? 'max-w-[22rem] text-[0.98rem] leading-7 text-white/88 sm:max-w-[24rem]' : tonedDown ? 'max-w-lg sm:max-w-md sm:text-[0.98rem]' : 'max-w-xl sm:text-lg'}`}
       >
         {heroContent.description}
       </p>
@@ -96,30 +130,51 @@ function HeroCopy({
   );
 }
 
-function HeroPhoto({
-  src,
+function ResponsiveHeroImage({
+  sources,
   alt,
   className,
-  sizes,
   priority = false,
 }: {
-  src: string;
+  sources: ResponsiveHeroSource;
   alt: string;
   className: string;
-  sizes: string;
+  priority?: boolean;
+}) {
+  return (
+    <picture className={className}>
+      <source media='(min-width: 768px)' srcSet={sources.lg} />
+      <source media='(min-width: 640px)' srcSet={sources.md} />
+      <img
+        src={sources.sm}
+        alt={alt}
+        fetchPriority={priority ? 'high' : undefined}
+        className='h-full w-full object-cover'
+      />
+    </picture>
+  );
+}
+
+function HeroPhoto({
+  sources,
+  alt,
+  className,
+  priority = false,
+}: {
+  sources: ResponsiveHeroSource;
+  alt: string;
+  className: string;
   priority?: boolean;
 }) {
   return (
     <div
       className={`overflow-hidden rounded-[1.4rem] border border-border bg-card shadow-sm ${className}`}
     >
-      <Image
-        src={src}
+      <ResponsiveHeroImage
+        sources={sources}
         alt={alt}
-        fill
-        sizes={sizes}
+        className='block h-full w-full'
         priority={priority}
-        className='object-cover'
       />
     </div>
   );
@@ -145,23 +200,20 @@ function PosterCollageHeroVisual() {
     <>
       <div className='relative hidden min-h-[42rem] lg:block'>
         <HeroPhoto
-          src={heroPhotos.qsp08935}
+          sources={heroPhotos.qsp08935}
           alt='Farooqi Grammar School students standing together'
           className='absolute bottom-0 right-0 z-10 aspect-[4/5] w-[78%] rounded-[1.8rem] shadow-lg'
-          sizes='(max-width: 1280px) 62vw, 40vw'
           priority
         />
         <HeroPhoto
-          src={heroPhotos.qsp08963}
+          sources={heroPhotos.qsp08963}
           alt='Farooqi Grammar School students doing an activity together'
           className='absolute -left-[4%] top-0 z-20 aspect-4/3 w-[42%] rotate-[-4deg] rounded-[1.55rem] shadow-md'
-          sizes='(max-width: 1280px) 38vw, 24vw'
         />
         <HeroPhoto
-          src={heroPhotos.qsp08950}
+          sources={heroPhotos.qsp08950}
           alt='Farooqi Grammar School students reading together'
           className='absolute bottom-3 left-[12%] z-20 aspect-4/3 w-[38%] rotate-[3deg] rounded-[1.55rem] shadow-md'
-          sizes='(max-width: 1280px) 32vw, 20vw'
         />
       </div>
     </>
@@ -194,16 +246,14 @@ function HeroFiveCarousel() {
       >
         <CarouselContent className='ml-0'>
           {heroFiveSlides.map((slide) => (
-            <CarouselItem key={slide.src} className='pl-0'>
+            <CarouselItem key={slide.alt} className='pl-0'>
               <div className='relative overflow-hidden'>
                 <div className='relative h-[65vh] min-h-[28rem] sm:h-[70vh] lg:h-[82vh]'>
-                  <Image
-                    src={slide.src}
+                  <ResponsiveHeroImage
+                    sources={slide.src}
                     alt={slide.alt}
-                    fill
-                    sizes='100vw'
                     priority={slide.src === heroFiveSlides[0].src}
-                    className='object-cover'
+                    className='absolute inset-0 block h-full w-full'
                   />
                   <div className='absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/45 via-black/10 to-transparent' />
                 </div>
@@ -255,13 +305,11 @@ export default function MarketingHero({ heroVariant }: MarketingHeroProps) {
       <section className={heroClassName}>
         <div className='relative overflow-hidden lg:hidden'>
           <div className='relative min-h-[38rem] sm:min-h-[42rem]'>
-            <Image
-              src={heroPhotos.qsp08935}
+            <ResponsiveHeroImage
+              sources={heroPhotos.qsp08935}
               alt='Farooqi Grammar School students standing together'
-              fill
-              sizes='100vw'
               priority
-              className='object-cover'
+              className='absolute inset-0 block h-full w-full'
             />
             <div className='absolute inset-0 bg-black/62' />
             <div className='relative z-10 flex min-h-[38rem] items-end px-4 py-8 sm:min-h-[42rem] sm:px-6 sm:py-10'>
