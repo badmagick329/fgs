@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import Providers from './Providers';
 
@@ -16,6 +17,7 @@ const geistMono = Geist_Mono({
 const siteName = 'Farooqi Grammar School (FGS)';
 const siteUrl = 'https://farooqigrammar.school';
 const ogImage = '/fgs-logo.jpg';
+const plausibleDomain = 'farooqigrammar.school';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -102,6 +104,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
+      <head>
+        <Script
+          defer
+          src='/ingest/js/script.js'
+          data-domain={plausibleDomain}
+          data-api='/ingest/api/event'
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
