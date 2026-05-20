@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { contactContent } from '@/app/_marketing/content';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
@@ -17,7 +18,51 @@ const geistMono = Geist_Mono({
 const siteName = 'Farooqi Grammar School (FGS)';
 const siteUrl = 'https://farooqigrammar.school';
 const ogImage = '/fgs-logo.jpg';
+const logoImage = '/fgs-logo.png';
 const plausibleDomain = 'farooqigrammar.school';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: siteName,
+      description:
+        'Farooqi Grammar School (FGS) is a school in Lahore focused on academic excellence, character, and student growth.',
+      inLanguage: 'en',
+      publisher: { '@id': `${siteUrl}/#organization` },
+    },
+    {
+      '@type': ['EducationalOrganization', 'School'],
+      '@id': `${siteUrl}/#organization`,
+      name: siteName,
+      alternateName: 'FGS',
+      url: siteUrl,
+      logo: `${siteUrl}${logoImage}`,
+      image: `${siteUrl}${ogImage}`,
+      email: contactContent.shared.email,
+      description:
+        'Farooqi Grammar School (FGS) is a school in Lahore focused on academic excellence, character, and student growth.',
+      address: contactContent.campuses.map((campus) => ({
+        '@type': 'PostalAddress',
+        streetAddress: campus.address,
+        addressLocality: 'Lahore',
+        addressCountry: 'PK',
+      })),
+      contactPoint: contactContent.campuses.flatMap((campus) =>
+        campus.phones.map((phone) => ({
+          '@type': 'ContactPoint',
+          contactType: `Admissions - ${campus.name}`,
+          telephone: phone.href.replace('tel:', ''),
+          areaServed: 'PK',
+          availableLanguage: ['en', 'ur'],
+        }))
+      ),
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -92,8 +137,8 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: [{ url: '/favicon.ico' }, { url: '/icon.png', type: 'image/png' }],
-    apple: [{ url: '/apple-touch-icon.png' }],
+    icon: [{ url: '/favicon.ico' }, { url: logoImage, type: 'image/png' }],
+    apple: [{ url: logoImage, type: 'image/png' }],
   },
 };
 
@@ -110,6 +155,11 @@ export default function RootLayout({
           src='/ingest/js/script.js'
           data-domain={plausibleDomain}
           data-api='/ingest/api/event'
+        />
+        <Script
+          id='structured-data'
+          type='application/ld+json'
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
       <body
