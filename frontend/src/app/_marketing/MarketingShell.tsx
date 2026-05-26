@@ -2,15 +2,15 @@ import MarketingFooter from './MarketingFooter';
 import MarketingNav from './MarketingNav';
 import type { MarketingNavItem } from './types';
 
-type PreviewShellProps = {
+type MarketingShellProps = {
   navItems: MarketingNavItem[];
   children: React.ReactNode;
 };
 
-export default function PreviewShell({
+export default function MarketingShell({
   navItems,
   children,
-}: PreviewShellProps) {
+}: MarketingShellProps) {
   return (
     <main id='top' className='min-h-screen bg-fgs-surface text-fgs-ink'>
       <MarketingNav items={navItems} />
