@@ -1,4 +1,4 @@
-import PreviewShell from '@/app/_marketing/PreviewShell';
+import MarketingShell from '@/app/_marketing/MarketingShell';
 import { marketingNavItems } from '@/app/_marketing/content';
 import AboutSection from '@/app/_marketing/sections/AboutSection';
 import AcknowledgementSection from '@/app/_marketing/sections/AcknowledgementSection';
@@ -10,18 +10,10 @@ import JoinSection from '@/app/_marketing/sections/JoinSection';
 import MarketingHero from '@/app/_marketing/sections/MarketingHero';
 import WhyFgsSection from '@/app/_marketing/sections/WhyFgsSection';
 
-type PreviewPageProps = {
-  heroVariant?: string | string[];
-};
-
-function firstValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-export default function PreviewPage({ heroVariant }: PreviewPageProps) {
+export default function MarketingHomePage() {
   return (
-    <PreviewShell navItems={marketingNavItems}>
-      <MarketingHero heroVariant={firstValue(heroVariant)} />
+    <MarketingShell navItems={marketingNavItems}>
+      <MarketingHero heroVariant='1' />
       <CeoMessageSection />
       <AboutSection />
       <HighlightsStrip />
@@ -29,6 +21,6 @@ export default function PreviewPage({ heroVariant }: PreviewPageProps) {
       <GallerySection />
       <ContactSection />
       <AcknowledgementSection />
-    </PreviewShell>
+    </MarketingShell>
   );
 }

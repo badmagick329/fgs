@@ -1,15 +1,3 @@
-import { PreviewPage } from '@/app/_preview';
-import { shouldShowPreview } from '@/app/_preview/resolver';
+import SiteV1HomePage from '@/app/_site-v1/HomePage';
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  if (shouldShowPreview(sp)) {
-    return <PreviewPage heroVariant={sp.hero} />;
-  }
-
-  return <PreviewPage heroVariant='1' />;
-}
+export default SiteV1HomePage;
