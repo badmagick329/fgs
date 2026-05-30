@@ -171,7 +171,7 @@ export default function RegistrationForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className='fgs-registration-form rounded-2xl border border-border bg-card p-5 sm:p-6'
+      className='fgs-registration-form'
       noValidate
     >
       <div className='grid gap-4 sm:grid-cols-2'>

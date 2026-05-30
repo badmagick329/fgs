@@ -165,7 +165,9 @@ export const contactContent = {
   campusesTitle: 'Campuses',
   campuses: [
     {
+      id: 'boys-campus',
       name: 'FGS Ravi Road Boys Campus',
+      description: 'Ravi Road Boys Campus',
       phones: [
         { display: '042-37731101', href: 'tel:+924237731101' },
         { display: '042-37703255', href: 'tel:+924237703255' },
@@ -174,9 +176,13 @@ export const contactContent = {
       address:
         '11 Shafi Street, Kacha Ravi Rd, Data Gunj Buksh Town, Lahore, 54000, Pakistan',
       mapUrl: 'https://maps.app.goo.gl/o5dqafF5sEvSB5Xd7',
+      embedMapUrl:
+        'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6797.690452955058!2d74.3047354!3d31.5832919!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39191c9b925ba459%3A0x93903510edfaea6!2sFarooqi%20Grammar%20School!5e0!3m2!1sen!2suk!4v1780181998364!5m2!1sen!2suk',
     },
     {
+      id: 'girls-campus',
       name: 'FGS Ravi Road Girls Campus',
+      description: 'Ravi Road Girls Campus',
       phones: [
         { display: '042-37731101', href: 'tel:+924237731101' },
         { display: '042-37703255', href: 'tel:+924237703255' },
@@ -185,22 +191,32 @@ export const contactContent = {
       address:
         '12 Shafi Street, Kacha Ravi Rd, Data Gunj Buksh Town, Lahore, 54000, Pakistan',
       mapUrl: 'https://maps.app.goo.gl/o5dqafF5sEvSB5Xd7',
+      embedMapUrl:
+        'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6797.690452955058!2d74.3047354!3d31.5832919!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39191c9b925ba459%3A0x93903510edfaea6!2sFarooqi%20Grammar%20School!5e0!3m2!1sen!2suk!4v1780182021789!5m2!1sen!2suk',
     },
     {
+      id: 'kids-campus',
       name: 'FGS Ravi Road Kids Campus',
+      description: 'Ravi Road Kids Campus',
       phones: [
         { display: '042-37726073', href: 'tel:+924237726073' },
         { display: '042-37130138', href: 'tel:+924237130138' },
       ],
       address: 'H7QW+9PM, Ameen Park Karim Park, Lahore, Pakistan',
       mapUrl: 'https://maps.app.goo.gl/L42sT8JcjhaoEnN3A',
+      embedMapUrl:
+        'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d212.4161852735704!2d74.2967681!3d31.5883987!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39191c91bc993db3%3A0x9bb0df7c01cb0752!2sFarooqi%20High%20For%20Boys!5e0!3m2!1sen!2suk!4v1780182038256!5m2!1sen!2suk',
     },
     {
+      id: 'edward-campus',
       name: 'FGS Edward Road (PG to Matric)',
+      description: 'Edward Road Campus (PG to Matric)',
       phones: [{ display: '042-37237556', href: 'tel:+924237237556' }],
       address:
         '1-Edward Roard, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
       mapUrl: 'https://maps.app.goo.gl/WVFeJu9PwpdPEvem9',
+      embedMapUrl:
+        'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1699.816716880285!2d74.3095161!3d31.5616732!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39191dbb4ff2b5af%3A0x2198f404031462b4!2sFarooqi%20Grammar%20School!5e0!3m2!1sen!2suk!4v1780182060196!5m2!1sen!2suk',
     },
   ],
   form: {
