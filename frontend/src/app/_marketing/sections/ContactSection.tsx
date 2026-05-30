@@ -9,7 +9,7 @@ export default function ContactSection() {
         <article className='fgs-card mt-6'>
           <h3 className='fgs-subheading'>Email</h3>
           <a
-            className='fgs-copy mt-2 block break-all text-brand-blue'
+            className='fgs-copy fgs-accent-link mt-2 block break-all'
             href={`mailto:${contactContent.shared.email}`}
           >
             {contactContent.shared.email}
@@ -28,7 +28,7 @@ export default function ContactSection() {
                     {campus.phones.map((phone) => (
                       <a
                         key={phone.href}
-                        className='fgs-copy block text-brand-blue hover:underline'
+                        className='fgs-copy fgs-accent-link block'
                         href={phone.href}
                       >
                         {phone.display}
@@ -40,7 +40,7 @@ export default function ContactSection() {
                   <p className='text-fgs-ink text-sm font-medium'>Address</p>
                   <p className='fgs-copy mt-1.5'>{campus.address}</p>
                   <a
-                    className='mt-3 inline-flex items-center justify-center rounded-lg border border-brand-blue px-3 py-2 text-sm font-medium text-brand-blue transition-colors hover:bg-brand-blue hover:text-white'
+                    className='fgs-btn-secondary mt-3'
                     href={campus.mapUrl}
                     target='_blank'
                     rel='noreferrer'

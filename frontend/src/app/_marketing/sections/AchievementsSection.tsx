@@ -2,7 +2,7 @@ import { achievementsContent } from '../content';
 
 export default function AchievementsSection() {
   return (
-    <div className='mt-4 rounded-[1.6rem] border border-border bg-card p-6 shadow-sm sm:p-7'>
+    <div className='fgs-panel mt-4'>
       <p className='text-brand-blue text-xs font-semibold uppercase tracking-[0.24em]'>
         School Highlights
       </p>
