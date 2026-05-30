@@ -13,7 +13,7 @@ export default function FoundersSection() {
       <Accordion
         type='single'
         collapsible
-        className='rounded-[1.6rem] border border-border bg-card px-6 shadow-sm sm:px-7 xl:hidden'
+        className='rounded-sm border border-border bg-card px-6 shadow-sm sm:px-7 xl:hidden'
       >
         <AccordionItem value='founders' className='border-b-0'>
           <AccordionTrigger className='text-fgs-ink py-6 text-xl font-semibold hover:no-underline sm:text-2xl'>

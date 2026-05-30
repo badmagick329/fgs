@@ -13,7 +13,7 @@ export default function CeoMessageSection() {
         <Accordion
           type='single'
           collapsible
-          className='rounded-[1.4rem] border border-border bg-card px-6 shadow-sm sm:px-7 xl:hidden'
+          className='rounded-sm border border-border bg-card px-6 shadow-sm sm:px-7 xl:hidden'
         >
           <AccordionItem value='ceo-message' className='border-b-0'>
             <AccordionTrigger className='text-fgs-ink py-6 text-xl font-semibold hover:no-underline sm:text-2xl'>
@@ -36,7 +36,7 @@ export default function CeoMessageSection() {
           </AccordionItem>
         </Accordion>
 
-        <div className='hidden rounded-[1.4rem] border border-border bg-card px-6 py-6 shadow-sm sm:px-7 sm:py-7 xl:block'>
+        <div className='hidden rounded-sm border border-border bg-card px-6 py-6 shadow-sm sm:px-7 sm:py-7 xl:block'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {ceoMessageContent.title}
           </h2>
