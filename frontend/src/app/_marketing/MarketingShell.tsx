@@ -12,7 +12,7 @@ export default function MarketingShell({
   children,
 }: MarketingShellProps) {
   return (
-    <main id='top' className='min-h-screen bg-fgs-surface text-fgs-ink'>
+    <main id='top' className='fgs-v1 min-h-screen bg-fgs-surface text-fgs-ink'>
       <MarketingNav items={navItems} />
       {children}
       <MarketingFooter items={navItems} />

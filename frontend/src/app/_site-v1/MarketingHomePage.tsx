@@ -13,7 +13,7 @@ import WhyFgsSection from '@/app/_marketing/sections/WhyFgsSection';
 export default function MarketingHomePage() {
   return (
     <MarketingShell navItems={marketingNavItems}>
-      <MarketingHero heroVariant='1' />
+      <MarketingHero />
       <CeoMessageSection />
       <AboutSection />
       <HighlightsStrip />

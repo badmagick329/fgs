@@ -40,14 +40,14 @@ export default function MarketingNav({ items }: MarketingNavProps) {
             Menu
           </summary>
           <nav
-            className='absolute right-4 top-[68px] w-52 rounded-xl border border-border bg-card p-2 shadow-xl'
+            className='absolute right-4 top-[68px] w-52 rounded-sm border border-border bg-card p-2 shadow-xl'
             aria-label='Mobile'
           >
             <ul className='flex flex-col'>
               {items.map((item) => (
                 <li key={item.id}>
                   <a
-                    className='text-fgs-ink hover:bg-fgs-surface block rounded-lg px-3 py-2 text-sm'
+                    className='text-fgs-ink hover:bg-fgs-surface block rounded-sm px-3 py-2 text-sm'
                     href={`#${item.id}`}
                   >
                     {item.label}

@@ -11,7 +11,7 @@ export default function HighlightsStrip() {
           {achievementsContent.stats.map((stat) => (
             <div
               key={`${stat.value}-${stat.label}`}
-              className='rounded-[1.2rem] border border-border bg-fgs-surface px-4 py-4'
+              className='rounded-sm border border-border bg-fgs-surface px-4 py-4'
             >
               <p className='text-fgs-ink text-2xl font-semibold leading-none sm:text-3xl'>
                 {stat.value}

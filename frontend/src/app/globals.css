@@ -94,7 +94,7 @@
 .fgs-card {
   border: 1px solid var(--fgs-border);
   background: var(--fgs-white);
-  border-radius: 1rem;
+  border-radius: 0.3rem;
   padding: 1rem;
   box-shadow: 0 1px 1px rgb(12 20 34 / 3%);
   transition:
@@ -110,7 +110,7 @@
 .fgs-panel {
   border: 1px solid var(--fgs-border);
   background: var(--fgs-white);
-  border-radius: 1.6rem;
+  border-radius: 0.3rem;
   padding: 1.5rem;
   box-shadow: 0 1px 1px rgb(12 20 34 / 3%);
 }
@@ -248,6 +248,20 @@
   color: color-mix(in srgb, var(--fgs-ink), white 24%);
   text-align: center;
   padding: 0.75rem;
+}
+
+.fgs-v1 .fgs-card,
+.fgs-v1 .fgs-panel,
+.fgs-v1 .fgs-proof,
+.fgs-v1 .fgs-placeholder {
+  border-radius: var(--radius-sm);
+}
+
+.fgs-v1 .fgs-registration-form,
+.fgs-v1 .fgs-registration-form input:not([type='hidden']),
+.fgs-v1 .fgs-registration-form [role='combobox'],
+.fgs-v1 .fgs-registration-form button:not(.fgs-btn-primary) {
+  border-radius: var(--radius-sm);
 }
 
 .reveal {
