@@ -107,6 +107,20 @@
   box-shadow: 0 14px 30px rgb(15 26 42 / 10%);
 }
 
+.fgs-panel {
+  border: 1px solid var(--fgs-border);
+  background: var(--fgs-white);
+  border-radius: 1.6rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 1px rgb(12 20 34 / 3%);
+}
+
+@media (min-width: 40rem) {
+  .fgs-panel {
+    padding: 1.75rem;
+  }
+}
+
 .fgs-btn-primary {
   display: inline-flex;
   align-items: center;
@@ -191,6 +205,14 @@
 
 .fgs-link:hover {
   color: var(--fgs-blue);
+}
+
+.fgs-accent-link {
+  color: var(--fgs-blue);
+}
+
+.fgs-accent-link:hover {
+  text-decoration: underline;
 }
 
 .fgs-chip {

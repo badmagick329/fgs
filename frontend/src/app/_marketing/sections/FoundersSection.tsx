@@ -55,7 +55,7 @@ export default function FoundersSection() {
         </AccordionItem>
       </Accordion>
 
-      <div className='hidden rounded-[1.6rem] border border-border bg-card px-6 py-6 shadow-sm sm:px-7 sm:py-7 xl:block'>
+      <div className='fgs-panel hidden xl:block'>
         <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
           {foundersContent.title}
         </h2>
