@@ -19,7 +19,7 @@ export const heroContent = {
 };
 
 export const ceoMessageContent: MarketingParagraphBlock = {
-  title: 'CEO Message',
+  title: 'Message from Our CEO',
   paragraphs: [
     "We take pride in being at the forefront of Pakistan's education landscape; our students have, over decades, achieved top results in Lahore Board Matric Exams with unmatched consistency and excellence. However, we believe education is not limited to academic achievement; it is also about shaping character, nurturing curiosity, and developing confident, responsible individuals.",
     'Our journey began with humble beginnings, and over the years, we have grown through the trust of parents, the dedication of teachers, and the determination of our students. We strive to create a learning environment where students actively participate, think critically, and develop confidence through meaningful academic and extra-curricular experiences. We believe that through effective engagement, right guidance and encouragement, every student can unlock the enormous potential within him/her.',
@@ -29,7 +29,7 @@ export const ceoMessageContent: MarketingParagraphBlock = {
 };
 
 export const foundersContent: MarketingParagraphBlock = {
-  title: 'Meet the Founders',
+  title: 'Meet Our Founders',
   paragraphs: [
     'Farooqi Schools were founded in 1978 by Honorable Sir Asim Farooqi and Respected Madam Zahida Asim Farooqi in Karim Park, Ravi Road, with a vision grounded in service, purpose, and educational excellence. At a time when both held promising careers in the government education sector, they chose to step away from personal advancement to dedicate themselves to providing quality education to the wider community.',
     'What began in a single room gradually grew into a strong educational institution built on commitment, discipline, and trust. Today, Farooqi Schools have expanded into multiple branches, with thousands of alumni contributing meaningfully across various fields.',
