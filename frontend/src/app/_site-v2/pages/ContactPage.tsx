@@ -1,13 +1,14 @@
 'use client';
 
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
+import { acknowledgementContent } from '@/app/_marketing/content';
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useState } from 'react';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
@@ -28,6 +29,47 @@ function CampusContactGrid({
         />
       ))}
     </div>
+  );
+}
+
+function GeneralEmailSection() {
+  return (
+    <div className='fgs-panel mt-8'>
+      <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
+        General Email Enquiries
+      </h2>
+      <p className='fgs-copy mt-4'>
+        For general enquiries, contact Farooqi Grammar School by email.
+      </p>
+      <a
+        className='fgs-accent-link mt-4 inline-block text-base font-semibold'
+        href={`mailto:${contactDetails.shared.email}`}
+      >
+        {contactDetails.shared.email}
+      </a>
+    </div>
+  );
+}
+
+function AcknowledgementSection() {
+  return (
+    <section
+      aria-label={acknowledgementContent.title}
+      className='fgs-section pb-16'
+    >
+      <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+        <div className='border-t border-border pt-5 sm:pt-6'>
+          <div className='max-w-4xl'>
+            <p className='pb-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground/90'>
+              {acknowledgementContent.title}
+            </p>
+            <p className='text-sm leading-7 text-muted-foreground'>
+              {acknowledgementContent.body}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -82,13 +124,13 @@ function CampusMapModal({
   onOpenChange: (open: boolean) => void;
 }) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className='sm:max-w-3xl'>
-        <AlertDialogHeader className='items-start text-left'>
-          <AlertDialogTitle className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='sm:max-w-3xl'>
+        <DialogHeader className='items-start text-left'>
+          <DialogTitle className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {campus?.name ?? 'Campus Map'}
-          </AlertDialogTitle>
-        </AlertDialogHeader>
+          </DialogTitle>
+        </DialogHeader>
 
         {campus ? (
           <div className='space-y-4'>
@@ -106,7 +148,7 @@ function CampusMapModal({
           </div>
         ) : null}
 
-        <AlertDialogFooter>
+        <DialogFooter>
           <button
             type='button'
             className='fgs-btn-neutral'
@@ -124,9 +166,9 @@ function CampusMapModal({
               Open in Google Maps
             </a>
           ) : null}
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -148,11 +190,12 @@ export default function ContactPage() {
 
       <section className='fgs-section'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+          <GeneralEmailSection />
           <CampusContactGrid onViewMap={setActiveCampus} />
         </div>
       </section>
 
-      <section className='fgs-section pb-16'>
+      <section className='fgs-section'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <OverviewSection
             title={contactPageContent.timingsTitle}
@@ -160,6 +203,8 @@ export default function ContactPage() {
           />
         </div>
       </section>
+
+      <AcknowledgementSection />
 
       <CampusMapModal
         campus={activeCampus}

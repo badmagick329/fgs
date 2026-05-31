@@ -27,7 +27,7 @@ export default function HomePage() {
     <MarketingShell>
       <MarketingHero />
 
-      <section className='fgs-section'>
+      <section className='fgs-section pb-16'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <StatsSection />
           <OverviewSection
