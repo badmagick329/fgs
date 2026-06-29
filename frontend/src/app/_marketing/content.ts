@@ -167,6 +167,7 @@ export const contactContent = {
     {
       id: 'boys-campus',
       name: 'FGS Ravi Road Boys Campus',
+      principal: 'Sameer Asim Farooqi',
       description: 'Ravi Road Boys Campus',
       phones: [
         { display: '042-37731101', href: 'tel:+924237731101' },
@@ -182,6 +183,7 @@ export const contactContent = {
     {
       id: 'girls-campus',
       name: 'FGS Ravi Road Girls Campus',
+      principal: 'Sameer Asim Farooqi',
       description: 'Ravi Road Girls Campus',
       phones: [
         { display: '042-37731101', href: 'tel:+924237731101' },
@@ -197,6 +199,7 @@ export const contactContent = {
     {
       id: 'kids-campus',
       name: 'FGS Ravi Road Kids Campus',
+      principal: 'Sameer Asim Farooqi',
       description: 'Ravi Road Kids Campus',
       phones: [
         { display: '042-37726073', href: 'tel:+924237726073' },
@@ -210,6 +213,7 @@ export const contactContent = {
     {
       id: 'edward-campus',
       name: 'FGS Edward Road (PG to Matric)',
+      principal: 'Maaz A. Minhas',
       description: 'Edward Road Campus (PG to Matric)',
       phones: [{ display: '042-37237556', href: 'tel:+924237237556' }],
       address:

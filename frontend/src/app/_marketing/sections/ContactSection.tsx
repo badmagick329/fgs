@@ -23,7 +23,11 @@ export default function ContactSection() {
               <article key={campus.name} className='fgs-card'>
                 <h4 className='fgs-subheading'>{campus.name}</h4>
                 <div className='mt-3'>
-                  <p className='text-fgs-ink text-sm font-medium'>Phone</p>
+                  <p className='text-fgs-ink text-sm font-semibold'>Principal</p>
+                  <p className='fgs-copy mt-1.5'>{campus.principal}</p>
+                </div>
+                <div className='mt-3'>
+                  <p className='text-fgs-ink text-sm font-semibold'>Phone</p>
                   <div className='mt-1.5 space-y-1'>
                     {campus.phones.map((phone) => (
                       <a
@@ -37,7 +41,7 @@ export default function ContactSection() {
                   </div>
                 </div>
                 <div className='mt-4'>
-                  <p className='text-fgs-ink text-sm font-medium'>Address</p>
+                  <p className='text-fgs-ink text-sm font-semibold'>Address</p>
                   <p className='fgs-copy mt-1.5'>{campus.address}</p>
                   <a
                     className='fgs-btn-secondary mt-3'

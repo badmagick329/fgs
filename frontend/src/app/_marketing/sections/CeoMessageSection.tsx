@@ -27,6 +27,9 @@ export default function CeoMessageSection() {
                   </p>
                 ))}
               </div>
+              <p className='text-fgs-ink mt-6 text-right text-sm font-medium sm:text-base'>
+                Sameer Asim Farooqi
+              </p>
               <div className='mt-6 hidden rounded-3xl p-3'>
                 <div className='fgs-placeholder mx-auto aspect-square max-w-[16rem] rounded-2xl border border-border'>
                   CEO image placeholder
@@ -47,6 +50,9 @@ export default function CeoMessageSection() {
               </p>
             ))}
           </div>
+          <p className='text-fgs-ink mt-6 text-right text-sm font-medium sm:text-base'>
+            Sameer Asim Farooqi
+          </p>
           <div className='mt-6 hidden rounded-3xl p-3'>
             <div className='fgs-placeholder mx-auto aspect-square max-w-[16rem] rounded-2xl border border-border'>
               CEO image placeholder
