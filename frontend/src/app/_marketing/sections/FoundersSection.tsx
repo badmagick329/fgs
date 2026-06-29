@@ -29,18 +29,23 @@ export default function FoundersSection() {
             </div>
             <div className='mt-6 grid gap-4 sm:grid-cols-2'>
               <div className='rounded-3xl p-3'>
-                <div className='mx-auto max-w-[16rem] overflow-hidden rounded-2xl border border-border'>
+                <div className='mx-auto max-w-[16rem] overflow-hidden rounded-sm border border-border bg-card shadow-sm'>
                   <Image
                     src='/asim_2.webp'
-                    alt='Respected Madam Zahida Asim Farooqi'
+                    alt='Honorable Sir Asim Farooqi'
                     width={640}
                     height={640}
                     className='aspect-square h-auto w-full object-cover'
                   />
+                  <div className='border-t border-brand-blue/20 bg-brand-blue/5 px-4 py-3'>
+                    <p className='text-fgs-ink text-center text-sm font-medium'>
+                      Sir Asim Farooqi
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className='rounded-3xl p-3'>
-                <div className='mx-auto max-w-[16rem] overflow-hidden rounded-2xl border border-border'>
+                <div className='mx-auto max-w-[16rem] overflow-hidden rounded-sm border border-border bg-card shadow-sm'>
                   <Image
                     src='/zahida.webp'
                     alt='Respected Madam Zahida Asim Farooqi'
@@ -48,6 +53,11 @@ export default function FoundersSection() {
                     height={640}
                     className='aspect-square h-auto w-full object-cover'
                   />
+                  <div className='border-t border-brand-blue/20 bg-brand-blue/5 px-4 py-3'>
+                    <p className='text-fgs-ink text-center text-sm font-medium'>
+                      Madam Zahida Asim Farooqi
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -68,18 +78,23 @@ export default function FoundersSection() {
         </div>
         <div className='mt-6 grid gap-4 sm:grid-cols-2'>
           <div className='rounded-3xl p-3'>
-            <div className='mx-auto max-w-[16rem] overflow-hidden rounded-2xl border border-border'>
+            <div className='mx-auto max-w-[16rem] overflow-hidden rounded-sm border border-border bg-card shadow-sm'>
               <Image
                 src='/asim_2.webp'
-                alt='Respected Madam Zahida Asim Farooqi'
+                alt='Honorable Sir Asim Farooqi'
                 width={640}
                 height={640}
                 className='aspect-square h-auto w-full object-cover'
               />
+              <div className='border-t border-brand-blue/20 bg-brand-blue/5 px-4 py-3'>
+                <p className='text-fgs-ink text-center text-sm font-medium'>
+                  Sir Asim Farooqi
+                </p>
+              </div>
             </div>
           </div>
           <div className='rounded-3xl p-3'>
-            <div className='mx-auto max-w-[16rem] overflow-hidden rounded-2xl border border-border'>
+            <div className='mx-auto max-w-[16rem] overflow-hidden rounded-sm border border-border bg-card shadow-sm'>
               <Image
                 src='/zahida.webp'
                 alt='Respected Madam Zahida Asim Farooqi'
@@ -87,6 +102,11 @@ export default function FoundersSection() {
                 height={640}
                 className='aspect-square h-auto w-full object-cover'
               />
+              <div className='border-t border-brand-blue/20 bg-brand-blue/5 px-4 py-3'>
+                <p className='text-fgs-ink text-center text-sm font-medium'>
+                  Madam Zahida Asim Farooqi
+                </p>
+              </div>
             </div>
           </div>
         </div>

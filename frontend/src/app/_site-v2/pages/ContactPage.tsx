@@ -84,7 +84,11 @@ function CampusContactCard({
     <article id={campus.id} className='fgs-card scroll-mt-24'>
       <h2 className='fgs-subheading'>{campus.name}</h2>
       <div className='mt-4'>
-        <p className='text-fgs-ink text-sm font-medium'>Phone</p>
+        <p className='text-fgs-ink text-sm font-semibold'>Principal</p>
+        <p className='fgs-copy mt-1.5'>{campus.principal}</p>
+      </div>
+      <div className='mt-4'>
+        <p className='text-fgs-ink text-sm font-semibold'>Phone</p>
         <div className='mt-1.5 space-y-1'>
           {campus.phones.map((phone) => (
             <a
@@ -99,7 +103,7 @@ function CampusContactCard({
       </div>
 
       <div className='mt-4'>
-        <p className='text-fgs-ink text-sm font-medium'>Address</p>
+        <p className='text-fgs-ink text-sm font-semibold'>Address</p>
         <p className='fgs-copy mt-1.5'>{campus.address}</p>
       </div>
 
