@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import Image from 'next/image';
 import { ceoMessageContent } from '../content';
 
 export default function CeoMessageSection() {
@@ -20,20 +21,32 @@ export default function CeoMessageSection() {
               {ceoMessageContent.title}
             </AccordionTrigger>
             <AccordionContent className='pb-6 sm:pb-7'>
-              <div className='space-y-4'>
-                {ceoMessageContent.paragraphs.map((paragraph) => (
-                  <p key={paragraph} className='fgs-copy'>
+              <div>
+                <div className='mb-6 rounded-3xl p-3 sm:float-left sm:mb-4 sm:mr-6 sm:w-[18rem] sm:pl-0 sm:pr-0 sm:pt-0'>
+                  <div className='mx-auto max-w-[16rem] overflow-hidden rounded-sm border border-border bg-card shadow-sm'>
+                    <Image
+                      src='/sameer.webp'
+                      alt='Sameer Asim Farooqi'
+                      width={640}
+                      height={640}
+                      className='aspect-square h-auto w-full object-cover'
+                    />
+                    <div className='border-t border-brand-blue/20 bg-brand-blue/5 px-4 py-3'>
+                      <p className='text-fgs-ink text-center text-sm font-medium'>
+                        Sameer Asim Farooqi
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {ceoMessageContent.paragraphs.map((paragraph, index) => (
+                  <p
+                    key={paragraph}
+                    className={`fgs-copy ${index === 0 ? '' : 'mt-4'}`}
+                  >
                     {paragraph}
                   </p>
                 ))}
-              </div>
-              <p className='text-fgs-ink mt-6 text-right text-sm font-medium sm:text-base'>
-                Sameer Asim Farooqi
-              </p>
-              <div className='mt-6 hidden rounded-3xl p-3'>
-                <div className='fgs-placeholder mx-auto aspect-square max-w-[16rem] rounded-2xl border border-border'>
-                  CEO image placeholder
-                </div>
+                <div className='clear-both' />
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -43,20 +56,32 @@ export default function CeoMessageSection() {
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {ceoMessageContent.title}
           </h2>
-          <div className='mt-4 space-y-4'>
-            {ceoMessageContent.paragraphs.map((paragraph) => (
-              <p key={paragraph} className='fgs-copy'>
+          <div className='mt-4'>
+            <div className='float-left mb-4 mr-6 w-[18rem] rounded-3xl p-3 pl-0 pr-0 pt-0'>
+              <div className='mx-auto max-w-[16rem] overflow-hidden rounded-sm border border-border bg-card shadow-sm'>
+                <Image
+                  src='/sameer.webp'
+                  alt='Sameer Asim Farooqi'
+                  width={640}
+                  height={640}
+                  className='aspect-square h-auto w-full object-cover'
+                />
+                <div className='border-t border-brand-blue/20 bg-brand-blue/5 px-4 py-3'>
+                  <p className='text-fgs-ink text-center text-sm font-medium'>
+                    Sameer Asim Farooqi
+                  </p>
+                </div>
+              </div>
+            </div>
+            {ceoMessageContent.paragraphs.map((paragraph, index) => (
+              <p
+                key={paragraph}
+                className={`fgs-copy ${index === 0 ? '' : 'mt-4'}`}
+              >
                 {paragraph}
               </p>
             ))}
-          </div>
-          <p className='text-fgs-ink mt-6 text-right text-sm font-medium sm:text-base'>
-            Sameer Asim Farooqi
-          </p>
-          <div className='mt-6 hidden rounded-3xl p-3'>
-            <div className='fgs-placeholder mx-auto aspect-square max-w-[16rem] rounded-2xl border border-border'>
-              CEO image placeholder
-            </div>
+            <div className='clear-both' />
           </div>
         </div>
       </div>
