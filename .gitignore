@@ -4,3 +4,4 @@ Dockerfile
 .env
 
 notes/
+.codex-remote-attachments
