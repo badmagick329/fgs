@@ -34,7 +34,7 @@
 
 ## Safety Checks
 
-- If a change could break runtime behavior or public API, warn me before doing it.
+- If a change could break runtime behavior or public API, warn me before doing it. But don't be afraid of making breaking changes. Just make sure you notify me.
 - Don’t make irreversible changes (migrations, lockfile regen, formatting sweep) unless asked.
 
 ## Plan Mode
