@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import type { MarketingNavItem } from './types';
 
 type MarketingNavProps = {
@@ -6,6 +9,27 @@ type MarketingNavProps = {
 };
 
 export default function MarketingNav({ items }: MarketingNavProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return;
+    }
+
+    const closeOnOutsidePointerDown = (event: PointerEvent) => {
+      if (!mobileMenuRef.current?.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsidePointerDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointerDown);
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <header className='sticky top-0 z-50 border-b border-border bg-card/90 backdrop-blur-sm'>
       <div className='mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8'>
@@ -35,7 +59,12 @@ export default function MarketingNav({ items }: MarketingNavProps) {
           </ul>
         </nav>
 
-        <details className='group md:hidden'>
+        <details
+          ref={mobileMenuRef}
+          open={isMobileMenuOpen}
+          className='group md:hidden'
+          onToggle={(event) => setIsMobileMenuOpen(event.currentTarget.open)}
+        >
           <summary className='text-fgs-ink cursor-pointer list-none rounded-md border border-border px-3 py-2 text-sm font-medium'>
             Menu
           </summary>
@@ -49,6 +78,7 @@ export default function MarketingNav({ items }: MarketingNavProps) {
                   <a
                     className='text-fgs-ink hover:bg-fgs-surface block rounded-sm px-3 py-2 text-sm'
                     href={`#${item.id}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.label}
                   </a>
