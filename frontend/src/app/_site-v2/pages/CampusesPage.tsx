@@ -1,6 +1,6 @@
 import GalleryBlock from '@/app/_marketing/sections/GalleryBlock';
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
-import { SectionNavigator } from '@/app/_site-v2/_components/SectionNavigator';
+import { SectionPageLayout } from '@/app/_site-v2/_components/SectionPageLayout';
 import Link from 'next/link';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
@@ -72,34 +72,34 @@ export default function CampusesPage() {
           label: 'Register With FGS',
         }}
       />
-      <SectionNavigator
+      <SectionPageLayout
         sections={[
           { id: 'overview', label: 'Overview' },
           { id: 'gallery', label: 'Student Life' },
           { id: 'campuses', label: 'Our Campuses' },
         ]}
-      />
-
-      <section className='fgs-section pb-16'>
-        <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-24'>
-          <div id='overview' className='scroll-mt-24'>
-            <OverviewSection
-              title={campusesContent.overview.title}
-              paragraphs={[campusesContent.overview.paragraph]}
-              links={contactDetails.campuses.map((campus) => ({
-                href: `#${campus.id}`,
-                description: campus.description,
-              }))}
-            />
+      >
+        <section className='fgs-section pb-16'>
+          <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-24'>
+            <div id='overview' className='scroll-mt-24'>
+              <OverviewSection
+                title={campusesContent.overview.title}
+                paragraphs={[campusesContent.overview.paragraph]}
+                links={contactDetails.campuses.map((campus) => ({
+                  href: `#${campus.id}`,
+                  description: campus.description,
+                }))}
+              />
+            </div>
+            <div id='gallery' className='mt-8 scroll-mt-24'>
+              <GalleryBlock />
+            </div>
+            <div id='campuses' className='scroll-mt-24'>
+              <CampusGrid />
+            </div>
           </div>
-          <div id='gallery' className='mt-8 scroll-mt-24'>
-            <GalleryBlock />
-          </div>
-          <div id='campuses' className='scroll-mt-24'>
-            <CampusGrid />
-          </div>
-        </div>
-      </section>
+        </section>
+      </SectionPageLayout>
     </MarketingShell>
   );
 }

@@ -15,7 +15,7 @@ import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
 import { FaqSection } from '../_components/FaqSection';
 import { OverviewSection } from '../_components/OverviewSection';
-import { SectionNavigator } from '../_components/SectionNavigator';
+import { SectionPageLayout } from '../_components/SectionPageLayout';
 import { whyFgsContent } from '../content';
 
 function WhyFgsCardsSection() {
@@ -186,19 +186,19 @@ export default function WhyFgsPage() {
           label: 'Register with FGS',
         }}
       />
-      <SectionNavigator
+      <SectionPageLayout
         sections={[
           { id: 'reasons', label: 'Why FGS' },
           { id: 'affordability', label: 'Affordability' },
           { id: 'questions', label: 'FAQs' },
           { id: 'closing', label: 'Our Commitment' },
         ]}
-      />
-
-      <WhyFgsCardsSection />
-      <WhyFgsAffordabilitySection />
-      <WhyFgsFaqSection />
-      <WhyFgsClosingSection />
+      >
+        <WhyFgsCardsSection />
+        <WhyFgsAffordabilitySection />
+        <WhyFgsFaqSection />
+        <WhyFgsClosingSection />
+      </SectionPageLayout>
     </MarketingShell>
   );
 }

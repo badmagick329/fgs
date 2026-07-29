@@ -100,7 +100,7 @@ export function SectionNavigator({
 
   return (
     <nav aria-label='Page sections'>
-      <div className='fixed left-5 top-1/2 z-40 hidden -translate-y-1/2 xl:block'>
+      <div className='hidden xl:block'>
         <div className='relative flex flex-col py-1 before:absolute before:inset-y-5 before:left-1/2 before:w-0.5 before:-translate-x-1/2 before:bg-brand-blue/55'>
           {sections.map((section) => {
             const isActive = section.id === activeSectionId;

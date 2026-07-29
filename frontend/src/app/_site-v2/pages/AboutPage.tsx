@@ -1,6 +1,6 @@
 import { ceoMessageContent } from '@/app/_marketing/content';
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
-import { SectionNavigator } from '@/app/_site-v2/_components/SectionNavigator';
+import { SectionPageLayout } from '@/app/_site-v2/_components/SectionPageLayout';
 import { Check } from 'lucide-react';
 import Image from 'next/image';
 import MarketingShell from '../MarketingShell';
@@ -143,7 +143,7 @@ export default function AboutPage() {
   return (
     <MarketingShell>
       <PageHero title={aboutContent.title} description={aboutContent.intro} />
-      <SectionNavigator
+      <SectionPageLayout
         sections={[
           { id: 'who-we-are', label: 'Who We Are' },
           { id: 'history', label: 'Our History' },
@@ -151,27 +151,27 @@ export default function AboutPage() {
           { id: 'founders', label: 'Our Founders' },
           { id: 'technology', label: 'Technology' },
         ]}
-      />
-
-      <AboutFactsSection />
-      <section id='history' className='fgs-section scroll-mt-24'>
-        <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-          <OverviewSection
-            title={aboutContent.historyTitle}
-            paragraphs={aboutContent.historyParagraphs}
-          />
-        </div>
-      </section>
-      <AboutCeoMessageSection />
-      <AboutFoundersSection />
-      <section id='technology' className='fgs-section scroll-mt-24 pb-16'>
-        <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-          <OverviewSection
-            title={aboutContent.technologyTitle}
-            paragraphs={aboutContent.technologyParagraphs}
-          />
-        </div>
-      </section>
+      >
+        <AboutFactsSection />
+        <section id='history' className='fgs-section scroll-mt-24'>
+          <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+            <OverviewSection
+              title={aboutContent.historyTitle}
+              paragraphs={aboutContent.historyParagraphs}
+            />
+          </div>
+        </section>
+        <AboutCeoMessageSection />
+        <AboutFoundersSection />
+        <section id='technology' className='fgs-section scroll-mt-24 pb-16'>
+          <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+            <OverviewSection
+              title={aboutContent.technologyTitle}
+              paragraphs={aboutContent.technologyParagraphs}
+            />
+          </div>
+        </section>
+      </SectionPageLayout>
     </MarketingShell>
   );
 }

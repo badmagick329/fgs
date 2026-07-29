@@ -3,7 +3,7 @@ import Link from 'next/link';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
 import { FaqSection } from '../_components/FaqSection';
-import { SectionNavigator } from '../_components/SectionNavigator';
+import { SectionPageLayout } from '../_components/SectionPageLayout';
 import { registerContent } from '../content';
 
 function RegisterProcessSection() {
@@ -97,17 +97,17 @@ export default function RegisterPage() {
         title={registerContent.title}
         description={registerContent.description}
       />
-      <SectionNavigator
+      <SectionPageLayout
         sections={[
           { id: 'process', label: 'How It Works' },
           { id: 'registration-form', label: 'Registration Form' },
           { id: 'questions', label: 'FAQs' },
         ]}
-      />
-
-      <RegisterProcessSection />
-      <RegistrationFormSection />
-      <RegisterFaqSection />
+      >
+        <RegisterProcessSection />
+        <RegistrationFormSection />
+        <RegisterFaqSection />
+      </SectionPageLayout>
     </MarketingShell>
   );
 }
