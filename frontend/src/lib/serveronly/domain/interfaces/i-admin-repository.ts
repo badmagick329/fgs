@@ -31,6 +31,10 @@ export interface IAdminRepository {
     notificationEmail: string,
     updatedByAdminUserId: number
   ): Promise<AdminConfigRow>;
+  setRegistrationDiscordNotificationsEnabled(
+    enabled: boolean,
+    updatedByAdminUserId: number
+  ): Promise<AdminConfigRow | null>;
   getRefreshTokenByHash(tokenHash: string): Promise<RefreshTokenRow | null>;
   createRefreshToken(
     adminUserId: number,

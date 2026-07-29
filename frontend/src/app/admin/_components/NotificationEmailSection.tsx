@@ -8,6 +8,7 @@ import { API, QUERY_KEYS } from '@/lib/consts';
 type AdminConfig = {
   id: number;
   notification_email: string;
+  registration_discord_notifications_enabled: boolean;
   updated_by_admin_user_id: number;
   updated_at: string;
   updated_by_email: string;
@@ -21,6 +22,7 @@ const adminConfigSchema = z
   .object({
     id: z.number(),
     notification_email: z.string().email(),
+    registration_discord_notifications_enabled: z.boolean(),
     updated_by_admin_user_id: z.number(),
     updated_at: z.string(),
     updated_by_email: z.string(),
@@ -95,6 +97,35 @@ export function NotificationEmailSection() {
     onError: (error) => {
       const message = error instanceof Error ? error.message : 'Update failed.';
       setError('root.server', { type: 'server', message });
+    },
+  });
+
+  const registrationDiscordMutation = useMutation({
+    mutationFn: async (enabled: boolean): Promise<AdminConfig> => {
+      const res = await fetch(API.admin.config, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registrationDiscordNotificationsEnabled: enabled }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(json?.message ?? 'Update failed.');
+      }
+      const parsed = adminConfigResponseSchema.safeParse(json);
+      if (!parsed.success) {
+        throw new Error('Invalid response from server.');
+      }
+      return parsed.data.data;
+    },
+    onSuccess: (config) => {
+      setStatus({ tone: 'success', message: 'Saved Discord notification setting.' });
+      queryClient.setQueryData<AdminConfig>(QUERY_KEYS.adminConfig, config);
+    },
+    onError: (error) => {
+      setStatus({
+        tone: 'error',
+        message: error instanceof Error ? error.message : 'Update failed.',
+      });
     },
   });
 
@@ -173,6 +204,39 @@ export function NotificationEmailSection() {
           </p>
         )}
       </form>
+
+      <div className='mt-8 border-t border-border pt-6'>
+        <h4 className='text-base font-semibold'>Discord registration notifications</h4>
+        <p className='fgs-copy mt-2'>
+          Send a testing notification to Discord when a registration is created.
+          Personal details are not included.
+        </p>
+        <label className='mt-4 flex items-center gap-3 text-sm font-medium'>
+          <input
+            type='checkbox'
+            checked={
+              configQuery.data?.registration_discord_notifications_enabled ?? false
+            }
+            disabled={!configQuery.data || registrationDiscordMutation.isPending}
+            onChange={(event) => {
+              setStatus(null);
+              registrationDiscordMutation.mutate(event.target.checked);
+            }}
+            className='size-4 accent-fgs-blue disabled:cursor-not-allowed'
+          />
+          Enable testing notifications
+        </label>
+        {!configQuery.data && !configQuery.isLoading && (
+          <p className='mt-2 text-sm text-muted-foreground'>
+            Save a notification email before enabling this setting.
+          </p>
+        )}
+        {status?.tone === 'error' && (
+          <p role='alert' className='mt-2 text-sm text-error'>
+            {status.message}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

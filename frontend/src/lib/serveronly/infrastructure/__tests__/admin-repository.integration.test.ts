@@ -53,7 +53,12 @@ describe('AdminRepository integration', () => {
     const config = await repo.getAdminConfig();
 
     expect(config?.notification_email).toBe('notify@example.com');
+    expect(config?.registration_discord_notifications_enabled).toBeFalse();
     expect(config?.updated_by_email).toBe('admin@example.com');
+
+    await repo.setRegistrationDiscordNotificationsEnabled(true, admin.id);
+    const updatedConfig = await repo.getAdminConfig();
+    expect(updatedConfig?.registration_discord_notifications_enabled).toBeTrue();
   });
 
   it('creates, rotates and revokes refresh tokens', async () => {

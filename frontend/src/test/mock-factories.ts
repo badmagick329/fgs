@@ -48,10 +48,12 @@ export function createAdminRepositoryMock(
     upsertAdminConfig: mock(async () => ({
       id: 1,
       notification_email: 'notify@example.com',
+      registration_discord_notifications_enabled: false,
       updated_by_admin_user_id: 1,
       updated_at: new Date(),
       updated_by_email: 'admin@example.com',
     })),
+    setRegistrationDiscordNotificationsEnabled: mock(async () => null),
     getRefreshTokenByHash: mock(async () => null),
     createRefreshToken: mock(async () => ({
       id: 1,

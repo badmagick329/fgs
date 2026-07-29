@@ -2,9 +2,15 @@ import * as z from 'zod';
 import {
   REGISTRATION_CAMPUSES,
   isValidRegistrationAppointment,
+  normalizeRegistrationCampus,
 } from '@/lib/registration';
 
 export const registrationCampusSchema = z.enum(REGISTRATION_CAMPUSES);
+
+const storedRegistrationCampusSchema = z.preprocess(
+  normalizeRegistrationCampus,
+  registrationCampusSchema
+);
 
 export const registrationSchema = z.object({
   id: z.number().positive(),
@@ -18,7 +24,7 @@ export const registrationSchema = z.object({
     .string()
     .trim()
     .nonempty({ error: 'Mobile number is required' }),
-  campus: registrationCampusSchema,
+  campus: storedRegistrationCampusSchema,
   preferred_appointment_at: z.coerce.date(),
   registration_message: z.string().nullable(),
   registered_at: z.coerce.date(),

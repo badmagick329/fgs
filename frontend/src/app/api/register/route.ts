@@ -1,6 +1,7 @@
 import { Registration, createRegistrationSchema } from '@/types';
 import { NextResponse } from 'next/server';
 import { API } from '@/lib/consts';
+import { normalizeRegistrationCampus } from '@/lib/registration';
 import { Result, errorsFromZod } from '@/lib/result';
 import { getServerContainer } from '@/lib/serveronly/container';
 import { errorMessageFromErrors } from '@/lib/utils';
@@ -61,8 +62,11 @@ export async function GET() {
 export async function POST(
   req: Request
 ): Promise<NextResponse<Result<Registration>>> {
-  const { registrationService, registrationAntiSpamService } =
-    getServerContainer();
+  const {
+    registrationService,
+    registrationAntiSpamService,
+    adminManagementService,
+  } = getServerContainer();
 
   const clientIp = getClientIp(req);
   const rateLimitResult = registrationAntiSpamService.checkRateLimit({
@@ -79,7 +83,14 @@ export async function POST(
     );
   }
 
-  const body = await req.json().catch(() => {});
+  const rawBody = await req.json().catch(() => {});
+  const body =
+    rawBody != null && typeof rawBody === 'object' && !Array.isArray(rawBody)
+      ? {
+          ...rawBody,
+          campus: normalizeRegistrationCampus(rawBody.campus),
+        }
+      : rawBody;
   const createdParsed = createRegistrationSchema.safeParse(body);
   if (!createdParsed.success) {
     const errors = errorsFromZod(createdParsed.error);
@@ -170,6 +181,22 @@ export async function POST(
     campus: createdParsed.data.campus,
     preferredAppointmentAt: createdParsed.data.preferredAppointmentAt,
   });
+
+  try {
+    if (await adminManagementService.areRegistrationDiscordNotificationsEnabled()) {
+      const registration = creationResult.data;
+      void registrationService
+        .notifyDiscord({
+          source: 'registration.created',
+          message: `Registration #${registration.id} created. Campus: ${registration.campus}. Preferred appointment: ${registration.preferred_appointment_at.toISOString()}. Email status: ${registration.email_status}.`,
+        })
+        .catch((error) => {
+          console.error('registration Discord notification failed', error);
+        });
+    }
+  } catch (error) {
+    console.error('registration Discord notification setting check failed', error);
+  }
 
   return NextResponse.json(creationResult, { status: 201 });
 }

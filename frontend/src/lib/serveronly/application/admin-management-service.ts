@@ -26,6 +26,21 @@ export class AdminManagementService {
     );
   }
 
+  async setRegistrationDiscordNotificationsEnabled(
+    enabled: boolean,
+    updatedByAdminUserId: number
+  ) {
+    return this.adminRepository.setRegistrationDiscordNotificationsEnabled(
+      enabled,
+      updatedByAdminUserId
+    );
+  }
+
+  async areRegistrationDiscordNotificationsEnabled() {
+    const config = await this.adminRepository.getAdminConfig();
+    return config?.registration_discord_notifications_enabled === true;
+  }
+
   async getSessionAdmin(input: { adminId: number }) {
     return this.adminRepository.getAdminAuthById(input.adminId);
   }
