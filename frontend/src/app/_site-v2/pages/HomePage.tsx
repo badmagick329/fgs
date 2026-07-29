@@ -2,12 +2,12 @@ import MarketingHero from '@/app/_marketing/sections/MarketingHero';
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
 import Link from 'next/link';
 import MarketingShell from '../MarketingShell';
-import { homeContent, schoolStats } from '../content';
+import { homeContent, homeStats } from '../content';
 
 function StatsSection() {
   return (
     <div className='grid gap-4 md:grid-cols-3'>
-      {schoolStats.map((stat) => (
+      {homeStats.map((stat) => (
         <article key={stat.label} className='fgs-card text-center'>
           <p className='text-brand-blue text-3xl font-semibold'>{stat.value}</p>
           <p className='mt-2 text-base font-semibold text-fgs-ink'>
@@ -25,7 +25,7 @@ function StatsSection() {
 export default function HomePage() {
   return (
     <MarketingShell>
-      <MarketingHero />
+      <MarketingHero overlayLines={homeContent.heroOverlayLines} />
 
       <section className='fgs-section pb-16'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
