@@ -19,6 +19,7 @@ export type AdminUserListRow = {
 export type AdminConfigRow = {
   id: number;
   notification_email: string;
+  registration_discord_notifications_enabled: boolean;
   updated_by_admin_user_id: number;
   updated_at: Date;
   updated_by_email: string;

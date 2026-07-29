@@ -7,6 +7,21 @@ export const REGISTRATION_CAMPUSES = [
 
 export type RegistrationCampus = (typeof REGISTRATION_CAMPUSES)[number];
 
+const LEGACY_REGISTRATION_CAMPUSES: Record<string, RegistrationCampus> = {
+  'Boys Campus': 'FGS Ravi Road Boys Campus',
+  'Girls Campus': 'FGS Ravi Road Girls Campus',
+  'Kids Campus': 'FGS Ravi Road Kids Campus',
+  'Edward Road Campus': 'FGS Edward Road (PG to Matric)',
+};
+
+export function normalizeRegistrationCampus(value: unknown) {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  return LEGACY_REGISTRATION_CAMPUSES[value] ?? value;
+}
+
 export const PAKISTAN_TIME_ZONE = 'Asia/Karachi';
 export const PAKISTAN_UTC_OFFSET = '+05:00';
 export const REGISTRATION_TIME_STEP_MINUTES = 30;

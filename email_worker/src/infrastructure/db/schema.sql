@@ -47,9 +47,30 @@ CREATE TABLE IF NOT EXISTS admin_refresh_tokens (
 CREATE TABLE IF NOT EXISTS admin_config (
     id INT PRIMARY KEY CHECK (id = 1),
     notification_email TEXT NOT NULL,
+    registration_discord_notifications_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     updated_by_admin_user_id INT NOT NULL REFERENCES admin_users(id),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Keep existing registrations compatible with the canonical campus names.
+-- Safe to run on every worker startup and before processing pending emails.
+UPDATE registration_requests
+SET campus = CASE campus
+    WHEN 'Boys Campus' THEN 'FGS Ravi Road Boys Campus'
+    WHEN 'Girls Campus' THEN 'FGS Ravi Road Girls Campus'
+    WHEN 'Kids Campus' THEN 'FGS Ravi Road Kids Campus'
+    WHEN 'Edward Road Campus' THEN 'FGS Edward Road (PG to Matric)'
+    ELSE campus
+END
+WHERE campus IN (
+    'Boys Campus',
+    'Girls Campus',
+    'Kids Campus',
+    'Edward Road Campus'
+);
+
+ALTER TABLE admin_config
+    ADD COLUMN IF NOT EXISTS registration_discord_notifications_enabled BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- Trigger to update updated_at column on row update
 CREATE OR REPLACE FUNCTION update_updated_at_column()

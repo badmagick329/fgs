@@ -177,6 +177,7 @@ export class AdminRepository implements IAdminRepository {
     const res = await this.pool.query<AdminConfigRow>(
       `SELECT admin_config.id,
               admin_config.notification_email,
+              admin_config.registration_discord_notifications_enabled,
               admin_config.updated_by_admin_user_id,
               admin_config.updated_at,
               admin_users.email as updated_by_email
@@ -197,10 +198,27 @@ export class AdminRepository implements IAdminRepository {
        ON CONFLICT (id) DO UPDATE
          SET notification_email = EXCLUDED.notification_email,
              updated_by_admin_user_id = EXCLUDED.updated_by_admin_user_id
-       RETURNING id, notification_email, updated_by_admin_user_id, updated_at`,
+       RETURNING id, notification_email, registration_discord_notifications_enabled,
+                 updated_by_admin_user_id, updated_at`,
       [notificationEmail.toLowerCase(), updatedByAdminUserId]
     );
     return res.rows[0];
+  }
+
+  async setRegistrationDiscordNotificationsEnabled(
+    enabled: boolean,
+    updatedByAdminUserId: number
+  ): Promise<AdminConfigRow | null> {
+    const res = await this.pool.query<AdminConfigRow>(
+      `UPDATE admin_config
+       SET registration_discord_notifications_enabled = $1,
+           updated_by_admin_user_id = $2
+       WHERE id = 1
+       RETURNING id, notification_email, registration_discord_notifications_enabled,
+                 updated_by_admin_user_id, updated_at`,
+      [enabled, updatedByAdminUserId]
+    );
+    return res.rows[0] ?? null;
   }
 
   async getRefreshTokenByHash(tokenHash: string): Promise<RefreshTokenRow | null> {

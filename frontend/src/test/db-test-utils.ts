@@ -33,6 +33,7 @@ export async function ensureSchema(pool: Pool) {
     CREATE TABLE IF NOT EXISTS admin_config (
       id INTEGER PRIMARY KEY,
       notification_email TEXT NOT NULL,
+      registration_discord_notifications_enabled BOOLEAN NOT NULL DEFAULT FALSE,
       updated_by_admin_user_id INTEGER NOT NULL REFERENCES admin_users(id),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -71,6 +72,11 @@ export async function ensureSchema(pool: Pool) {
       next_run_at TIMESTAMPTZ NULL,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+  `);
+
+  await pool.query(`
+    ALTER TABLE admin_config
+      ADD COLUMN IF NOT EXISTS registration_discord_notifications_enabled BOOLEAN NOT NULL DEFAULT FALSE;
   `);
 }
 

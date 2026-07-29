@@ -58,6 +58,21 @@ describe('RegistrationRepository integration', () => {
     if (list.ok) expect(list.data.length).toBe(1);
   });
 
+  it('normalizes legacy campus values when listing registrations', async () => {
+    await pool.query(`
+      INSERT INTO registration_requests (
+        student_name, parent_name, class_name, mobile_number, campus,
+        preferred_appointment_at, registered_at, email_status, retry_count
+      ) VALUES ('A', 'B', 'Class 5', '03001234567', 'Boys Campus', NOW(), NOW(), 'pending', 0)
+    `);
+
+    const list = await repo.getRegistrations();
+    expect(list.ok).toBeTrue();
+    if (list.ok) {
+      expect(list.data[0]?.campus).toBe('FGS Ravi Road Boys Campus');
+    }
+  });
+
   it('returns parse errors when row shape invalid', async () => {
     await pool.query(`
       INSERT INTO registration_requests (

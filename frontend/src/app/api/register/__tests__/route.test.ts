@@ -101,6 +101,9 @@ describe('/api/register', () => {
       registrationService: {
         createRegistration,
       },
+      adminManagementService: {
+        areRegistrationDiscordNotificationsEnabled: mock(async () => false),
+      },
     });
 
     const payload = createValidPayload();
@@ -119,6 +122,121 @@ describe('/api/register', () => {
       campus: payload.campus,
       preferredAppointmentAt: payload.preferredAppointmentAt,
     });
+  });
+
+  it('POST normalizes a legacy campus value before saving', async () => {
+    const { POST } = await loadRoute();
+    const antiSpamService = createAntiSpamServiceMock();
+    const createRegistration = mock(async () => ({ ok: true as const, data: {} }));
+    getServerContainer.mockReturnValue({
+      registrationAntiSpamService: antiSpamService,
+      registrationService: { createRegistration },
+      adminManagementService: {
+        areRegistrationDiscordNotificationsEnabled: mock(async () => false),
+      },
+    });
+
+    const res = await POST(
+      new Request('http://localhost', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...createValidPayload(),
+          campus: 'Boys Campus',
+        }),
+      })
+    );
+
+    expect(res.status).toBe(201);
+    expect(createRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({ campus: 'FGS Ravi Road Boys Campus' })
+    );
+  });
+
+  it('POST sends a PII-free Discord notification when testing is enabled', async () => {
+    const { POST } = await loadRoute();
+    const notifyDiscord = mock(async () => ({}));
+    getServerContainer.mockReturnValue({
+      registrationAntiSpamService: createAntiSpamServiceMock(),
+      registrationService: {
+        createRegistration: mock(async () => ({
+          ok: true as const,
+          data: {
+            id: 47,
+            student_name: 'Student Name',
+            parent_name: 'Parent Name',
+            class_name: 'Class 5',
+            mobile_number: '03001234567',
+            campus: 'FGS Ravi Road Boys Campus',
+            preferred_appointment_at: createFutureRegistrationAppointmentDate(),
+            registration_message: null,
+            registered_at: new Date(),
+            updated_at: null,
+            email_status: 'pending' as const,
+            retry_count: 0,
+          },
+        })),
+        notifyDiscord,
+      },
+      adminManagementService: {
+        areRegistrationDiscordNotificationsEnabled: mock(async () => true),
+      },
+    });
+
+    const res = await POST(
+      new Request('http://localhost', {
+        method: 'POST',
+        body: JSON.stringify(createValidPayload()),
+      })
+    );
+
+    expect(res.status).toBe(201);
+    expect(notifyDiscord).toHaveBeenCalledWith(
+      expect.objectContaining({ source: 'registration.created' })
+    );
+    const message = notifyDiscord.mock.calls[0]?.[0].message;
+    expect(message).not.toContain('Student Name');
+    expect(message).not.toContain('Parent Name');
+    expect(message).not.toContain('03001234567');
+  });
+
+  it('POST still succeeds when checking the Discord setting fails', async () => {
+    const { POST } = await loadRoute();
+    getServerContainer.mockReturnValue({
+      registrationAntiSpamService: createAntiSpamServiceMock(),
+      registrationService: {
+        createRegistration: mock(async () => ({
+          ok: true as const,
+          data: {
+            id: 1,
+            student_name: 'Student Name',
+            parent_name: 'Parent Name',
+            class_name: 'Class 5',
+            mobile_number: '03001234567',
+            campus: 'FGS Ravi Road Boys Campus',
+            preferred_appointment_at: createFutureRegistrationAppointmentDate(),
+            registration_message: null,
+            registered_at: new Date(),
+            updated_at: null,
+            email_status: 'pending' as const,
+            retry_count: 0,
+          },
+        })),
+      },
+      adminManagementService: {
+        areRegistrationDiscordNotificationsEnabled: mock(async () => {
+          throw new Error('database unavailable');
+        }),
+      },
+    });
+
+    const res = await POST(
+      new Request('http://localhost', {
+        method: 'POST',
+        body: JSON.stringify(createValidPayload()),
+      })
+    );
+
+    expect(res.status).toBe(201);
   });
 
   it('POST returns 500 and notifies on create failure', async () => {
