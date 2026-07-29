@@ -12,7 +12,7 @@ import {
 import { useState } from 'react';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
-import { SectionNavigator } from '../_components/SectionNavigator';
+import { SectionPageLayout } from '../_components/SectionPageLayout';
 import { contactDetails, contactPageContent } from '../content';
 
 function CampusContactGrid({
@@ -192,32 +192,32 @@ export default function ContactPage() {
           label: 'Register With FGS',
         }}
       />
-      <SectionNavigator
+      <SectionPageLayout
         sections={[
           { id: 'contact-details', label: 'Contact Details' },
           { id: 'timings', label: 'Admissions Times' },
         ]}
-      />
+      >
+        <section id='contact-details' className='fgs-section scroll-mt-24'>
+          <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+            <GeneralEmailSection />
+            <CampusContactGrid onViewMap={setActiveCampus} />
+          </div>
+        </section>
 
-      <section id='contact-details' className='fgs-section scroll-mt-24'>
-        <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-          <GeneralEmailSection />
-          <CampusContactGrid onViewMap={setActiveCampus} />
+        <section id='timings' className='fgs-section scroll-mt-24'>
+          <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+            <OverviewSection
+              title={contactPageContent.timingsTitle}
+              paragraphs={contactPageContent.timingsParagraphs}
+            />
+          </div>
+        </section>
+
+        <div id='acknowledgement' className='scroll-mt-24'>
+          <AcknowledgementSection />
         </div>
-      </section>
-
-      <section id='timings' className='fgs-section scroll-mt-24'>
-        <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-          <OverviewSection
-            title={contactPageContent.timingsTitle}
-            paragraphs={contactPageContent.timingsParagraphs}
-          />
-        </div>
-      </section>
-
-      <div id='acknowledgement' className='scroll-mt-24'>
-        <AcknowledgementSection />
-      </div>
+      </SectionPageLayout>
 
       <CampusMapModal
         campus={activeCampus}
