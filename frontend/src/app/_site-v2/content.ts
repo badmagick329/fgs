@@ -1,4 +1,4 @@
-import { achievementsContent, contactContent } from '@/app/_marketing/content';
+import { contactContent } from '@/app/_marketing/content';
 import type { SiteNavItem } from './types';
 
 export const marketingNavItems: SiteNavItem[] = [
@@ -24,19 +24,39 @@ export const homeContent = {
     href: '/preview/campuses',
     label: 'Explore Campuses',
   },
-  overviewTitle: 'A Dedicated Learning Environment for Students',
+  heroOverlayLines: ['A Tradition of Learning.', 'A Foundation for Life.'],
+  overviewTitle: 'An Education Built on Care, Discipline and Purpose',
   overviewParagraphs: [
-    'Farooqi Grammar School is a trusted school in Lahore with a long-standing commitment to academic excellence, student development, and strong educational values. For decades, families have chosen FGS for its structured learning environment, supportive teaching approach, and consistent academic standards.',
-    'We believe education is about more than examination results. Our classrooms are designed to help students build confidence, discipline, curiosity, and responsibility alongside strong academic ability. Through considerate teaching, meaningful classroom engagement, and consistent guidance, students are encouraged to participate actively in learning and grow with confidence both inside and outside the classroom.',
-    'As an English-medium school in Lahore with decades of educational experience, FGS supports students from early years through to Matric, preparing them for life beyond the classroom.',
+    'Farooqi Grammar School is a trusted educational institution in Lahore with a long-standing record of academic achievement, and a genuine commitment to every student’s progress. For nearly five decades, FGS has worked tirelessly to keep high-quality education within reach of families with affordable fees.',
+    'Our leadership remains closely involved in the daily life of the school. We listen to parents, support our teachers and work to ensure that students receive the guidance they need to excel in life. In our classroom, teaching is about helping every student understand, participate and improve, not just satisfy the curriculum.',
+    'Our several Lahore Board positions show our commitment to excellency. While examination results matter, they are only one part of a meaningful education. FGS students are encouraged to develop discipline, confidence, responsibility, curiosity and strength of character alongside strong academic ability.',
+    'From the early years through to Matric, FGS provides a structured and supportive education that prepares students for their next examination, and for life beyond the classroom.',
   ],
-  secondaryOverviewTitle: 'Supporting Students Across Lahore',
+  secondaryOverviewTitle: 'One Trusted FGS Standard Across Lahore',
   seconddaryOverviewParagraphs: [
-    'Across Lahore, Farooqi Grammar School campuses provide students with focused academic support and a learning environment designed to nurture both personal and educational growth. Each campus reflects the same commitment to discipline, strong teaching, and student development that families have trusted for decades.',
-    'From early learning through to senior classes, students benefit from attentive guidance, meaningful classroom engagement, and a school culture that encourages confidence, responsibility, and consistent progress.',
-    'While every campus serves its own community, all share the same educational values and academic standards that define the FGS experience.',
+    'Every Farooqi Grammar School campus reflects the same educational values, academic expectations and commitment to student growth.',
+    'From early learning to senior classes, students benefit from purposeful teaching, attentive guidance and a school culture that encourages participation, discipline and consistent progress. Teachers work to build strong academic foundations while helping students become more confident, responsible and engaged in their learning.',
+    'Each campus serves its surrounding community, but the standard remains the same: a trusted, affordable and recognised FGS education available to all.',
   ],
 };
+
+export const homeStats = [
+  {
+    value: '47',
+    label: 'Lahore Board Positions',
+    supporting: 'Achieved across 26 years',
+  },
+  {
+    value: '48',
+    label: 'Years of Educational Experience',
+    supporting: 'Trusted by generations of families',
+  },
+  {
+    value: '50,000+',
+    label: 'Alumni',
+    supporting: 'Building meaningful lives and careers',
+  },
+];
 
 export const aboutContent = {
   title: 'About Farooqi Grammar School',
@@ -261,5 +281,4 @@ export const registerContent = {
   ],
 };
 
-export const schoolStats = achievementsContent.stats;
 export const contactDetails = contactContent;

@@ -108,7 +108,11 @@ function ResponsiveHeroImage({
   );
 }
 
-export default function MarketingHero() {
+export default function MarketingHero({
+  overlayLines,
+}: {
+  overlayLines?: readonly string[];
+}) {
   const [api, setApi] = useState<CarouselApi>();
 
   useEffect(() => {
@@ -150,13 +154,40 @@ export default function MarketingHero() {
           ))}
         </CarouselContent>
 
-        <div className='pointer-events-none absolute inset-x-0 bottom-5 z-10 px-5 sm:bottom-6 sm:px-6'>
-          <div className='pointer-events-auto flex flex-wrap gap-3'>
-            <a className='fgs-btn-primary' href={heroContent.primaryCta.href}>
-              {heroContent.primaryCta.label}
-            </a>
+        {overlayLines ? (
+          <div className='pointer-events-none absolute inset-x-0 bottom-5 z-10 px-5 max-[20rem]:px-3 sm:bottom-6 sm:px-6 lg:px-8'>
+            <div className='mx-auto max-w-7xl'>
+              <div className='pointer-events-auto w-full max-w-2xl rounded-sm bg-black/45 px-7 py-5 shadow-lg backdrop-blur-[2px] max-[20rem]:px-4 sm:w-fit sm:px-9 sm:py-6'>
+                <h1 className='text-2xl font-semibold leading-tight text-white max-[20rem]:text-[clamp(1.125rem,7.5vw,1.25rem)] sm:text-4xl'>
+                  {overlayLines.map((line, index) => (
+                    <span
+                      key={line}
+                      className={index === 0 ? 'block' : 'mt-1 block'}
+                    >
+                      {line}
+                    </span>
+                  ))}
+                </h1>
+                <a
+                  className='fgs-btn-primary mt-5 max-[20rem]:px-4 max-[20rem]:text-sm'
+                  href={heroContent.primaryCta.href}
+                >
+                  {heroContent.primaryCta.label}
+                </a>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : null}
+
+        {!overlayLines ? (
+          <div className='pointer-events-none absolute inset-x-0 bottom-5 z-10 px-5 sm:bottom-6 sm:px-6'>
+            <div className='pointer-events-auto flex flex-wrap gap-3'>
+              <a className='fgs-btn-primary' href={heroContent.primaryCta.href}>
+                {heroContent.primaryCta.label}
+              </a>
+            </div>
+          </div>
+        ) : null}
       </Carousel>
     </section>
   );
