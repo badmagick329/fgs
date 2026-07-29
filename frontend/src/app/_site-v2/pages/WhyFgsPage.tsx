@@ -15,6 +15,7 @@ import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
 import { FaqSection } from '../_components/FaqSection';
 import { OverviewSection } from '../_components/OverviewSection';
+import { SectionNavigator } from '../_components/SectionNavigator';
 import { whyFgsContent } from '../content';
 
 function WhyFgsCardsSection() {
@@ -52,7 +53,7 @@ function WhyFgsCardsSection() {
   }, [api]);
 
   return (
-    <section className='fgs-section'>
+    <section id='reasons' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
           {whyFgsContent.cardsTitle}
@@ -113,7 +114,7 @@ function WhyFgsCardsSection() {
 
 function WhyFgsAffordabilitySection() {
   return (
-    <section className='fgs-section'>
+    <section id='affordability' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <div className='fgs-panel mt-8'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
@@ -125,17 +126,18 @@ function WhyFgsAffordabilitySection() {
                 {paragraph}
               </p>
             ))}
-          <p className='fgs-copy'>
-            Parents seeking information regarding Farooqi Grammar School&apos;s
-            campus-specific fee structures and admissions guidance can{' '}
-            <Link
-              className='text-brand-blue hover:underline'
-              href='/preview/contact'
-            >
-              contact the school directly
-            </Link>
-            .
-          </p>
+            <p className='fgs-copy'>
+              Parents seeking information regarding Farooqi Grammar
+              School&apos;s campus-specific fee structures and admissions
+              guidance can{' '}
+              <Link
+                className='text-brand-blue hover:underline'
+                href='/preview/contact'
+              >
+                contact the school directly
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </div>
@@ -145,7 +147,7 @@ function WhyFgsAffordabilitySection() {
 
 function WhyFgsFaqSection() {
   return (
-    <section className='fgs-section'>
+    <section id='questions' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <FaqSection
           title={whyFgsContent.faqTitle}
@@ -159,12 +161,14 @@ function WhyFgsFaqSection() {
 
 function WhyFgsClosingSection() {
   return (
-    <section className='fgs-section pb-16'>
+    <section id='closing' className='fgs-section scroll-mt-24 pb-16'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <OverviewSection
           title={whyFgsContent.closingTitle}
           paragraphs={whyFgsContent.closingParagraphs}
-          links={[{ href: '/preview/register', description: 'Register with FGS' }]}
+          links={[
+            { href: '/preview/register', description: 'Register with FGS' },
+          ]}
         />
       </div>
     </section>
@@ -181,6 +185,14 @@ export default function WhyFgsPage() {
           href: '/preview/register',
           label: 'Register with FGS',
         }}
+      />
+      <SectionNavigator
+        sections={[
+          { id: 'reasons', label: 'Why FGS' },
+          { id: 'affordability', label: 'Affordability' },
+          { id: 'questions', label: 'FAQs' },
+          { id: 'closing', label: 'Our Commitment' },
+        ]}
       />
 
       <WhyFgsCardsSection />

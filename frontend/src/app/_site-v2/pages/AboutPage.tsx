@@ -1,5 +1,6 @@
 import { ceoMessageContent } from '@/app/_marketing/content';
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
+import { SectionNavigator } from '@/app/_site-v2/_components/SectionNavigator';
 import Image from 'next/image';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
@@ -7,7 +8,7 @@ import { aboutContent } from '../content';
 
 function AboutFoundersSection() {
   return (
-    <section className='fgs-section'>
+    <section id='founders' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <div className='fgs-panel'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
@@ -66,7 +67,7 @@ function AboutFoundersSection() {
 
 function AboutCeoMessageSection() {
   return (
-    <section className='fgs-section'>
+    <section id='ceo-message' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <div className='fgs-panel'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
@@ -89,8 +90,16 @@ export default function AboutPage() {
   return (
     <MarketingShell>
       <PageHero title={aboutContent.title} description={aboutContent.intro} />
+      <SectionNavigator
+        sections={[
+          { id: 'overview', label: 'Our Story' },
+          { id: 'founders', label: 'Our Founders' },
+          { id: 'ceo-message', label: 'CEO Message' },
+          { id: 'future', label: 'Looking Ahead' },
+        ]}
+      />
 
-      <section className='fgs-section'>
+      <section id='overview' className='fgs-section scroll-mt-24'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <OverviewSection
             title={aboutContent.overviewTitle}
@@ -100,7 +109,7 @@ export default function AboutPage() {
       </section>
       <AboutFoundersSection />
       <AboutCeoMessageSection />
-      <section className='fgs-section pb-16'>
+      <section id='future' className='fgs-section scroll-mt-24 pb-16'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <OverviewSection
             title={aboutContent.futureTitle}

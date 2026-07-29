@@ -1,7 +1,7 @@
 'use client';
 
-import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
 import { acknowledgementContent } from '@/app/_marketing/content';
+import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
 import { useState } from 'react';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
+import { SectionNavigator } from '../_components/SectionNavigator';
 import { contactDetails, contactPageContent } from '../content';
 
 function CampusContactGrid({
@@ -191,15 +192,21 @@ export default function ContactPage() {
           label: 'Register With FGS',
         }}
       />
+      <SectionNavigator
+        sections={[
+          { id: 'contact-details', label: 'Contact Details' },
+          { id: 'timings', label: 'Admissions Times' },
+        ]}
+      />
 
-      <section className='fgs-section'>
+      <section id='contact-details' className='fgs-section scroll-mt-24'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <GeneralEmailSection />
           <CampusContactGrid onViewMap={setActiveCampus} />
         </div>
       </section>
 
-      <section className='fgs-section'>
+      <section id='timings' className='fgs-section scroll-mt-24'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <OverviewSection
             title={contactPageContent.timingsTitle}
@@ -208,7 +215,9 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <AcknowledgementSection />
+      <div id='acknowledgement' className='scroll-mt-24'>
+        <AcknowledgementSection />
+      </div>
 
       <CampusMapModal
         campus={activeCampus}
