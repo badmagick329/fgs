@@ -61,23 +61,34 @@ export const homeStats = [
 export const aboutContent = {
   title: 'About Farooqi Grammar School',
   intro:
-    'Farooqi Grammar School has served families in Lahore for decades with a clear commitment to academic excellence, character development, and meaningful education.',
-  overviewTitle: 'A Legacy Built on Trust, Discipline, and Educational Purpose',
-  overviewParagraphs: [
-    'Farooqi Grammar School grew from a strong founding vision into a trusted educational institution shaped by dedicated teachers, supportive families, and generations of students who have gone on to contribute across many fields.',
-    'For decades, the school has remained focused on the essentials that matter most to parents: teaching that builds understanding, guidance that strengthens confidence, and an environment where students are encouraged to approach learning with seriousness and purpose.',
-    'That consistency continues to define the FGS experience today. Families are not only choosing a school; they are becoming part of a long-standing culture of learning shaped through years of trust, discipline, and academic commitment.',
+    'Farooqi Grammar School has served families in Lahore since 1978, combining a long-standing tradition of academic achievement with a commitment to keeping quality education within reach.',
+  factsTitle: 'Who We Are',
+  facts: [
+    'Founded in Lahore in 1978',
+    '47 Lahore Board Matric positions over 26 years',
+    'Quality education offered at accessible fees',
+    'Multiple campuses guided by shared academic standards',
+    'A balanced approach to technology and modern learning',
   ],
-  foundersTitle: 'Meet Our Founders',
+  historyTitle: 'Our History of Academic Excellence & Affordable Education',
+  historyParagraphs: [
+    'Farooqi Grammar School grew from a strong founding vision into a trusted educational institution shaped by dedicated teachers, supportive families, and generations of students.',
+    "From the beginning, the school's purpose has been broader than academic success alone. FGS was established to provide families with academic excellence at accessible fees, and without lowering expectations for teaching, discipline or student achievement.",
+    "That commitment has remained central to our school's identity. For nearly five decades, FGS students have achieved consistent success in the Lahore Board Matriculation Examinations. Meanwhile, we've continued to provide strong educational value to the communities we serve.",
+    'Families are not simply choosing an institution with a long history. They are becoming part of a school culture built on trust, hard work, educational responsibility and the belief that a meaningful education should remain within reach.',
+  ],
+  foundersTitle: 'Meet the Founders of Farooqi Grammar School',
   foundersParagraphs: [
     'Farooqi Schools were founded in 1978 by Honorable Sir Asim Farooqi and Respected Madam Zahida Asim Farooqi in Karim Park, Ravi Road, with a vision grounded in service, purpose, and educational excellence. At a time when both held promising careers in the government education sector, they chose to step away from personal advancement to dedicate themselves to providing quality education to the wider community.',
     'What began in a single room gradually grew into a strong educational institution built on commitment, discipline, and trust. Today, Farooqi Schools have expanded into multiple branches, with thousands of alumni contributing meaningfully across various fields.',
     'The founders established not just a school, but a tradition of integrity, hard work, and character-building: values that continue to guide Farooqi Schools and inspire future generations. Farooqi Grammar School has achieved 47 positions in Lahore Board Matric Exams over the last 26 years.',
   ],
-  futureTitle: 'Preparing Students for the Future',
-  futureParagraphs: [
-    'As education continues to evolve, Farooqi Grammar School remains committed to providing students with the knowledge, confidence, and character needed beyond the classroom.',
-    'By combining academic focus with thoughtful teaching practices, meaningful student engagement, and a balanced approach to modern learning, FGS continues to prepare students not only for examinations, but for life.',
+  technologyTitle: 'Our Approach to Technology in Education',
+  technologyParagraphs: [
+    "Our history provided us with a strong foundation. But just as we're about developing the future leaders and innovators for our communities, so are our schools always learning, adapting and improving.",
+    'Today, technology supports a growing range of academic and administrative work at FGS. This includes teacher development, curriculum planning, student assessment and communication with parents. Within classrooms, digital tools are introduced where they can strengthen understanding, increase participation or help teachers assess student learning more effectively.',
+    'This approach is intentionally balanced. Technologies, such as artificial intelligence (AI), should support good teaching rather than replace it. At FGS, students are guided to use these digital tools productively and responsibly. Meaningful interaction, clear instruction and active participation remain at the centre of the learning experience.',
+    'By combining decades of educational tradition with a thoughtful approach to change, Farooqi Grammar School continues to serve its founding purpose: providing an accessible, purposeful education to best prepare students for the world ahead.',
   ],
 };
 

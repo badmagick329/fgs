@@ -1,6 +1,7 @@
 import { ceoMessageContent } from '@/app/_marketing/content';
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
 import { SectionNavigator } from '@/app/_site-v2/_components/SectionNavigator';
+import { Check } from 'lucide-react';
 import Image from 'next/image';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
@@ -71,15 +72,67 @@ function AboutCeoMessageSection() {
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <div className='fgs-panel'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
-            {ceoMessageContent.title}
+            A Message from the CEO of FGS
           </h2>
-          <div className='mt-4 space-y-4'>
-            {ceoMessageContent.paragraphs.map((paragraph) => (
-              <p key={paragraph} className='fgs-copy'>
+          <div className='mt-4'>
+            <div className='mb-6 rounded-3xl p-3 sm:float-left sm:mb-4 sm:mr-6 sm:w-[18rem] sm:pl-0 sm:pr-0 sm:pt-0'>
+              <div className='mx-auto max-w-[16rem] overflow-hidden rounded-sm border border-border bg-card shadow-sm'>
+                <Image
+                  src='/sameer.webp'
+                  alt='Sameer Asim Farooqi'
+                  width={640}
+                  height={640}
+                  className='aspect-square h-auto w-full object-cover'
+                />
+                <div className='border-t border-brand-blue/20 bg-brand-blue/5 px-4 py-3'>
+                  <p className='text-fgs-ink text-center text-sm font-medium'>
+                    Sameer Asim Farooqi
+                  </p>
+                </div>
+              </div>
+            </div>
+            {ceoMessageContent.paragraphs.map((paragraph, index) => (
+              <p
+                key={paragraph}
+                className={`fgs-copy ${index === 0 ? '' : 'mt-4'}`}
+              >
                 {paragraph}
               </p>
             ))}
+            <div className='clear-both' />
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AboutFactsSection() {
+  return (
+    <section id='who-we-are' className='fgs-section scroll-mt-24'>
+      <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+        <div className='fgs-panel grid gap-6 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-center'>
+          <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
+            {aboutContent.factsTitle}
+          </h2>
+          <ul
+            className='grid gap-3 sm:grid-cols-2'
+            aria-label={aboutContent.factsTitle}
+          >
+            {aboutContent.facts.map((fact) => (
+              <li
+                key={fact}
+                className='flex gap-2.5 text-sm leading-6 text-fgs-ink'
+              >
+                <Check
+                  aria-hidden='true'
+                  className='mt-1 h-4 w-4 shrink-0 text-brand-blue'
+                  strokeWidth={2.5}
+                />
+                {fact}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
@@ -92,28 +145,30 @@ export default function AboutPage() {
       <PageHero title={aboutContent.title} description={aboutContent.intro} />
       <SectionNavigator
         sections={[
-          { id: 'overview', label: 'Our Story' },
-          { id: 'founders', label: 'Our Founders' },
+          { id: 'who-we-are', label: 'Who We Are' },
+          { id: 'history', label: 'Our History' },
           { id: 'ceo-message', label: 'CEO Message' },
-          { id: 'future', label: 'Looking Ahead' },
+          { id: 'founders', label: 'Our Founders' },
+          { id: 'technology', label: 'Technology' },
         ]}
       />
 
-      <section id='overview' className='fgs-section scroll-mt-24'>
+      <AboutFactsSection />
+      <section id='history' className='fgs-section scroll-mt-24'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <OverviewSection
-            title={aboutContent.overviewTitle}
-            paragraphs={aboutContent.overviewParagraphs}
+            title={aboutContent.historyTitle}
+            paragraphs={aboutContent.historyParagraphs}
           />
         </div>
       </section>
-      <AboutFoundersSection />
       <AboutCeoMessageSection />
-      <section id='future' className='fgs-section scroll-mt-24 pb-16'>
+      <AboutFoundersSection />
+      <section id='technology' className='fgs-section scroll-mt-24 pb-16'>
         <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
           <OverviewSection
-            title={aboutContent.futureTitle}
-            paragraphs={aboutContent.futureParagraphs}
+            title={aboutContent.technologyTitle}
+            paragraphs={aboutContent.technologyParagraphs}
           />
         </div>
       </section>
