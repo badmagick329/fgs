@@ -3,11 +3,12 @@ import Link from 'next/link';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
 import { FaqSection } from '../_components/FaqSection';
+import { SectionNavigator } from '../_components/SectionNavigator';
 import { registerContent } from '../content';
 
 function RegisterProcessSection() {
   return (
-    <section className='fgs-section'>
+    <section id='process' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
         <div className='fgs-panel mt-8'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
@@ -32,7 +33,9 @@ function RegisterProcessSection() {
             <div className='mt-5 space-y-5'>
               {registerContent.timings.map((timing) => (
                 <p key={timing.label} className='fgs-copy'>
-                  <span className='text-fgs-ink font-semibold'>{timing.label}</span>{' '}
+                  <span className='text-fgs-ink font-semibold'>
+                    {timing.label}
+                  </span>{' '}
                   {timing.value}
                 </p>
               ))}
@@ -59,7 +62,7 @@ function RegisterProcessSection() {
 
 function RegistrationFormSection() {
   return (
-    <section className='fgs-section'>
+    <section id='registration-form' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
         <div className='mt-8 rounded-[0.3rem] border border-border bg-card px-5 py-5 shadow-sm sm:px-6 sm:py-6'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
@@ -76,9 +79,12 @@ function RegistrationFormSection() {
 
 function RegisterFaqSection() {
   return (
-    <section className='fgs-section pb-16'>
+    <section id='questions' className='fgs-section scroll-mt-24 pb-16'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
-        <FaqSection title={registerContent.faqTitle} faqs={registerContent.faqs} />
+        <FaqSection
+          title={registerContent.faqTitle}
+          faqs={registerContent.faqs}
+        />
       </div>
     </section>
   );
@@ -87,7 +93,17 @@ function RegisterFaqSection() {
 export default function RegisterPage() {
   return (
     <MarketingShell>
-      <PageHero title={registerContent.title} description={registerContent.description} />
+      <PageHero
+        title={registerContent.title}
+        description={registerContent.description}
+      />
+      <SectionNavigator
+        sections={[
+          { id: 'process', label: 'How It Works' },
+          { id: 'registration-form', label: 'Registration Form' },
+          { id: 'questions', label: 'FAQs' },
+        ]}
+      />
 
       <RegisterProcessSection />
       <RegistrationFormSection />
