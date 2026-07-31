@@ -33,6 +33,7 @@ export default function HomePage() {
           <OverviewSection
             title={homeContent.overviewTitle}
             paragraphs={homeContent.overviewParagraphs}
+            className='mt-12'
             links={[
               { href: '/preview/about', description: 'Learn About FGS' },
               {
@@ -44,6 +45,7 @@ export default function HomePage() {
           <OverviewSection
             title={homeContent.secondaryOverviewTitle}
             paragraphs={homeContent.seconddaryOverviewParagraphs}
+            className='mt-16 border-t border-border pt-12'
             links={[
               {
                 href: '/preview/campuses',

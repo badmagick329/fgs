@@ -11,7 +11,7 @@ function AboutFoundersSection() {
   return (
     <section id='founders' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-        <div className='fgs-panel'>
+        <div className='border-t border-border pt-12'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {aboutContent.foundersTitle}
           </h2>
@@ -70,7 +70,7 @@ function AboutCeoMessageSection() {
   return (
     <section id='ceo-message' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-        <div className='fgs-panel'>
+        <div className='border-t border-border pt-12'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             A Message from the CEO of FGS
           </h2>
@@ -111,7 +111,7 @@ function AboutFactsSection() {
   return (
     <section id='who-we-are' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-        <div className='fgs-panel grid gap-6 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-center'>
+        <div className='grid gap-6 border-y border-border py-8 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-center'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {aboutContent.factsTitle}
           </h2>
@@ -158,6 +158,7 @@ export default function AboutPage() {
             <OverviewSection
               title={aboutContent.historyTitle}
               paragraphs={aboutContent.historyParagraphs}
+              className='mt-0'
             />
           </div>
         </section>
@@ -168,6 +169,7 @@ export default function AboutPage() {
             <OverviewSection
               title={aboutContent.technologyTitle}
               paragraphs={aboutContent.technologyParagraphs}
+              className='mt-0 border-t border-border pt-12'
             />
           </div>
         </section>

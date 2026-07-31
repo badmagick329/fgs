@@ -17,7 +17,7 @@ function CampusContactGrid() {
 
 function GeneralEmailSection() {
   return (
-    <div className='fgs-panel mt-8'>
+    <div className='mt-8 border-y border-border py-6 sm:py-8'>
       <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
         General Email Enquiries
       </h2>
