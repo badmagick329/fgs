@@ -10,22 +10,28 @@ function RegisterProcessSection() {
   return (
     <section id='process' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
-        <div className='fgs-panel mt-8'>
+        <div className='mt-8'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {registerContent.processTitle}
           </h2>
 
-          <div className='mt-5 space-y-8'>
+          <ol className='mt-6 border-brand-blue/30 space-y-8 border-l-2 pl-6'>
             {registerContent.steps.map((step) => (
-              <div key={step.title} className='space-y-3'>
+              <li key={step.title} className='relative space-y-3'>
+                <span
+                  aria-hidden='true'
+                  className='bg-brand-blue absolute -left-[1.94rem] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-fgs-surface'
+                />
                 <h3 className='text-fgs-ink text-lg font-medium sm:text-xl'>
                   {step.title}
                 </h3>
                 <p className='fgs-copy'>{step.description}</p>
-              </div>
+              </li>
             ))}
-          </div>
-          <p className='fgs-copy mt-8'>{registerContent.processNote}</p>
+          </ol>
+          <p className='fgs-copy mt-8 border-t border-border pt-6'>
+            {registerContent.processNote}
+          </p>
         </div>
       </div>
     </section>
@@ -34,22 +40,23 @@ function RegisterProcessSection() {
 
 function AdmissionsTimingsSection() {
   return (
-    <section id='timings' className='fgs-section scroll-mt-24'>
+    <section id='timings' className='fgs-section scroll-mt-24 pt-10'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
-        <div className='fgs-panel'>
+        <div className='border-y border-border py-6 sm:py-8'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {registerContent.timingsTitle}
           </h2>
-          <div className='mt-5 space-y-5'>
+          <dl className='mt-5 space-y-4'>
             {registerContent.timings.map((timing) => (
-              <p key={timing.label} className='fgs-copy'>
-                <span className='text-fgs-ink font-semibold'>
-                  {timing.label}
-                </span>{' '}
-                {timing.value}
-              </p>
+              <div
+                key={timing.label}
+                className='flex flex-col gap-1 text-base sm:flex-row sm:gap-2'
+              >
+                <dt className='text-fgs-ink font-semibold'>{timing.label}</dt>
+                <dd className='fgs-copy'>{timing.value}</dd>
+              </div>
             ))}
-          </div>
+          </dl>
         </div>
       </div>
     </section>
@@ -60,7 +67,7 @@ function AdmissionsSupportSection() {
   return (
     <section id='support' className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
-        <div className='fgs-panel'>
+        <div className='mt-8 border-l-4 border-brand-blue bg-brand-blue/5 px-6 py-6 sm:px-8 sm:py-7'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
             {registerContent.supportTitle}
           </h2>

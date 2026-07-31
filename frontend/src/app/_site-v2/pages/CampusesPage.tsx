@@ -106,10 +106,10 @@ export default function CampusesPage() {
                 }))}
               />
             </div>
-            <div id='gallery' className='mt-8 scroll-mt-24'>
-              <GalleryBlock />
+            <div id='gallery' className='scroll-mt-24 border-t border-border pt-12'>
+              <GalleryBlock headingClassName='text-fgs-ink text-xl font-semibold sm:text-2xl' />
             </div>
-            <div id='campuses' className='scroll-mt-24'>
+            <div id='campuses' className='scroll-mt-24 border-t border-border pt-12'>
               <CampusGrid />
             </div>
             <div id='learning' className='scroll-mt-24'>
@@ -119,7 +119,7 @@ export default function CampusesPage() {
               />
             </div>
             <div id='activities' className='scroll-mt-24'>
-              <div className='fgs-panel mt-8'>
+              <div className='border-t border-border pt-12'>
                 <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
                   {campusesContent.activities.title}
                 </h2>
@@ -149,6 +149,7 @@ export default function CampusesPage() {
               <OverviewSection
                 title={campusesContent.closing.title}
                 paragraphs={[campusesContent.closing.paragraph]}
+                className='mt-0 border-t border-border pt-12'
                 links={[
                   {
                     href: '/preview/contact',

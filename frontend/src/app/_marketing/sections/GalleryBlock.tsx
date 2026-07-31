@@ -12,7 +12,11 @@ import { useEffect, useState } from 'react';
 import { galleryContent } from '../content';
 import GalleryImageCard from './GalleryImageCard';
 
-export default function GalleryBlock() {
+export default function GalleryBlock({
+  headingClassName = 'fgs-heading',
+}: {
+  headingClassName?: string;
+}) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -47,7 +51,7 @@ export default function GalleryBlock() {
   return (
     <>
       <div className='flex items-end justify-between gap-4'>
-        <h2 className='fgs-heading'>{galleryContent.title}</h2>
+        <h2 className={headingClassName}>{galleryContent.title}</h2>
       </div>
 
       {galleryContent.images.length === 5 ? (
