@@ -3,7 +3,7 @@ import Link from 'next/link';
 type PageHeroProps = {
   eyebrow?: string;
   title: string;
-  description: string;
+  description: string | string[];
   primaryCta?: {
     href: string;
     label: string;
@@ -33,9 +33,17 @@ export default function PageHero({
           <h1 className='text-4xl font-semibold leading-tight sm:text-5xl'>
             {title}
           </h1>
-          <p className='max-w-2xl text-base text-muted-foreground sm:text-lg'>
-            {description}
-          </p>
+          {Array.isArray(description) ? (
+            <div className='max-w-2xl space-y-4 text-base text-muted-foreground sm:text-lg'>
+              {description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          ) : (
+            <p className='max-w-2xl text-base text-muted-foreground sm:text-lg'>
+              {description}
+            </p>
+          )}
           {primaryCta || secondaryCta ? (
             <div className='flex flex-wrap gap-3'>
               {primaryCta ? (

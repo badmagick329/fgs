@@ -25,35 +25,49 @@ function RegisterProcessSection() {
               </div>
             ))}
           </div>
+          <p className='fgs-copy mt-8'>{registerContent.processNote}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-          <div className='mt-10'>
-            <h3 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
-              {registerContent.timingsTitle}
-            </h3>
-            <div className='mt-5 space-y-5'>
-              {registerContent.timings.map((timing) => (
-                <p key={timing.label} className='fgs-copy'>
-                  <span className='text-fgs-ink font-semibold'>
-                    {timing.label}
-                  </span>{' '}
-                  {timing.value}
-                </p>
-              ))}
-            </div>
+function AdmissionsTimingsSection() {
+  return (
+    <section id='timings' className='fgs-section scroll-mt-24'>
+      <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
+        <div className='fgs-panel'>
+          <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
+            {registerContent.timingsTitle}
+          </h2>
+          <div className='mt-5 space-y-5'>
+            {registerContent.timings.map((timing) => (
+              <p key={timing.label} className='fgs-copy'>
+                <span className='text-fgs-ink font-semibold'>
+                  {timing.label}
+                </span>{' '}
+                {timing.value}
+              </p>
+            ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-          <div className='mt-10'>
-            <h3 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
-              {registerContent.supportTitle}
-            </h3>
-            <p className='fgs-copy mt-5'>{registerContent.supportParagraph}</p>
-            <Link
-              className='text-brand-blue mt-5 inline-block text-lg font-semibold hover:underline'
-              href={registerContent.supportLink.href}
-            >
-              {registerContent.supportLink.label}
-            </Link>
-          </div>
+function AdmissionsSupportSection() {
+  return (
+    <section id='support' className='fgs-section scroll-mt-24'>
+      <div className='mx-auto max-w-4xl px-4 sm:px-6 lg:px-8'>
+        <div className='fgs-panel'>
+          <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
+            {registerContent.supportTitle}
+          </h2>
+          <p className='fgs-copy mt-5'>{registerContent.supportParagraph}</p>
+          <Link className='fgs-btn-secondary mt-5' href={registerContent.supportLink.href}>
+            {registerContent.supportLink.label}
+          </Link>
         </div>
       </div>
     </section>
@@ -99,12 +113,16 @@ export default function RegisterPage() {
       />
       <SectionPageLayout
         sections={[
-          { id: 'process', label: 'How It Works' },
+          { id: 'process', label: 'Admission Process' },
+          { id: 'timings', label: 'Admissions Timings' },
+          { id: 'support', label: 'Need Help?' },
           { id: 'registration-form', label: 'Registration Form' },
           { id: 'questions', label: 'FAQs' },
         ]}
       >
         <RegisterProcessSection />
+        <AdmissionsTimingsSection />
+        <AdmissionsSupportSection />
         <RegistrationFormSection />
         <RegisterFaqSection />
       </SectionPageLayout>

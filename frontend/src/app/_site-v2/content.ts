@@ -94,57 +94,56 @@ export const aboutContent = {
 
 export const campusesContent = {
   overview: {
-    title: 'Explore Our Campuses',
+    title: 'Find the Best Campus in Lahore',
     paragraph:
-      'Each FGS campus aims to provide students with clear academic guidance, supportive classroom learning, and an environment where discipline, participation, and steady progress are encouraged. While each campus supports its own local community, all share the educational values and standards that define the FGS experience. We’re also committed to providing accessible, high-quality education for families across Lahore.',
+      'Our campuses serve different age groups and communities, while remaining part of one Farooqi Grammar School system. Explore the campus options below to find the most suitable location for your child.',
   },
   hero: {
-    title: 'Our Campuses',
-    paragraph:
-      'Farooqi Grammar School serves families across multiple campuses in Lahore, with each campus built around the same commitment to academic excellence, student development, and supportive learning.',
+    title: 'Farooqi Grammar School Campuses in Lahore',
+    paragraphs: [
+      'Farooqi Grammar School serves families through multiple campuses in Lahore, each guided by the same commitment to academic achievement, disciplined learning, student development and affordable education.',
+      'Whichever campus you choose for your child, you can expect the educational values and standards that define the FGS experience.',
+    ],
   },
-  campusCards: {
-    'FGS Ravi Road Boys Campus': {
-      paragraphs: [
-        'Located near Karim Park and Ravi Road in Lahore, the Ravi Road Boys Campus provides students with a focused academic environment centred around discipline, consistency, and meaningful learning support. Teachers work closely with students to motivate academic progress while also helping them develop responsibility, focus, and self-confidence throughout their school journey.',
-        'With supportive classroom guidance and a strong academic culture, the campus aims to help students prepare for future academic challenges with clarity and confidence.',
-      ],
-      principal: 'Principal: [Principal Name]',
-    },
-    'FGS Ravi Road Girls Campus': {
-      paragraphs: [
-        'The Ravi Road Girls Campus in Lahore provides students with a supportive academic environment where confidence-building, classroom participation, and educational progress are encouraged. Through attentive teaching and meaningful classroom engagement, students are encouraged to participate actively in learning while developing independence, responsibility, and strong educational foundations.',
-        'The campus continues the wider FGS commitment to balanced education, combining academic standards with character development and supportive guidance.',
-      ],
-      principal: 'Principal: [Principal Name]',
-    },
-    'FGS Ravi Road Kids Campus': {
-      paragraphs: [
-        'The Ravi Road Kids Campus is designed to give younger learners a positive and structured introduction to education. Through guided teaching, routine, care, and classroom interaction, students begin developing the confidence, curiosity, and foundational skills that support long-term learning.',
-        'The environment is designed to help children feel supported, engaged, and comfortable as they begin their academic journey.',
-      ],
-      principal: 'Principal: [Principal Name]',
-    },
-    'FGS Edward Road (PG to Matric)': {
-      paragraphs: [
-        'Serving students from PG to Matric, the Edward Road Campus supports students through multiple stages of their academic development with a strong emphasis on concept clarity, consistency, and steady progress.',
-        'Students benefit from thoughtful teaching, supportive classroom learning, and guidance designed to help them build both academic confidence and responsibility throughout their educational journey.',
-      ],
-      principal: 'Principal: [Principal Name]',
-    },
-  } satisfies Record<string, { paragraphs: string[]; principal: string }>,
-  campusPlaceholders: {
-    'FGS Ravi Road Boys Campus': 'Boys Campus',
-    'FGS Ravi Road Girls Campus': 'Girls Campus',
-    'FGS Ravi Road Kids Campus': 'Kids Campus',
-    'FGS Edward Road (PG to Matric)': 'Edward Road Campus',
-  } satisfies Record<string, string>,
+  classroomLearning: {
+    title: 'Classroom Learning Across FGS Campuses',
+    paragraphs: [
+      'FGS classrooms are focused, energetic and purposeful. Students are encouraged to take their studies seriously, participate actively and develop the confidence to demonstrate what they have learned.',
+      'Teaching methods are selected according to the subject and the needs of the lesson. In subjects such as Mathematics, clear teacher-led instruction helps students understand methods and build strong foundations. In English and other discussion-based subjects, students are given greater opportunities to express ideas, ask questions and contribute to the classroom.',
+      'We also use technology, such as Artificial Intelligence and Virtual Reality, to help students better grasp different concepts. This allows children to learn how tech can help solve real-world problems. For example, we’ve used Google Earth to identify villages around the River Ravi riverbed and develop emergency plans in case of flooding.',
+      'The aim is not to follow one teaching style for every lesson. It is to find the right balance between clear instruction and active student participation. Teachers are expected to do more than complete the curriculum: they work to involve students, recognise where support is needed and help every child make meaningful progress.',
+    ],
+  },
+  activities: {
+    title: 'Extracurricular Activities and Student Life at FGS',
+    paragraph:
+      'Education at Farooqi Grammar Schools extends beyond academic lessons. Competitions, clubs, exhibitions and shared school experiences give students opportunities to discover their interests, express themselves and develop confidence, teamwork and responsibility.',
+    items: [
+      'Poetry, debate and spelling competitions',
+      'Maths competitions',
+      'Science and art exhibitions',
+      'Sports, Literary and Art Clubs',
+      'A biannual student magazine produced by the Literary Club',
+      'Theatre performances for parents and families',
+      'Educational trips within Lahore',
+      'An annual Fun Day for junior students',
+      'Monthly themed days for younger learners',
+    ],
+    note: 'Activities may vary according to campus, age group and the school calendar.',
+  },
+  closing: {
+    title: 'One FGS Experience Across Lahore',
+    paragraph:
+      'Although each campus serves its own local community, all are guided by the same educational purpose. Shared academic expectations, involved leadership and a commitment to student progress help ensure that families can recognise and trust the FGS experience across Lahore.',
+  },
 };
 
 export const contactPageContent = {
   title: 'Contact Farooqi Grammar School',
-  description:
-    'Families can contact Farooqi Grammar School directly by phone or email for admissions information, campus enquiries, appointment guidance, or general support. Select a campus below to view contact details and location information.',
+  description: [
+    'Have a question about admissions, a campus, or your child’s application? Get in touch with the relevant FGS campus by phone or email, and our team will be happy to guide you.',
+    'Select a campus below to find its contact details, address, and location.',
+  ],
   timingsTitle: 'Admissions Office Opening Times',
   timingsParagraphs: [
     'Monday to Thursday & Saturday: 8:00 AM - 2:00 PM',
@@ -154,106 +153,126 @@ export const contactPageContent = {
 
 export const whyFgsContent = {
   title: 'Why Families Choose Farooqi Grammar School',
-  description:
-    'Choosing a school is about more than facilities. Families want strong academic standards, supportive teachers, and an environment where students can grow with confidence, discipline, and purpose. For decades, Farooqi Grammar School has supported students across Lahore with education that values both academic achievement and character development.',
-  cardsTitle: 'Why Join Farooqi Grammar School?',
+  description: [
+    'Choosing a school is about trust. Parents want strong academic standards, responsible leadership, capable teachers and an environment where their child can learn with confidence.',
+    'For nearly five decades, Farooqi Grammar School has worked to provide families in Lahore with a quality education at accessible fees. Across every FGS campus, the aim remains the same: to help students achieve academically while developing the confidence, character and responsibility they will need beyond school.',
+  ],
+  cardsTitle: 'What Sets Farooqi Grammar School Apart',
   reasons: [
     {
-      title: 'Strong Academic Foundations',
+      title: 'Decades of Academic Achievement',
       description:
-        'Farooqi Grammar School places strong emphasis on concept clarity, structured learning, and consistent academic progress. Through attentive teaching and focused classroom support, students are guided to develop the understanding, discipline, and study habits needed for long-term academic success, reflected in the school’s consistent Lahore Board performance.',
+        'FGS has a long-standing record of success in the Lahore Board Matriculation Examinations, including 47 positions achieved across 26 years. These results reflect disciplined teaching, consistent academic expectations and a school culture that encourages students to work hard, strengthen their understanding and take their studies seriously.',
     },
     {
-      title: 'Confidence, Character, and Values',
+      title: 'Quality Education at Affordable Fees',
       description:
-        'Education at FGS is designed to support personal growth alongside academic development. Students are encouraged to develop confidence, responsibility, respect, and self-discipline within an environment shaped by strong cultural and educational values. The aim is not only to prepare students for examinations, but also to help them grow into thoughtful and responsible individuals.',
+        'We believe that a strong education should remain within reach of all families. The FGS leadership works to provide the teaching, facilities and academic support families may associate with considerably more expensive schools, while maintaining an accessible fee structure. Affordability is not treated as a reason to lower expectations, but as part of the school’s educational purpose.',
     },
     {
-      title: 'Individual Guidance and Support',
+      title: 'Present and Responsive Leadership',
       description:
-        'Every student learns differently. FGS places importance on mindful classroom teaching and meaningful teacher-student engagement so students receive the guidance, encouragement, and support they need throughout their academic journey, building confidence over time.',
+        'Farooqi Grammar School is run by educationists who remain closely involved in the daily life of the school. Leadership works alongside teachers and staff, listens to parents and takes their concerns seriously. This regular involvement helps maintain accountability, supports teachers and keeps attention focused on the experience and progress of students.',
     },
     {
-      title: 'Accessible Quality Education',
+      title: 'One FGS Standard Across Every Campus',
       description:
-        'Farooqi Grammar School believes quality education should remain accessible to families across Lahore. The school continues to maintain strong educational standards while providing an affordable learning environment for students from different backgrounds and communities.',
-    },
-    {
-      title: 'Learning Beyond the Classroom',
-      description:
-        'Student development extends beyond academic work alone. Across FGS campuses, students take part in co-curricular activities, competitions, events, and experiences that emphasise teamwork, creativity, communication, and confidence-building. These opportunities help students develop important life skills alongside their classroom learning.',
-    },
-    {
-      title: 'A Safe Learning Environment',
-      description:
-        'FGS aims to provide students with a disciplined, respectful, and warm learning environment where they feel secure, motivated, and supported to grow. The school culture emphasises consistency, mutual respect, and positive classroom engagement to help students focus confidently on learning and development.',
-    },
-    {
-      title: 'Preparing Students for the Future',
-      description:
-        'As education continues to evolve, FGS remains committed to helping students develop the knowledge, confidence, and adaptability needed for the future. By combining academic focus with thoughtful teaching and meaningful student engagement, we prepare students not only for examinations, but for life beyond the classroom.',
+        'Families should not have to wonder whether one FGS campus offers a better standard than another. Every campus is guided by the same educational values, academic expectations and commitment to student progress. Although locations and age groups may differ, each remains part of one Farooqi Grammar School system.',
     },
   ],
-  affordabilityTitle: 'Affordable Education Across Our Campuses',
-  affordabilityParagraphs: [
-    'Farooqi Grammar School believes that quality education should remain accessible to families across Lahore. Across our campuses, monthly tuition fees remain considerate to support affordability while maintaining the academic standards, classroom support, and learning environment families expect from FGS.',
-  ],
+  buildings: {
+    title: 'School Buildings Designed for Learning',
+    paragraphs: [
+      'FGS campuses provide established school environments with classrooms and spaces designed around the needs of students.',
+      'Children have room to learn, interact and play within a safe school setting. Our classrooms help students focus on learning with technology introduced purposefully to support participation. Depending on the class and subject, students may use computers, tablets, and educational applications to reinforce concepts, explore ideas and apply learning to practical situations.',
+    ],
+    image: {
+      src: '/student-life/qsp08915.webp',
+      alt: 'Farooqi Grammar School students in an outdoor school setting',
+    },
+  },
+  teachers: {
+    title: 'Teachers Who Take Responsibility for Progress',
+    paragraphs: [
+      'At FGS, teaching is not simply about completing the day’s curriculum and moving on.',
+      'Teachers are expected to notice when a student is struggling, encourage participation and work to ensure that no child is quietly left behind. They are also encouraged to keep learning and improving their own skills.',
+      'Classroom methods vary according to the subject. Some lessons require clear, teacher-led instruction, while others give students more opportunity to discuss, ask questions and express their ideas. The purpose is always the same: to help students understand what they are learning and make meaningful progress.',
+    ],
+    image: {
+      src: '/student-life/qsp08946.webp',
+      alt: 'Farooqi Grammar School students learning together with a tablet',
+    },
+  },
+  educationBeyond: {
+    title: 'Education Beyond Examination Results',
+    paragraphs: [
+      'Academic achievement remains important, but it is not the only measure of a student’s development.',
+      'Through competitions, clubs, exhibitions, performances, trips and school events, students have opportunities to develop creativity, communication, teamwork and confidence. Alongside these experiences, FGS encourages discipline, hard work, good character and a sense of responsibility towards family and society.',
+    ],
+  },
   faqTitle: 'Frequently Asked Questions',
   faqs: [
     {
-      question: 'Which areas of Lahore does Farooqi Grammar School serve?',
+      question: 'Do all FGS campuses follow the same standards?',
       answer:
-        'FGS serves families across multiple campuses in Lahore, including Ravi Road, Karim Park, and surrounding communities.',
+        'Yes. Every campus is part of the same Farooqi Grammar School system and guided by shared academic expectations, educational values and standards of student support.',
     },
     {
-      question: 'Does FGS provide English-medium education?',
+      question: 'Are Farooqi Grammar School fees affordable?',
       answer:
-        'Yes. Farooqi Grammar School provides English-medium education with a balanced focus on academics, discipline, and student development.',
+        'FGS is committed to keeping quality education accessible. Fees vary by campus and class level, and families can contact the admissions team for the relevant fee structure. Fee concessions may also be available in some circumstances.',
     },
     {
-      question: 'Which class levels are offered at FGS?',
+      question: 'How involved is the school leadership?',
       answer:
-        'FGS campuses support students from early years through to Matric, depending on the campus and academic stage.',
+        'FGS leadership is closely involved in the everyday running of the schools. Parents are encouraged to share concerns, and leadership works with teachers and staff to maintain standards and address issues responsibly.',
     },
     {
-      question: 'How can parents enquire about admissions?',
+      question: 'What kind of classroom experience can students expect?',
       answer:
-        'Families can register online or contact individual campuses directly for admissions guidance and appointment information.',
+        'Classrooms are structured, focused and engaging. Teaching may be teacher-led or more student-centred depending on the subject, with students encouraged to participate, ask questions and demonstrate their understanding.',
     },
     {
-      question: 'Can parents enquire about fee structures?',
+      question: 'How does FGS use technology in education?',
       answer:
-        'Yes. Parents can contact the admissions team directly for campus-specific fee structure and admissions information.',
+        'Technology is used where it can strengthen teaching and learning. This includes computer practicals, interactive activities via virtual reality, and digital applications like online quizzes. The emphasis remains on purposeful use, balanced with direct teaching and human interaction. We don’t use technology just for the sake of technology.',
     },
   ],
-  closingTitle: 'A Long-Term Commitment to Student Growth',
+  closingTitle: 'Find the Right FGS Campus for Your Family',
   closingParagraphs: [
-    'For families seeking a school in Lahore that values both academic achievement and character development, Farooqi Grammar School continues to offer a balanced and supportive educational experience shaped by decades of trust, guidance, and consistency.',
+    'Explore our campuses across Lahore or contact the admissions team for guidance on student life, fees and the next steps in the admission process.',
   ],
 };
 
 export const registerContent = {
-  title: 'Register With Farooqi Grammar School',
+  title: 'Register for Admission',
   description:
-    'Families can register their interest online and begin the admissions process with Farooqi Grammar School through the form below. The admissions team will then guide parents through the next steps, helping keep the process clear, supportive, and straightforward from the beginning.',
-  processTitle: 'How Registration Works',
+    'Complete the form below to begin the admission process at Farooqi Grammar School. Once we receive your registration, the admissions team will share relevant guidance and help you through the next steps.',
+  processTitle: 'How the Admission Process Works',
   steps: [
     {
-      title: 'Step 1: Share Student and Parent Details',
+      title: 'Step 1: Complete the Registration Form',
       description:
-        'Complete the registration form with the required student, parent, class, and contact information so the admissions team can understand your requirements clearly.',
+        'Provide the student’s details, preferred class and campus, along with the parent or guardian’s contact information.',
     },
     {
-      title: 'Step 2: Select a Campus and Appointment Time',
+      title: 'Step 2: Receive Entry Test Guidance',
       description:
-        'Choose the Farooqi Grammar School campus you are interested in and select a suitable date and time for your appointment.',
+        'The admissions team will provide entry test guidelines based on the class for which the student is being considered and arrange a suitable time for the assessment.',
     },
     {
-      title: 'Step 3: Admissions Team Follow-Up',
+      title: 'Step 3: Attend the Assessment and Principal Interview',
       description:
-        'Once the form has been submitted, the admissions team will contact families to guide them through the next stages of the registration process and answer any additional questions.',
+        'The student will complete a class-level assessment followed by an interview with the campus principal. Together, these help the school understand the student’s current reading, computation and academic skills.',
+    },
+    {
+      title: 'Step 4: Admission Decision and Fee Payment',
+      description:
+        'Following the assessment and interview, the school will communicate its admission decision. Families offered a place can then complete the fee payment and remaining admission formalities.',
     },
   ],
+  processNote:
+    'Fee concessions may be available in some circumstances, particularly when siblings are enrolled together. Please speak with the admissions team for guidance.',
   timingsTitle: 'Admissions Timings',
   timings: [
     {
@@ -265,29 +284,39 @@ export const registerContent = {
       value: '8:00 AM - 12:00 PM',
     },
   ],
-  supportTitle: 'Admissions Support',
+  supportTitle: 'Need Help Before Registering?',
   supportParagraph:
-    'If families need assistance before submitting the form, the FGS admissions team can be contacted directly through the campus contact information provided below.',
+    'For help selecting a campus or understanding the admission process, contact the FGS admissions team before completing the form.',
   supportLink: {
     href: '/preview/contact',
-    label: 'Contact Us',
+    label: 'Contact Admissions',
   },
   faqTitle: 'Frequently Asked Questions',
   faqs: [
     {
-      question: 'Are admissions open across all campuses?',
+      question: 'Does submitting the form confirm admission?',
       answer:
-        'Admissions are open across multiple FGS campuses in Lahore for families seeking English-medium education and supportive academic guidance. Families can contact the admissions team directly for current information.',
+        'No. The form begins the admission process. Admission is confirmed after the student’s assessment, principal interview and final decision by the school.',
     },
     {
-      question: 'Can parents choose their preferred campus?',
+      question: 'Can parents select a preferred campus?',
       answer:
-        'Yes. Families can select their preferred campus during the registration process.',
+        'Yes. Families can indicate their preferred campus when completing the registration form.',
     },
     {
-      question: 'Will the admissions team contact families after registration?',
+      question: 'Is an admission assessment required?',
       answer:
-        'Yes. The admissions team will follow up directly after the registration form has been submitted.',
+        'Yes. Students are given entry test guidance for the relevant class before attending the assessment. The school also considers the principal’s interview when making the final decision.',
+    },
+    {
+      question: 'Are fee concessions available at FGS?',
+      answer:
+        'Fee concessions may be available depending on the family’s circumstances. Concessions are commonly considered when more than one sibling is enrolling.',
+    },
+    {
+      question: 'Are places available at every campus and class level?',
+      answer:
+        'Availability may vary by campus and class. The admissions team can confirm current availability after receiving your enquiry.',
     },
   ],
 };
