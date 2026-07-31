@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
@@ -112,32 +113,68 @@ function WhyFgsCardsSection() {
   );
 }
 
-function WhyFgsAffordabilitySection() {
+function WhyFgsImageSection({
+  id,
+  content,
+  imageFirst = false,
+}: {
+  id: string;
+  content: typeof whyFgsContent.buildings | typeof whyFgsContent.teachers;
+  imageFirst?: boolean;
+}) {
   return (
-    <section id='affordability' className='fgs-section scroll-mt-24'>
+    <section id={id} className='fgs-section scroll-mt-24'>
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-        <div className='fgs-panel mt-8'>
+        <div className='fgs-panel grid gap-8 lg:grid-cols-2 lg:items-center'>
+          <div className={imageFirst ? 'lg:order-2' : ''}>
+            <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
+              {content.title}
+            </h2>
+            <div className='mt-4 space-y-4'>
+              {content.paragraphs.map((paragraph) => (
+                <p key={paragraph} className='fgs-copy'>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+          <div className={imageFirst ? 'lg:order-1' : ''}>
+            <Image
+              src={content.image.src}
+              alt={content.image.alt}
+              width={1200}
+              height={900}
+              className='aspect-[4/3] w-full rounded-lg object-cover'
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhyFgsEducationSection() {
+  return (
+    <section id='education-beyond' className='fgs-section scroll-mt-24'>
+      <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+        <div className='fgs-panel'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
-            {whyFgsContent.affordabilityTitle}
+            {whyFgsContent.educationBeyond.title}
           </h2>
           <div className='mt-4 space-y-4'>
-            {whyFgsContent.affordabilityParagraphs.map((paragraph) => (
+            {whyFgsContent.educationBeyond.paragraphs.map((paragraph) => (
               <p key={paragraph} className='fgs-copy'>
                 {paragraph}
               </p>
             ))}
-            <p className='fgs-copy'>
-              Parents seeking information regarding Farooqi Grammar
-              School&apos;s campus-specific fee structures and admissions
-              guidance can{' '}
-              <Link
-                className='text-brand-blue hover:underline'
-                href='/preview/contact'
-              >
-                contact the school directly
-              </Link>
-              .
-            </p>
+          </div>
+          <div className='mt-8 flex aspect-video items-center justify-center rounded-lg border border-dashed border-border bg-fgs-surface px-6 text-center'>
+            <div>
+              <p className='text-fgs-ink font-semibold'>Alumni Stories</p>
+              <p className='mt-1 text-sm text-muted-foreground'>
+                Alumni video coming soon.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -167,7 +204,8 @@ function WhyFgsClosingSection() {
           title={whyFgsContent.closingTitle}
           paragraphs={whyFgsContent.closingParagraphs}
           links={[
-            { href: '/preview/register', description: 'Register with FGS' },
+            { href: '/preview/campuses', description: 'Explore Our Campuses' },
+            { href: '/preview/register', description: 'Register for Admission' },
           ]}
         />
       </div>
@@ -183,19 +221,27 @@ export default function WhyFgsPage() {
         description={whyFgsContent.description}
         primaryCta={{
           href: '/preview/register',
-          label: 'Register with FGS',
+          label: 'Register for Admission',
         }}
       />
       <SectionPageLayout
         sections={[
           { id: 'reasons', label: 'Why FGS' },
-          { id: 'affordability', label: 'Affordability' },
+          { id: 'buildings', label: 'Learning Spaces' },
+          { id: 'teachers', label: 'Our Teachers' },
+          { id: 'education-beyond', label: 'Student Development' },
           { id: 'questions', label: 'FAQs' },
           { id: 'closing', label: 'Our Commitment' },
         ]}
       >
         <WhyFgsCardsSection />
-        <WhyFgsAffordabilitySection />
+        <WhyFgsImageSection id='buildings' content={whyFgsContent.buildings} />
+        <WhyFgsImageSection
+          id='teachers'
+          content={whyFgsContent.teachers}
+          imageFirst
+        />
+        <WhyFgsEducationSection />
         <WhyFgsFaqSection />
         <WhyFgsClosingSection />
       </SectionPageLayout>
