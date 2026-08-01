@@ -15,20 +15,30 @@ function RegisterProcessSection() {
             {registerContent.processTitle}
           </h2>
 
-          <ol className='mt-6 border-brand-blue/30 space-y-8 border-l-2 pl-6'>
-            {registerContent.steps.map((step) => (
-              <li key={step.title} className='relative space-y-3'>
-                <span
-                  aria-hidden='true'
-                  className='bg-brand-blue absolute -left-[1.94rem] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-fgs-surface'
-                />
-                <h3 className='text-fgs-ink text-lg font-medium sm:text-xl'>
-                  {step.title}
-                </h3>
-                <p className='fgs-copy'>{step.description}</p>
-              </li>
-            ))}
-          </ol>
+          <div className='relative mt-6'>
+            <div
+              aria-hidden='true'
+              className='absolute inset-y-0 left-0 flex w-3.5 justify-center'
+            >
+              <div className='w-0.5 bg-brand-blue/30' />
+            </div>
+            <ol className='space-y-8'>
+              {registerContent.steps.map((step) => (
+                <li key={step.title} className='relative flex gap-4'>
+                  <span
+                    aria-hidden='true'
+                    className='bg-brand-blue z-10 mt-1.5 size-3.5 shrink-0 rounded-full border-2 border-fgs-surface'
+                  />
+                  <div className='space-y-3'>
+                    <h3 className='text-fgs-ink text-lg font-medium sm:text-xl'>
+                      {step.title}
+                    </h3>
+                    <p className='fgs-copy'>{step.description}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
           <p className='fgs-copy mt-8 border-t border-border pt-6'>
             {registerContent.processNote}
           </p>
