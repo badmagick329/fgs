@@ -72,7 +72,7 @@ function AboutCeoMessageSection() {
       <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <div className='border-t border-border pt-12'>
           <h2 className='text-fgs-ink text-xl font-semibold sm:text-2xl'>
-            A Message from the CEO of FGS
+            Message from our CEO
           </h2>
           <div className='mt-4'>
             <div className='mb-6 rounded-3xl p-3 sm:float-left sm:mb-4 sm:mr-6 sm:w-[18rem] sm:pl-0 sm:pr-0 sm:pt-0'>
