@@ -7,8 +7,10 @@ import {
   CarouselItem,
 } from '@/components/ui/carousel';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { heroContent } from '../content';
+
+const AUTOPLAY_INTERVAL_MS = 5000;
 
 type ResponsiveHeroSource = {
   sm: string;
@@ -72,14 +74,18 @@ function ResponsiveHeroImage({
   alt,
   className,
   priority = false,
+  onLoad,
+  imageContainerRef,
 }: {
   sources: ResponsiveHeroSource;
   alt: string;
   className: string;
   priority?: boolean;
+  onLoad?: () => void;
+  imageContainerRef?: React.Ref<HTMLDivElement>;
 }) {
   return (
-    <div className={className}>
+    <div ref={imageContainerRef} className={className}>
       <Image
         src={sources.sm}
         alt={alt}
@@ -87,6 +93,7 @@ function ResponsiveHeroImage({
         priority={priority}
         sizes='100vw'
         className='object-cover sm:hidden'
+        onLoad={onLoad}
       />
       <Image
         src={sources.md}
@@ -95,6 +102,7 @@ function ResponsiveHeroImage({
         priority={priority}
         sizes='100vw'
         className='hidden object-cover sm:block md:hidden'
+        onLoad={onLoad}
       />
       <Image
         src={sources.lg}
@@ -103,6 +111,7 @@ function ResponsiveHeroImage({
         priority={priority}
         sizes='100vw'
         className='hidden object-cover md:block'
+        onLoad={onLoad}
       />
     </div>
   );
@@ -114,38 +123,100 @@ export default function MarketingHero({
   overlayLines?: readonly string[];
 }) {
   const [api, setApi] = useState<CarouselApi>();
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [isInitialSlideReady, setIsInitialSlideReady] = useState(false);
+  const autoplayIntervalRef = useRef<number | undefined>(undefined);
+  const initialSlideImageRef = useRef<HTMLDivElement>(null);
+
+  const nextSlideIndex = (activeSlideIndex + 1) % heroSlides.length;
 
   useEffect(() => {
-    if (!api) {
+    const visibleInitialImage = Array.from(
+      initialSlideImageRef.current?.querySelectorAll('img') ?? []
+    ).find((image) => image.offsetWidth > 0 && image.offsetHeight > 0);
+
+    if (visibleInitialImage?.complete && visibleInitialImage.naturalWidth > 0) {
+      setIsInitialSlideReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!api || !isInitialSlideReady) {
       return;
     }
 
-    const intervalId = window.setInterval(() => {
-      api.scrollNext();
-    }, 5000);
+    const stopAutoplay = () => {
+      if (autoplayIntervalRef.current !== undefined) {
+        window.clearInterval(autoplayIntervalRef.current);
+        autoplayIntervalRef.current = undefined;
+      }
+    };
+
+    const startAutoplay = () => {
+      if (document.visibilityState !== 'visible') {
+        return;
+      }
+
+      stopAutoplay();
+      autoplayIntervalRef.current = window.setInterval(() => {
+        api.scrollNext();
+      }, AUTOPLAY_INTERVAL_MS);
+    };
+
+    const handleSelect = () => {
+      setActiveSlideIndex(api.selectedScrollSnap());
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        stopAutoplay();
+        return;
+      }
+
+      api.reInit();
+      handleSelect();
+      startAutoplay();
+    };
+
+    handleSelect();
+    startAutoplay();
+    api.on('select', handleSelect);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      window.clearInterval(intervalId);
+      stopAutoplay();
+      api.off('select', handleSelect);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [api]);
+  }, [api, isInitialSlideReady]);
 
   return (
     <section className='bg-fgs-surface'>
       <Carousel
         setApi={setApi}
         opts={{ align: 'start', loop: true }}
-        className='relative'
+        className={`relative ${isInitialSlideReady ? '' : 'invisible'}`}
       >
         <CarouselContent className='ml-0'>
-          {heroSlides.map((slide) => (
+          {heroSlides.map((slide, index) => (
             <CarouselItem key={slide.alt} className='pl-0'>
               <div className='relative overflow-hidden'>
                 <div className='relative h-[54vh] min-h-88 sm:h-[70vh] lg:h-[82vh]'>
                   <ResponsiveHeroImage
                     sources={slide.src}
                     alt={slide.alt}
-                    priority={slide.src === heroSlides[0].src}
+                    priority={
+                      index === activeSlideIndex || index === nextSlideIndex
+                    }
                     className='absolute inset-0 block h-full w-full'
+                    imageContainerRef={
+                      index === 0 ? initialSlideImageRef : undefined
+                    }
+                    onLoad={
+                      index === 0
+                        ? () => setIsInitialSlideReady(true)
+                        : undefined
+                    }
                   />
                   <div className='absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-black/65 via-black/10 to-transparent' />
                 </div>
