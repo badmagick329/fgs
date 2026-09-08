@@ -84,6 +84,12 @@ export const aboutContent = {
     'What began in a single room gradually grew into a strong educational institution built on commitment, discipline, and trust. Today, Farooqi Schools have expanded into multiple branches, with thousands of alumni contributing meaningfully across various fields.',
     'The founders established not just a school, but a tradition of integrity, hard work, and character-building: values that continue to guide Farooqi Schools and inspire future generations. Farooqi Grammar School has achieved 47 positions in Lahore Board Matric Exams over the last 26 years.',
   ],
+  foundingValuesTitle: "How FGS's Founding Values Shape the School Today",
+  foundingValuesParagraphs: [
+    "Farooqi Grammar School was founded in 1978 by Sir Asim Farooqi and Madam Zahida Asim Farooqi. The school's story began in a single room in Karim Park, Ravi Road, with the aim of making purposeful education accessible to more families.",
+    'Those principles still echo in the FGS classrooms today. As the school has grown to multiple campuses, its leadership remains closely involved in school life, supporting teachers, listening to parents, and continuing to improve how students learn.',
+    'The methods of delivering education are constantly evolving. Yet, our purpose remains the same: to provide an education that combines academic ambition with responsibility, character, and genuine care for our students.',
+  ],
   technologyTitle: 'Our Approach to Technology in Education',
   technologyParagraphs: [
     "Our history provided us with a strong foundation. But just as we're about developing the future leaders and innovators for our communities, so are our schools always learning, adapting and improving.",
