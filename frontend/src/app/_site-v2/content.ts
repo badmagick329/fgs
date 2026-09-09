@@ -2,12 +2,12 @@ import { contactContent } from '@/app/_marketing/content';
 import type { SiteNavItem } from './types';
 
 export const marketingNavItems: SiteNavItem[] = [
-  { href: '/preview', label: 'Home' },
-  { href: '/preview/about', label: 'About' },
-  { href: '/preview/campuses', label: 'Campuses' },
-  { href: '/preview/why-fgs', label: 'Why FGS' },
-  { href: '/preview/register', label: 'Register' },
-  { href: '/preview/contact', label: 'Contact' },
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+  { href: '/campuses', label: 'Campuses' },
+  { href: '/why-fgs', label: 'Why FGS' },
+  { href: '/register', label: 'Register' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 export const homeContent = {
@@ -17,11 +17,11 @@ export const homeContent = {
   description:
     'Farooqi Grammar School supports students with strong academics, a values-based environment, and clear guidance from early years through matric.',
   primaryCta: {
-    href: '/preview/register',
+    href: '/register',
     label: 'Start Registration',
   },
   secondaryCta: {
-    href: '/preview/campuses',
+    href: '/campuses',
     label: 'Explore Campuses',
   },
   heroOverlayLines: ['A Tradition of Learning.', 'A Foundation for Life.'],
@@ -295,7 +295,7 @@ export const registerContent = {
   supportParagraph:
     'For help selecting a campus or understanding the admission process, contact the FGS admissions team before completing the form.',
   supportLink: {
-    href: '/preview/contact',
+    href: '/contact',
     label: 'Contact Admissions',
   },
   faqTitle: 'Frequently Asked Questions',

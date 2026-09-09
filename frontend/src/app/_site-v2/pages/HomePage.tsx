@@ -126,9 +126,9 @@ export default function HomePage() {
             paragraphs={homeContent.overviewParagraphs}
             className='mt-12'
             links={[
-              { href: '/preview/about', description: 'Learn About FGS' },
+              { href: '/about', description: 'Learn About FGS' },
               {
-                href: '/preview/why-fgs',
+                href: '/why-fgs',
                 description: 'Why Families Choose FGS',
               },
             ]}
@@ -141,7 +141,7 @@ export default function HomePage() {
             className='mt-16 border-t border-border pt-12'
             links={[
               {
-                href: '/preview/campuses',
+                href: '/campuses',
                 description: 'Explore Our Campuses',
               },
             ]}

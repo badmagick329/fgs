@@ -3,12 +3,14 @@ import type { MetadataRoute } from 'next';
 const siteUrl = 'https://farooqigrammar.school';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: siteUrl,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
-  ];
+  const lastModified = new Date();
+
+  return ['/', '/about', '/campuses', '/why-fgs', '/register', '/contact'].map(
+    (pathname, index) => ({
+      url: `${siteUrl}${pathname}`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: index === 0 ? 1 : 0.8,
+    })
+  );
 }

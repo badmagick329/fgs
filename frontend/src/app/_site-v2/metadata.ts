@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 const siteName = 'Farooqi Grammar School (FGS)';
 
-export function createPreviewMetadata({
+export function createSiteMetadata({
   title,
   description,
   pathname,
@@ -18,24 +18,24 @@ export function createPreviewMetadata({
       canonical: pathname,
     },
     robots: {
-      index: false,
-      follow: false,
+      index: true,
+      follow: true,
       googleBot: {
-        index: false,
-        follow: false,
+        index: true,
+        follow: true,
         'max-image-preview': 'large',
         'max-snippet': -1,
         'max-video-preview': -1,
       },
     },
     openGraph: {
-      title: `${title} | FGS Preview`,
+      title: `${title} | FGS`,
       description,
       url: pathname,
       siteName,
     },
     twitter: {
-      title: `${title} | FGS Preview`,
+      title: `${title} | FGS`,
       description,
     },
   };

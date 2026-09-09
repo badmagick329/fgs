@@ -10,7 +10,7 @@ export default function MarketingNav({ items }: MarketingNavProps) {
   return (
     <header className='sticky top-0 z-50 border-b border-border bg-card/90 backdrop-blur-sm'>
       <div className='mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8'>
-        <Link href='/preview' className='flex items-center gap-3'>
+        <Link href='/' className='flex items-center gap-3'>
           <Image
             src='/fgs-logo.png'
             alt='Farooqi Grammar School logo'
