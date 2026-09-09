@@ -1,3 +1,11 @@
-import SiteV1HomePage from '@/app/_site-v1/HomePage';
+import HomePage from '@/app/_site-v2/pages/HomePage';
+import { createSiteMetadata } from '@/app/_site-v2/metadata';
 
-export default SiteV1HomePage;
+export const metadata = createSiteMetadata({
+  title: 'Farooqi Grammar School',
+  description:
+    'Farooqi Grammar School in Lahore, providing academic excellence, character development, and affordable education.',
+  pathname: '/',
+});
+
+export default HomePage;

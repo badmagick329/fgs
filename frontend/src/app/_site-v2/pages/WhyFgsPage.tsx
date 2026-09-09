@@ -204,8 +204,8 @@ function WhyFgsClosingSection() {
           title={whyFgsContent.closingTitle}
           paragraphs={whyFgsContent.closingParagraphs}
           links={[
-            { href: '/preview/campuses', description: 'Explore Our Campuses' },
-            { href: '/preview/register', description: 'Register for Admission' },
+            { href: '/campuses', description: 'Explore Our Campuses' },
+            { href: '/register', description: 'Register for Admission' },
           ]}
         />
       </div>
@@ -220,7 +220,7 @@ export default function WhyFgsPage() {
         title={whyFgsContent.title}
         description={whyFgsContent.description}
         primaryCta={{
-          href: '/preview/register',
+          href: '/register',
           label: 'Register for Admission',
         }}
       />

@@ -80,7 +80,7 @@ export default function CampusesPage() {
         title={campusesContent.hero.title}
         description={campusesContent.hero.paragraphs}
         primaryCta={{
-          href: '/preview/register',
+          href: '/register',
           label: 'Register With FGS',
         }}
       />
@@ -152,7 +152,7 @@ export default function CampusesPage() {
                 className='mt-0 border-t border-border pt-12'
                 links={[
                   {
-                    href: '/preview/contact',
+                    href: '/contact',
                     description: 'Contact Farooqi Grammar School',
                   },
                 ]}
