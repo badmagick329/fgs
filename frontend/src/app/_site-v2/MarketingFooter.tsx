@@ -20,10 +20,21 @@ export default function MarketingFooter({ items }: MarketingFooterProps) {
             ))}
           </ul>
         </nav>
-        <p className='text-xs text-muted-foreground'>
-          &copy; {new Date().getFullYear()} Farooqi Grammar School. All rights
-          reserved.
-        </p>
+        <div className='flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
+          <p>
+            &copy; {new Date().getFullYear()} Farooqi Grammar School. All rights
+            reserved.
+          </p>
+          <p>
+            Built by{' '}
+            <Link
+              href='/about#acknowledgement'
+              className='rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fgs-blue'
+            >
+              Uzair Farooqi
+            </Link>
+          </p>
+        </div>
       </div>
     </footer>
   );

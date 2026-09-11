@@ -1,3 +1,4 @@
+import AcknowledgementSection from '@/app/_marketing/sections/AcknowledgementSection';
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
 import { SectionPageLayout } from '@/app/_site-v2/_components/SectionPageLayout';
 import { Check } from 'lucide-react';
@@ -48,6 +49,7 @@ export default function AboutPage() {
           { id: 'history', label: 'Our History' },
           { id: 'founding-values', label: 'Founding Values' },
           { id: 'technology', label: 'Technology' },
+          { id: 'acknowledgement', label: 'Acknowledgement' },
         ]}
       >
         <AboutFactsSection />
@@ -114,7 +116,7 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
-        <section id='technology' className='fgs-section scroll-mt-24 pb-16'>
+        <section id='technology' className='fgs-section scroll-mt-24'>
           <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
             <OverviewSection
               title={aboutContent.technologyTitle}
@@ -123,6 +125,9 @@ export default function AboutPage() {
             />
           </div>
         </section>
+        <div id='acknowledgement' className='scroll-mt-24'>
+          <AcknowledgementSection />
+        </div>
       </SectionPageLayout>
     </MarketingShell>
   );
