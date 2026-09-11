@@ -168,14 +168,6 @@ function WhyFgsEducationSection() {
               </p>
             ))}
           </div>
-          <div className='mt-8 flex aspect-video items-center justify-center rounded-lg border border-dashed border-border bg-fgs-surface px-6 text-center'>
-            <div>
-              <p className='text-fgs-ink font-semibold'>Alumni Stories</p>
-              <p className='mt-1 text-sm text-muted-foreground'>
-                Alumni video coming soon.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
