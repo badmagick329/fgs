@@ -1,4 +1,3 @@
-import { acknowledgementContent } from '@/app/_marketing/content';
 import { OverviewSection } from '@/app/_site-v2/_components/OverviewSection';
 import MarketingShell from '../MarketingShell';
 import PageHero from '../PageHero';
@@ -31,28 +30,6 @@ function GeneralEmailSection() {
         {contactDetails.shared.email}
       </a>
     </div>
-  );
-}
-
-function AcknowledgementSection() {
-  return (
-    <section
-      aria-label={acknowledgementContent.title}
-      className='fgs-section pb-16'
-    >
-      <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
-        <div className='border-t border-border pt-5 sm:pt-6'>
-          <div className='max-w-4xl'>
-            <p className='pb-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground/90'>
-              {acknowledgementContent.title}
-            </p>
-            <p className='text-sm leading-7 text-muted-foreground'>
-              {acknowledgementContent.body}
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -125,7 +102,6 @@ export default function ContactPage() {
           { id: 'email-enquiries', label: 'Email Enquiries' },
           { id: 'campuses', label: 'Our Campuses' },
           { id: 'timings', label: 'Admissions Times' },
-          { id: 'acknowledgement', label: 'Acknowledgement' },
         ]}
       >
         <section id='email-enquiries' className='fgs-section scroll-mt-24'>
@@ -148,12 +124,7 @@ export default function ContactPage() {
             />
           </div>
         </section>
-
-        <div id='acknowledgement' className='scroll-mt-24'>
-          <AcknowledgementSection />
-        </div>
       </SectionPageLayout>
-
     </MarketingShell>
   );
 }
