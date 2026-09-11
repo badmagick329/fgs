@@ -116,7 +116,7 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <section id='timings' className='fgs-section scroll-mt-24'>
+        <section id='timings' className='fgs-section scroll-mt-24 pb-16'>
           <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
             <OverviewSection
               title={contactPageContent.timingsTitle}
