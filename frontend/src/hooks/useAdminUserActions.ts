@@ -1,7 +1,7 @@
 'use client';
 
-import { API, QUERY_KEYS } from '@/lib/consts';
-import { adminActionResponseSchema } from '@/types';
+import { removeAdmin, updateAdminSuperStatus } from '@/lib/client/admin';
+import { QUERY_KEYS } from '@/lib/consts';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -15,44 +15,14 @@ export function useAdminUserActions() {
   const [status, setStatus] = useState<StatusState>(null);
 
   const toggleSuperAdminMutation = useMutation({
-    mutationFn: async ({
-      adminId,
-      isSuperAdmin,
-    }: {
-      adminId: number;
-      isSuperAdmin: boolean;
-    }) => {
-      const res = await fetch(API.admin.userById(adminId), {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isSuperAdmin }),
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Failed to update super admin status.');
-      }
-      return json;
-    },
+    mutationFn: updateAdminSuperStatus,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminUsers });
     },
   });
 
   const removeAdminMutation = useMutation({
-    mutationFn: async (adminId: number) => {
-      const res = await fetch(API.admin.userById(adminId), {
-        method: 'DELETE',
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Failed to remove admin.');
-      }
-      const parsed = adminActionResponseSchema.safeParse(json);
-      if (!parsed.success || !parsed.data.ok) {
-        throw new Error(json?.message ?? 'Failed to remove admin.');
-      }
-      return parsed.data;
-    },
+    mutationFn: removeAdmin,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminUsers });
     },

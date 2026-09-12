@@ -3,34 +3,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { API, QUERY_KEYS } from '@/lib/consts';
-
-type AdminConfig = {
-  id: number;
-  notification_email: string;
-  registration_discord_notifications_enabled: boolean;
-  updated_by_admin_user_id: number;
-  updated_at: string;
-  updated_by_email: string;
-} | null;
+import {
+  type AdminConfig,
+  getAdminConfig,
+  saveAdminConfig,
+  setRegistrationDiscordNotifications,
+} from '@/lib/client/admin';
+import { QUERY_KEYS } from '@/lib/consts';
 
 const notificationEmailFormSchema = z.object({
   notificationEmail: z.email('Enter a valid email address.'),
-});
-
-const adminConfigSchema = z
-  .object({
-    id: z.number(),
-    notification_email: z.string().email(),
-    registration_discord_notifications_enabled: z.boolean(),
-    updated_by_admin_user_id: z.number(),
-    updated_at: z.string(),
-    updated_by_email: z.string(),
-  })
-  .nullable();
-
-const adminConfigResponseSchema = z.object({
-  data: adminConfigSchema,
 });
 
 type NotificationEmailFormValues = z.infer<typeof notificationEmailFormSchema>;
@@ -57,39 +39,11 @@ export function NotificationEmailSection() {
 
   const configQuery = useQuery({
     queryKey: QUERY_KEYS.adminConfig,
-    queryFn: async (): Promise<AdminConfig> => {
-      const res = await fetch(API.admin.config);
-      if (!res.ok) {
-        throw new Error('Failed to load config.');
-      }
-      const json = await res.json().catch(() => null);
-      const parsed = adminConfigResponseSchema.safeParse(json);
-      if (!parsed.success) {
-        throw new Error('Invalid response from server.');
-      }
-      return parsed.data.data;
-    },
+    queryFn: getAdminConfig,
   });
 
   const saveConfigMutation = useMutation({
-    mutationFn: async ({
-      notificationEmail,
-    }: NotificationEmailFormValues): Promise<AdminConfig> => {
-      const res = await fetch(API.admin.config, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notificationEmail }),
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Update failed.');
-      }
-      const parsed = adminConfigResponseSchema.safeParse(json);
-      if (!parsed.success) {
-        throw new Error('Invalid response from server.');
-      }
-      return parsed.data.data;
-    },
+    mutationFn: saveAdminConfig,
     onSuccess: (config) => {
       setStatus({ tone: 'success', message: 'Saved notification email.' });
       queryClient.setQueryData<AdminConfig>(QUERY_KEYS.adminConfig, config);
@@ -101,22 +55,7 @@ export function NotificationEmailSection() {
   });
 
   const registrationDiscordMutation = useMutation({
-    mutationFn: async (enabled: boolean): Promise<AdminConfig> => {
-      const res = await fetch(API.admin.config, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ registrationDiscordNotificationsEnabled: enabled }),
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Update failed.');
-      }
-      const parsed = adminConfigResponseSchema.safeParse(json);
-      if (!parsed.success) {
-        throw new Error('Invalid response from server.');
-      }
-      return parsed.data.data;
-    },
+    mutationFn: setRegistrationDiscordNotifications,
     onSuccess: (config) => {
       setStatus({ tone: 'success', message: 'Saved Discord notification setting.' });
       queryClient.setQueryData<AdminConfig>(QUERY_KEYS.adminConfig, config);

@@ -1,4 +1,5 @@
-import { API, QUERY_KEYS } from '@/lib/consts';
+import { createAdmin } from '@/lib/client/admin';
+import { QUERY_KEYS } from '@/lib/consts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -17,10 +18,6 @@ const createAdminFormSchema = z
     message: 'Passwords do not match.',
     path: ['confirmPassword'],
   });
-
-const createAdminResponseSchema = z.object({
-  message: z.string().optional(),
-});
 
 type CreateAdminFormValues = z.infer<typeof createAdminFormSchema>;
 
@@ -47,25 +44,7 @@ export function CreateAdminSection() {
   });
 
   const createAdminMutation = useMutation({
-    mutationFn: async (values: CreateAdminFormValues) => {
-      const res = await fetch(API.admin.users, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Failed to create admin.');
-      }
-      const parsed = createAdminResponseSchema.safeParse(json);
-      if (!parsed.success) {
-        throw new Error('Invalid response from server.');
-      }
-      return parsed.data;
-    },
+    mutationFn: createAdmin,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminUsers });
       reset();

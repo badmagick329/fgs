@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { API, ROUTES } from '@/lib/consts';
+import { changeAdminPassword } from '@/lib/client/admin';
+import { ROUTES } from '@/lib/consts';
 
 const changePasswordFormSchema = z
   .object({
@@ -22,10 +23,6 @@ const changePasswordFormSchema = z
     message: 'New passwords do not match.',
     path: ['confirmPassword'],
   });
-
-const changePasswordResponseSchema = z.object({
-  message: z.string().optional(),
-});
 
 type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;
 
@@ -52,25 +49,7 @@ export function ChangePasswordSection() {
   });
 
   const updatePasswordMutation = useMutation({
-    mutationFn: async (values: ChangePasswordFormValues) => {
-      const res = await fetch(API.admin.password, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentPassword: values.currentPassword,
-          newPassword: values.newPassword,
-        }),
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        throw new Error(json?.message ?? 'Password update failed.');
-      }
-      const parsed = changePasswordResponseSchema.safeParse(json);
-      if (!parsed.success) {
-        throw new Error('Invalid response from server.');
-      }
-      return parsed.data;
-    },
+    mutationFn: changeAdminPassword,
     onSuccess: () => {
       reset();
       setStatus({
