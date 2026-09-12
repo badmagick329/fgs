@@ -20,20 +20,9 @@ import {
 } from '@/components/ui/table';
 import { useAdminUserActions } from '@/hooks/useAdminUserActions';
 import { useAdminUsersList } from '@/hooks/useAdminUsersList';
+import type { AdminUsersData } from '@/lib/client/admin';
+import type { AdminUserListItem } from '@/types';
 import { useState } from 'react';
-
-type AdminUser = {
-  id: number;
-  email: string;
-  created_at: string;
-  is_super_admin: boolean;
-};
-
-type AdminUsersData = {
-  admins: AdminUser[];
-  currentAdminId: number;
-  currentAdminIsSuperAdmin: boolean;
-};
 
 type PendingAdminAction =
   | {
@@ -237,7 +226,7 @@ function AdminActionsCell({
   onToggleSuperAdmin,
   onRemoveAdmin,
 }: {
-  admin: AdminUser;
+  admin: AdminUserListItem;
   adminData: AdminUsersData;
   isMutating: boolean;
   actionButtonBaseClass: string;
