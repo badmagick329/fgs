@@ -217,7 +217,7 @@ export const contactContent = {
       description: 'Edward Road Campus (PG to Matric)',
       phones: [{ display: '042-37237556', href: 'tel:+924237237556' }],
       address:
-        '1-Edward Roard, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
+        '1-Edward Road, Syed Mauj Darya Road, Jain Mandir, near Wasti Clinic, Lahore, Pakistan',
       mapUrl: 'https://maps.app.goo.gl/WVFeJu9PwpdPEvem9',
       embedMapUrl:
         'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1699.816716880285!2d74.3095161!3d31.5616732!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39191dbb4ff2b5af%3A0x2198f404031462b4!2sFarooqi%20Grammar%20School!5e0!3m2!1sen!2suk!4v1780182060196!5m2!1sen!2suk',

@@ -76,6 +76,28 @@ describe('/api/register', () => {
     expect(res.status).toBe(400);
   });
 
+  it('POST rejects a malformed mobile number before creating a registration', async () => {
+    const { POST } = await loadRoute();
+    const createRegistration = mock(async () => ({ ok: true as const }));
+    getServerContainer.mockReturnValue({
+      registrationAntiSpamService: createAntiSpamServiceMock(),
+      registrationService: { createRegistration },
+    });
+
+    const res = await POST(
+      new Request('http://localhost', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...createValidPayload(),
+          mobileNumber: '999',
+        }),
+      })
+    );
+
+    expect(res.status).toBe(400);
+    expect(createRegistration).not.toHaveBeenCalled();
+  });
+
   it('POST creates registration with new payload shape', async () => {
     const { POST } = await loadRoute();
     const antiSpamService = createAntiSpamServiceMock();

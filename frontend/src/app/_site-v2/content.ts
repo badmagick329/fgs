@@ -29,7 +29,7 @@ export const homeContent = {
   overviewParagraphs: [
     'Farooqi Grammar School is a trusted educational institution in Lahore with a long-standing record of academic achievement, and a genuine commitment to every student’s progress. For nearly five decades, FGS has worked tirelessly to keep high-quality education within reach of families with affordable fees.',
     'Our leadership remains closely involved in the daily life of the school. We listen to parents, support our teachers and work to ensure that students receive the guidance they need to excel in life. In our classrooms, teaching is about helping every student understand, participate and improve, not just satisfy the curriculum.',
-    'Our 47 Lahore Board positions show our commitment to excellency. While examination results matter, they are only one part of a meaningful education. FGS students are encouraged to develop discipline, confidence, responsibility, curiosity and strength of character alongside strong academic ability.',
+    'Our 47 Lahore Board positions show our commitment to excellence. While examination results matter, they are only one part of a meaningful education. FGS students are encouraged to develop discipline, confidence, responsibility, curiosity and strength of character alongside strong academic ability.',
     'From the early years through to Matric, FGS provides a structured and supportive education that prepares students for their next examination, and for life beyond the classroom.',
   ],
   secondaryOverviewTitle:
