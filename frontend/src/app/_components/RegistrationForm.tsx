@@ -51,6 +51,16 @@ function getRequestErrorMessage(status: number, fallback?: string) {
   return fallback ?? 'Unable to submit right now. Please try again shortly.';
 }
 
+const registrationDefaultValues = {
+  studentName: '',
+  parentName: '',
+  className: '',
+  mobileNumber: '',
+  campus: undefined,
+  preferredAppointmentAt: '',
+  honeypot: '',
+};
+
 export default function RegistrationForm() {
   const formStartedAtRef = useRef(Date.now());
   const [status, setStatus] = useState<{
@@ -71,14 +81,7 @@ export default function RegistrationForm() {
     formState: { errors, isSubmitting },
   } = useForm<CreateRegistration>({
     resolver: zodResolver(createRegistrationSchema),
-    defaultValues: {
-      studentName: '',
-      parentName: '',
-      className: '',
-      mobileNumber: '',
-      preferredAppointmentAt: '',
-      honeypot: '',
-    },
+    defaultValues: registrationDefaultValues,
   });
 
   const selectedTime = watch('preferredAppointmentAt')
@@ -113,6 +116,8 @@ export default function RegistrationForm() {
   });
 
   function syncPreferredAppointment(date?: Date, time?: string) {
+    setStatus(null);
+
     if (!date || !time) {
       setValue('preferredAppointmentAt', '', { shouldValidate: true });
       return;
@@ -121,6 +126,14 @@ export default function RegistrationForm() {
     setValue('preferredAppointmentAt', combinePakistanDateAndTime(date, time), {
       shouldValidate: true,
     });
+  }
+
+  function clearStatus() {
+    setStatus(null);
+  }
+
+  function onInvalidSubmit() {
+    clearStatus();
   }
 
   async function onSubmit(values: CreateRegistration) {
@@ -132,7 +145,7 @@ export default function RegistrationForm() {
         formStartedAt: formStartedAtRef.current,
       });
       if (result.ok) {
-        reset();
+        reset(registrationDefaultValues);
         setSelectedDate(undefined);
         formStartedAtRef.current = Date.now();
         setStatus({
@@ -170,7 +183,7 @@ export default function RegistrationForm() {
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
       className='fgs-registration-form'
       noValidate
     >
@@ -185,7 +198,7 @@ export default function RegistrationForm() {
           <input
             id='studentName'
             type='text'
-            {...register('studentName')}
+            {...register('studentName', { onChange: clearStatus })}
             aria-invalid={!!errors.studentName}
             aria-describedby={
               errors.studentName ? 'studentName-error' : undefined
@@ -214,7 +227,7 @@ export default function RegistrationForm() {
           <input
             id='parentName'
             type='text'
-            {...register('parentName')}
+            {...register('parentName', { onChange: clearStatus })}
             aria-invalid={!!errors.parentName}
             aria-describedby={
               errors.parentName ? 'parentName-error' : undefined
@@ -245,7 +258,7 @@ export default function RegistrationForm() {
           <input
             id='className'
             type='text'
-            {...register('className')}
+            {...register('className', { onChange: clearStatus })}
             aria-invalid={!!errors.className}
             aria-describedby={errors.className ? 'className-error' : undefined}
             className='mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
@@ -273,7 +286,7 @@ export default function RegistrationForm() {
             id='mobileNumber'
             type='tel'
             inputMode='numeric'
-            {...register('mobileNumber')}
+            {...register('mobileNumber', { onChange: clearStatus })}
             onInput={(event) => {
               event.currentTarget.value = event.currentTarget.value.replace(
                 /\D+/g,
@@ -300,14 +313,27 @@ export default function RegistrationForm() {
       </div>
 
       <div className='mt-4'>
-        <label className='text-fgs-ink text-sm font-medium'>Campus</label>
+        <label
+          htmlFor='campus'
+          className='text-fgs-ink text-sm font-medium'
+        >
+          Campus
+        </label>
         <Controller
           name='campus'
           control={control}
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={field.value ?? ''}
+              onValueChange={(value) => {
+                clearStatus();
+                field.onChange(value);
+              }}
+            >
               <SelectTrigger
+                id='campus'
                 aria-invalid={!!errors.campus}
+                aria-describedby={errors.campus ? 'campus-error' : undefined}
                 className='mt-1.5 w-full rounded-lg'
               >
                 <SelectValue placeholder='Select campus' />
@@ -323,7 +349,11 @@ export default function RegistrationForm() {
           )}
         />
         {errors.campus?.message && (
-          <p role='alert' className='mt-1.5 text-xs text-error'>
+          <p
+            id='campus-error'
+            role='alert'
+            className='mt-1.5 text-xs text-error'
+          >
             {errors.campus.message}
           </p>
         )}
@@ -331,14 +361,24 @@ export default function RegistrationForm() {
 
       <div className='mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr),220px]'>
         <div>
-          <label className='text-fgs-ink text-sm font-medium'>
+          <label
+            htmlFor='preferredAppointmentDate'
+            className='text-fgs-ink text-sm font-medium'
+          >
             Preferred Appointment Date
           </label>
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
               <Button
+                id='preferredAppointmentDate'
                 type='button'
                 variant='outline'
+                aria-invalid={!!errors.preferredAppointmentAt}
+                aria-describedby={
+                  errors.preferredAppointmentAt
+                    ? 'preferredAppointmentAt-error'
+                    : undefined
+                }
                 className={cn(
                   'mt-1.5 w-full justify-between rounded-lg',
                   !selectedDate && 'text-muted-foreground'
@@ -381,7 +421,10 @@ export default function RegistrationForm() {
         </div>
 
         <div>
-          <label className='text-fgs-ink text-sm font-medium'>
+          <label
+            htmlFor='preferredTime'
+            className='text-fgs-ink text-sm font-medium'
+          >
             Preferred Time
           </label>
           <Select
@@ -392,7 +435,13 @@ export default function RegistrationForm() {
             disabled={!selectedDate}
           >
             <SelectTrigger
+              id='preferredTime'
               aria-invalid={!!errors.preferredAppointmentAt}
+              aria-describedby={
+                errors.preferredAppointmentAt
+                  ? 'preferredAppointmentAt-error'
+                  : undefined
+              }
               className='mt-1.5 w-full rounded-lg'
             >
               <SelectValue
@@ -417,7 +466,11 @@ export default function RegistrationForm() {
       <input type='hidden' {...register('preferredAppointmentAt')} />
 
       {errors.preferredAppointmentAt?.message && (
-        <p role='alert' className='mt-1.5 text-xs text-error'>
+        <p
+          id='preferredAppointmentAt-error'
+          role='alert'
+          className='mt-1.5 text-xs text-error'
+        >
           {errors.preferredAppointmentAt.message}
         </p>
       )}

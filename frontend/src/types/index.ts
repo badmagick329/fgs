@@ -57,7 +57,10 @@ export const createRegistrationSchema = z.object({
   mobileNumber: z
     .string()
     .trim()
-    .nonempty({ error: 'Mobile number is required' }),
+    .nonempty({ error: 'Mobile number is required' })
+    .regex(/^03\d{9}$/, {
+      error: 'Enter a valid mobile number in the format 03XXXXXXXXX.',
+    }),
   campus: registrationCampusSchema,
   preferredAppointmentAt: z
     .string()
