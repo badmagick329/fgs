@@ -1,6 +1,5 @@
+import { SITE_URL } from '@/app/_site-v2/metadata';
 import type { MetadataRoute } from 'next';
-
-const siteUrl = 'https://farooqigrammar.school';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
