@@ -56,7 +56,7 @@ export default function SetupForm() {
             autoComplete='off'
             onChange={(e) => setEmail(e.target.value)}
             className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
-            placeholder='admin@farooqigrammar.school'
+            placeholder='you@example.com'
             required
           />
         </label>
