@@ -4,4 +4,3 @@ Dockerfile
 .env
 
 .ignore/
-.codex-remote-attachments
