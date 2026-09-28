@@ -3,5 +3,5 @@ Dockerfile
 .dockerignore
 .env
 
-notes/
+.ignore/
 .codex-remote-attachments
