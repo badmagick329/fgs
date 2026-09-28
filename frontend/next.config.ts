@@ -3,6 +3,12 @@ const plausibleOrigin = 'https://analytics.mgck.ink';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  async redirects() {
+    return [
+      { source: '/preview', destination: '/', permanent: true },
+      { source: '/preview/:path+', destination: '/:path+', permanent: true },
+    ];
+  },
   async rewrites() {
     return [
       {

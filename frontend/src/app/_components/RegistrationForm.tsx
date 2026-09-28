@@ -19,6 +19,7 @@ import {
   createRegistrationSchema,
   registrationResultSchema,
 } from '@/types';
+import { trackEvent } from '@/lib/analytics';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -145,6 +146,7 @@ export default function RegistrationForm() {
         formStartedAt: formStartedAtRef.current,
       });
       if (result.ok) {
+        trackEvent('Registration', { campus: values.campus });
         reset(registrationDefaultValues);
         setSelectedDate(undefined);
         formStartedAtRef.current = Date.now();

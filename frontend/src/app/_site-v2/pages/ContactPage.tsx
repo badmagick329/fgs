@@ -65,6 +65,7 @@ function CampusContactCard({
                   key={phone.href}
                   className='fgs-copy fgs-accent-link block'
                   href={phone.href}
+                  data-campus={campus.name}
                 >
                   {phone.display}
                 </a>

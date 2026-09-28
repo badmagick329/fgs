@@ -2,6 +2,7 @@ import { SITE_NAME, SITE_URL, TITLE_SUFFIX } from '@/app/_site-v2/metadata';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
+import ContactLinkTracker from './_components/ContactLinkTracker';
 import Providers from './Providers';
 import './globals.css';
 
@@ -101,6 +102,10 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <head>
+        {/* Queues events fired before the deferred Plausible script loads. */}
+        <Script id='plausible-init' strategy='beforeInteractive'>
+          {`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}`}
+        </Script>
         <Script
           defer
           src='/ingest/js/script.js'
@@ -111,6 +116,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <ContactLinkTracker />
         <Providers>{children}</Providers>
       </body>
     </html>
