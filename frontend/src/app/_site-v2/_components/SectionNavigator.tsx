@@ -125,7 +125,7 @@ export function SectionNavigator({
                   >
                     {isActive ? (
                       <Image
-                        src='/fgs-logo.png'
+                        src='/fgs-logo.svg'
                         alt=''
                         width={28}
                         height={28}
@@ -199,7 +199,7 @@ export function SectionNavigator({
             className='flex items-center gap-3 rounded-full border border-border bg-card/95 px-3 py-2 shadow-lg backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue'
           >
             <Image
-              src='/fgs-logo.png'
+              src='/fgs-logo.svg'
               alt=''
               width={24}
               height={24}

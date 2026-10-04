@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 592 581" role="img" aria-label="Farooqi Grammar School logo">
+  <defs>
+    <radialGradient id="sun" gradientUnits="userSpaceOnUse" cx="282" cy="268" r="218">
+      <stop offset="0" stop-color="#FDE613"/>
+      <stop offset="0.5" stop-color="#FCCB21"/>
+      <stop offset="1" stop-color="#FAB12C"/>
+    </radialGradient>
+    <radialGradient id="head" cx="0.5" cy="0.5" r="0.55" fx="0.33" fy="0.28">
+      <stop offset="0" stop-color="#F4FFFF"/>
+      <stop offset="0.22" stop-color="#7FD6FA"/>
+      <stop offset="0.6" stop-color="#16A8E6"/>
+      <stop offset="1" stop-color="#0384CC"/>
+    </radialGradient>
+    <linearGradient id="body" gradientUnits="userSpaceOnUse" x1="0" y1="160" x2="0" y2="440">
+      <stop offset="0" stop-color="#0389D0"/>
+      <stop offset="0.6" stop-color="#00B3EE"/>
+      <stop offset="1" stop-color="#0AC2F6"/>
+    </linearGradient>
+    <linearGradient id="armL" gradientUnits="userSpaceOnUse" x1="185" y1="170" x2="275" y2="300">
+      <stop offset="0" stop-color="#05BDEE"/>
+      <stop offset="1" stop-color="#008ECF"/>
+    </linearGradient>
+    <path id="wordArc" d="M60.5,278A227,227 0 0 1 514.5,278"/>
+  </defs>
+  <path fill="#0390D4" d="M34.2,375.1A270.5,270.5 0 0 0 556,237.7A2.3,2.3 0 0 0 551.4,238.6A269.3,269.3 0 0 1 38.4,373.6A2.2,2.2 0 0 0 34.2,375.1Z"/>
+  <path fill="#74CEF1" d="M58.9,365.9A248,248 0 0 0 532.6,230.1A4.7,4.7 0 0 0 523.2,231.6A239.7,239.7 0 0 1 68.9,361.7A5.4,5.4 0 0 0 58.9,365.9Z"/>
+  <path fill="url(#sun)" d="M81.9,350A217.4,217.4 0 1 1 493.1,350A226.5,226.5 0 0 1 81.9,350Z"/>
+  <g>
+    <path fill="url(#armL)" d="M183,162C182,205 205,250 262,318L300,300L283,279C245,246 200,205 183,162Z"/>
+    <path fill="url(#body)" d="M339,157C352,175 358,205 345,240C330,280 295,315 290,355C287,395 315,430 353,446C320,447 290,437 272,410C255,385 252,345 261,316L283,279C300,255 325,225 334,185C336,175 337,165 339,157Z"/>
+    <path fill="url(#body)" d="M368,222C380,240 380,275 360,302C345,322 335,345 337,370C342,390 365,404 379,414C350,412 320,400 315,368C313,340 330,312 350,282C362,262 368,245 368,222Z"/>
+    <path fill="url(#body)" d="M390,271C397,285 395,305 380,325C368,342 362,358 372,374C378,384 386,390 395,395C375,393 360,385 356,365C353,345 365,325 378,308C386,297 390,285 390,271Z"/>
+    <path fill="url(#body)" d="M400,316C404,330 413.3,343 413.3,360.5A16.3,16.3 0 1 1 380.7,360.5C380.7,348 393,335 400,316Z"/>
+    <circle cx="275.5" cy="196" r="37.5" fill="url(#head)"/>
+  </g>
+    <g fill="none" stroke="#347464" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+      <path fill="#fff" d="M212,467Q228,473 246,467T292,476Q320,461 338,467T372,467L428,546Q406,558 379,553.5T292,567Q232,549 205,553.5T156,546Z"/>
+      <path d="M167,531Q187,540 212,536T292,543.5Q347,532 372,536T417,531"/>
+      <path d="M292,476V543"/>
+    </g>
+</svg>

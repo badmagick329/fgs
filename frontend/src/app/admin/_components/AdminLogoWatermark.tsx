@@ -7,7 +7,7 @@ export function AdminLogoWatermark() {
       className='mt-auto flex justify-center pt-12 md:justify-end'
     >
       <Image
-        src='/fgs-logo.png'
+        src='/fgs-logo.svg'
         alt=''
         width={720}
         height={720}

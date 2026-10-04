@@ -89,7 +89,7 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: [{ url: '/favicon.ico' }, { url: logoImage, type: 'image/png' }],
+    icon: [{ url: '/favicon.ico' }, { url: '/fgs-logo.svg', type: 'image/svg+xml' }],
     apple: [{ url: logoImage, type: 'image/png' }],
   },
 };

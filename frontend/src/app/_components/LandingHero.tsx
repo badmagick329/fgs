@@ -28,7 +28,7 @@ export default function LandingHero() {
         <div className='reveal space-y-4'>
           <div className='rounded-2xl border border-border bg-card p-6 shadow-sm'>
             <Image
-              src='/fgs-logo.png'
+              src='/fgs-logo.svg'
               alt='FGS logo'
               width={220}
               height={220}
