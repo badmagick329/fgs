@@ -8,11 +8,33 @@ import {
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { heroContent } from '../content';
+import {
+  HERO_HANDOVER_OPTIONS,
+  HERO_SHOWN_EVENT,
+  runHeroHandover,
+} from './hero-handover';
 import HeroLogoIntro from './HeroLogoIntro';
 
 const AUTOPLAY_INTERVAL_MS = 5000;
+
+const HANDOVER_SCRIPT = `(${runHeroHandover.toString()})(document.currentScript.closest('.fgs-hero-stage'),${JSON.stringify(HERO_HANDOVER_OPTIONS)})`;
+
+const subscribeNever = () => () => {};
+
+/**
+ * True only for the server render and its hydration. React never runs a script it creates on
+ * the client (and warns about it), so the inline handover script is rendered only into the
+ * server HTML; on client-side navigation the effect starts the handover instead.
+ */
+function useIsServerHtml() {
+  return useSyncExternalStore(
+    subscribeNever,
+    () => false,
+    () => true
+  );
+}
 
 type ResponsiveHeroSource = {
   sm: string;
@@ -76,18 +98,14 @@ function ResponsiveHeroImage({
   alt,
   className,
   priority = false,
-  onLoad,
-  imageContainerRef,
 }: {
   sources: ResponsiveHeroSource;
   alt: string;
   className: string;
   priority?: boolean;
-  onLoad?: () => void;
-  imageContainerRef?: React.Ref<HTMLDivElement>;
 }) {
   return (
-    <div ref={imageContainerRef} className={className}>
+    <div className={className}>
       <Image
         src={sources.sm}
         alt={alt}
@@ -95,7 +113,6 @@ function ResponsiveHeroImage({
         priority={priority}
         sizes='100vw'
         className='object-cover sm:hidden'
-        onLoad={onLoad}
       />
       <Image
         src={sources.md}
@@ -104,7 +121,6 @@ function ResponsiveHeroImage({
         priority={priority}
         sizes='100vw'
         className='hidden object-cover sm:block md:hidden'
-        onLoad={onLoad}
       />
       <Image
         src={sources.lg}
@@ -113,7 +129,6 @@ function ResponsiveHeroImage({
         priority={priority}
         sizes='100vw'
         className='hidden object-cover md:block'
-        onLoad={onLoad}
       />
     </div>
   );
@@ -126,24 +141,22 @@ export default function MarketingHero({
 }) {
   const [api, setApi] = useState<CarouselApi>();
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [isInitialSlideReady, setIsInitialSlideReady] = useState(false);
-  const [isIntroDone, setIsIntroDone] = useState(false);
-  const handleIntroDone = useCallback(() => setIsIntroDone(true), []);
-  // The logo intro always plays out in full before the first photo is shown.
-  const isPhotoShown = isInitialSlideReady && isIntroDone;
+  // Mirrors the section's data-hero-shown, which hero-handover.ts sets (possibly before hydration).
+  const [isPhotoShown, setIsPhotoShown] = useState(false);
+  const isServerHtml = useIsServerHtml();
+  const sectionRef = useRef<HTMLElement>(null);
   const autoplayIntervalRef = useRef<number | undefined>(undefined);
-  const initialSlideImageRef = useRef<HTMLDivElement>(null);
 
   const nextSlideIndex = (activeSlideIndex + 1) % heroSlides.length;
 
   useEffect(() => {
-    const visibleInitialImage = Array.from(
-      initialSlideImageRef.current?.querySelectorAll('img') ?? []
-    ).find((image) => image.offsetWidth > 0 && image.offsetHeight > 0);
-
-    if (visibleInitialImage?.complete && visibleInitialImage.naturalWidth > 0) {
-      setIsInitialSlideReady(true);
-    }
+    const section = sectionRef.current;
+    if (!section) return;
+    const handleShown = () => setIsPhotoShown(true);
+    section.addEventListener(HERO_SHOWN_EVENT, handleShown);
+    if (section.dataset.heroShown) handleShown();
+    else runHeroHandover(section, HERO_HANDOVER_OPTIONS);
+    return () => section.removeEventListener(HERO_SHOWN_EVENT, handleShown);
   }, []);
 
   useEffect(() => {
@@ -197,18 +210,17 @@ export default function MarketingHero({
   }, [api, isPhotoShown]);
 
   return (
-    <section className='relative bg-fgs-surface'>
-      <HeroLogoIntro
-        photoShown={isPhotoShown}
-        onIntroDone={handleIntroDone}
-      />
+    // The handover writes data attributes onto the section, outside React's props.
+    <section
+      ref={sectionRef}
+      className='fgs-hero-stage relative bg-fgs-surface'
+      suppressHydrationWarning
+    >
+      <HeroLogoIntro photoShown={isPhotoShown} />
       <Carousel
         setApi={setApi}
         opts={{ align: 'start', loop: true }}
-        className={cn(
-          'relative transition-[opacity,visibility] duration-500 ease-out motion-reduce:transition-none',
-          !isPhotoShown && 'invisible opacity-0'
-        )}
+        className='fgs-hero-photos relative'
       >
         <CarouselContent className='ml-0'>
           {heroSlides.map((slide, index) => (
@@ -221,15 +233,10 @@ export default function MarketingHero({
                     priority={
                       index === activeSlideIndex || index === nextSlideIndex
                     }
-                    className='absolute inset-0 block h-full w-full'
-                    imageContainerRef={
-                      index === 0 ? initialSlideImageRef : undefined
-                    }
-                    onLoad={
-                      index === 0
-                        ? () => setIsInitialSlideReady(true)
-                        : undefined
-                    }
+                    className={cn(
+                      'absolute inset-0 block h-full w-full',
+                      index === 0 && 'fgs-hero-first-photo'
+                    )}
                   />
                   <div className='absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-black/65 via-black/10 to-transparent' />
                 </div>
@@ -273,6 +280,13 @@ export default function MarketingHero({
           </div>
         ) : null}
       </Carousel>
+      {isServerHtml ? (
+        // Placed after the photos so they exist when it runs during parsing.
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: HANDOVER_SCRIPT }}
+        />
+      ) : null}
     </section>
   );
 }

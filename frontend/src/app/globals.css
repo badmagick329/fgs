@@ -397,11 +397,44 @@
   animation: fgs-logo-spray 0.9s calc(0.4s + var(--d, 0s)) cubic-bezier(0.15, 0.7, 0.4, 1) both;
 }
 
+/* Hero handover (MarketingHero, hero-handover.ts): photos stay hidden until the section gets
+   data-hero-shown. 'instant' (cached photo) swaps with no transition; 'fade' crossfades. */
+.fgs-hero-photos {
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+.fgs-hero-stage:not([data-hero-shown]) .fgs-hero-photos {
+  visibility: hidden;
+  opacity: 0;
+}
+.fgs-hero-intro {
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.fgs-hero-stage[data-hero-shown] .fgs-hero-intro {
+  opacity: 0;
+  transform: scale(1.06);
+}
+.fgs-hero-stage[data-hero-shown='instant'] .fgs-hero-intro {
+  display: none;
+}
+.fgs-hero-stage[data-hero-shown='instant'] .fgs-hero-photos {
+  transition: none;
+}
+/* Grace period: a cached photo arrives within it and the logo is never painted. Long enough
+   for a disk-cache hit, short enough that an uncached load still shows the logo "instantly".
+   hero-handover.ts reads this element's opacity to tell the two apart. */
+.fgs-hero-intro__stage {
+  animation: fgs-hero-intro-reveal 0s 0.15s both;
+}
+
 /* Hero loading hint: appears only if the photo is still missing shortly after the intro ends
-   (~2.55s), so normal loads never see it. Pure CSS so it shows before hydration. */
+   (~2.55s), so normal loads never see it. Pure CSS so it shows before hydration. Its delay keeps
+   running after a handover, so it is hidden outright then and never appears over the photo. */
 .fgs-hero-loading {
   opacity: 0;
   animation: fgs-hero-loading-in 0.4s 3s ease-out both;
+}
+.fgs-hero-stage[data-hero-shown] .fgs-hero-loading {
+  display: none;
 }
 .fgs-hero-loading__bar {
   position: relative;
@@ -441,6 +474,10 @@
     animation-duration: 1ms !important;
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
+  }
+  .fgs-hero-photos,
+  .fgs-hero-intro {
+    transition: none;
   }
 }
 
@@ -511,6 +548,10 @@
   15% { opacity: 1; }
   70% { opacity: 1; }
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(1.7); }
+}
+@keyframes fgs-hero-intro-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @keyframes fgs-hero-loading-in {
   from { opacity: 0; transform: translateY(6px); }
