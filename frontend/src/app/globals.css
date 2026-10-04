@@ -315,7 +315,7 @@
   transform-box: fill-box;
 }
 
-/* Intro (~1.9s): book opens, sun rises behind it, arcs sweep out, figure grows from the sun,
+/* Intro (~1.9s, halo to 2.55s): book opens, sun rises behind it, arcs sweep out, figure grows from the sun,
    arm lifts, strands sway in, head pops, drop falls, halo rings once. */
 .fgs-logo--intro .fgs-logo__book {
   transform-origin: 50% 100%;
@@ -354,12 +354,17 @@
   transform-origin: 50% 50%;
   animation: fgs-logo-halo 1s 1.55s ease-out both;
 }
-/* Still waiting after the intro: breathe so the page does not look frozen. */
+/* Idle: once the intro ends, keep breathing so a long wait does not look frozen. Chained
+   after the intro in CSS (not toggled by JS) so it also runs before hydration. */
 .fgs-logo--intro.fgs-logo--idle .fgs-logo__figure {
-  animation: fgs-logo-bob 2.4s ease-in-out infinite;
+  animation:
+    fgs-logo-rise 0.7s 0.75s cubic-bezier(0.2, 0.9, 0.3, 1.15) both,
+    fgs-logo-bob 2.4s 1.9s ease-in-out infinite;
 }
 .fgs-logo--intro.fgs-logo--idle .fgs-logo__halo {
-  animation: fgs-logo-halo 2.4s ease-out infinite;
+  animation:
+    fgs-logo-halo 1s 1.55s ease-out both,
+    fgs-logo-halo 2.4s 2.55s ease-out infinite;
 }
 
 /* Celebrate (~1.4s): pop in, figure jumps and cheers, sun rings out, droplets spray. */
@@ -392,6 +397,31 @@
   animation: fgs-logo-spray 0.9s calc(0.4s + var(--d, 0s)) cubic-bezier(0.15, 0.7, 0.4, 1) both;
 }
 
+/* Hero loading hint: appears only if the photo is still missing shortly after the intro ends
+   (~2.55s), so normal loads never see it. Pure CSS so it shows before hydration. */
+.fgs-hero-loading {
+  opacity: 0;
+  animation: fgs-hero-loading-in 0.4s 3s ease-out both;
+}
+.fgs-hero-loading__bar {
+  position: relative;
+  display: block;
+  width: 9rem;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--fgs-border);
+}
+.fgs-hero-loading__bar::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--fgs-blue);
+  animation: fgs-hero-loading-slide 1.3s ease-in-out infinite;
+}
+
 .fgs-book-spinner__page {
   transform-box: fill-box;
   transform-origin: 0% 50%;
@@ -405,7 +435,9 @@
 @media (prefers-reduced-motion: reduce) {
   .fgs-logo,
   .fgs-logo *,
-  .fgs-book-spinner * {
+  .fgs-book-spinner *,
+  .fgs-hero-loading,
+  .fgs-hero-loading__bar::after {
     animation-duration: 1ms !important;
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
@@ -479,6 +511,14 @@
   15% { opacity: 1; }
   70% { opacity: 1; }
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(1.7); }
+}
+@keyframes fgs-hero-loading-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fgs-hero-loading-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
 }
 @keyframes fgs-book-flip {
   0% { transform: scaleX(1); }

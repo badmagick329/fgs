@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { heroContent } from '../content';
 import HeroLogoIntro from './HeroLogoIntro';
 
@@ -127,6 +127,10 @@ export default function MarketingHero({
   const [api, setApi] = useState<CarouselApi>();
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [isInitialSlideReady, setIsInitialSlideReady] = useState(false);
+  const [isIntroDone, setIsIntroDone] = useState(false);
+  const handleIntroDone = useCallback(() => setIsIntroDone(true), []);
+  // The logo intro always plays out in full before the first photo is shown.
+  const isPhotoShown = isInitialSlideReady && isIntroDone;
   const autoplayIntervalRef = useRef<number | undefined>(undefined);
   const initialSlideImageRef = useRef<HTMLDivElement>(null);
 
@@ -143,7 +147,7 @@ export default function MarketingHero({
   }, []);
 
   useEffect(() => {
-    if (!api || !isInitialSlideReady) {
+    if (!api || !isPhotoShown) {
       return;
     }
 
@@ -190,17 +194,20 @@ export default function MarketingHero({
       api.off('select', handleSelect);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [api, isInitialSlideReady]);
+  }, [api, isPhotoShown]);
 
   return (
     <section className='relative bg-fgs-surface'>
-      <HeroLogoIntro photoReady={isInitialSlideReady} />
+      <HeroLogoIntro
+        photoShown={isPhotoShown}
+        onIntroDone={handleIntroDone}
+      />
       <Carousel
         setApi={setApi}
         opts={{ align: 'start', loop: true }}
         className={cn(
           'relative transition-[opacity,visibility] duration-500 ease-out motion-reduce:transition-none',
-          !isInitialSlideReady && 'invisible opacity-0'
+          !isPhotoShown && 'invisible opacity-0'
         )}
       >
         <CarouselContent className='ml-0'>
