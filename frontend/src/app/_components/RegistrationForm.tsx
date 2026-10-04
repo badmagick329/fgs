@@ -1,5 +1,6 @@
 'use client';
 
+import { FgsBookSpinner, FgsLogo } from '@/components/brand/FgsLogo';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -24,7 +25,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { API } from '@/lib/consts';
 import { contactContent } from '@/app/_marketing/content';
@@ -68,6 +69,7 @@ export default function RegistrationForm() {
     tone: 'success';
     message: string;
   } | null>(null);
+  const successRef = useRef<HTMLDivElement>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
 
@@ -182,6 +184,40 @@ export default function RegistrationForm() {
   }
 
   const isDisabled = submitInterest.isPending || isSubmitting;
+
+  // The success panel is much shorter than the form it replaces, so bring it into view and
+  // move focus to it; otherwise the visitor is left scrolled past it.
+  useEffect(() => {
+    if (!status) return;
+    successRef.current?.focus({ preventScroll: true });
+    successRef.current?.scrollIntoView({ block: 'center' });
+  }, [status]);
+
+  if (status) {
+    return (
+      <div
+        ref={successRef}
+        tabIndex={-1}
+        role='status'
+        className='flex flex-col items-center py-6 text-center outline-none'
+      >
+        <FgsLogo animation='celebrate' decorative className='h-auto w-36 sm:w-40' />
+        <h3 className='text-fgs-ink mt-5 text-xl font-semibold'>
+          Registration received
+        </h3>
+        <p className='mt-1 max-w-sm text-sm text-muted-foreground'>
+          {status.message}
+        </p>
+        <button
+          type='button'
+          className='fgs-btn-secondary mt-5'
+          onClick={clearStatus}
+        >
+          Register another student
+        </button>
+      </div>
+    );
+  }
 
   return (
     <form
@@ -493,7 +529,14 @@ export default function RegistrationForm() {
         disabled={isDisabled}
         className='fgs-btn-primary mt-4 w-full justify-center disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto'
       >
-        {isDisabled ? 'Submitting...' : 'Start Registration'}
+        {isDisabled ? (
+          <>
+            <FgsBookSpinner className='mr-2 h-[1.15em] w-auto' />
+            Submitting...
+          </>
+        ) : (
+          'Start Registration'
+        )}
       </button>
 
       {errors.root?.server?.message && (
@@ -502,11 +545,6 @@ export default function RegistrationForm() {
         </p>
       )}
 
-      {status && (
-        <p role='status' className='mt-3 text-xs text-emerald-700'>
-          {status.message}
-        </p>
-      )}
     </form>
   );
 }

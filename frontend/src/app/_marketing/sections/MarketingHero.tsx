@@ -6,9 +6,11 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { heroContent } from '../content';
+import HeroLogoIntro from './HeroLogoIntro';
 
 const AUTOPLAY_INTERVAL_MS = 5000;
 
@@ -191,11 +193,15 @@ export default function MarketingHero({
   }, [api, isInitialSlideReady]);
 
   return (
-    <section className='bg-fgs-surface'>
+    <section className='relative bg-fgs-surface'>
+      <HeroLogoIntro photoReady={isInitialSlideReady} />
       <Carousel
         setApi={setApi}
         opts={{ align: 'start', loop: true }}
-        className={`relative ${isInitialSlideReady ? '' : 'invisible'}`}
+        className={cn(
+          'relative transition-[opacity,visibility] duration-500 ease-out motion-reduce:transition-none',
+          !isInitialSlideReady && 'invisible opacity-0'
+        )}
       >
         <CarouselContent className='ml-0'>
           {heroSlides.map((slide, index) => (

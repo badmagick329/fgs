@@ -308,3 +308,180 @@
     transform: translateY(0);
   }
 }
+
+/* ---------- FGS logo (components/brand/FgsLogo.tsx) ---------- */
+
+.fgs-logo .fgs-logo__part {
+  transform-box: fill-box;
+}
+
+/* Intro (~1.9s): book opens, sun rises behind it, arcs sweep out, figure grows from the sun,
+   arm lifts, strands sway in, head pops, drop falls, halo rings once. */
+.fgs-logo--intro .fgs-logo__book {
+  transform-origin: 50% 100%;
+  animation: fgs-logo-book-open 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.25) both;
+}
+.fgs-logo--intro .fgs-logo__sun {
+  animation: fgs-logo-sun-rise 0.95s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.fgs-logo--intro .fgs-logo__sweep {
+  animation: fgs-logo-sweep 0.75s 0.55s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+.fgs-logo--intro .fgs-logo__figure {
+  transform-origin: 45% 100%;
+  animation: fgs-logo-rise 0.7s 0.75s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+.fgs-logo--intro .fgs-logo__arm {
+  transform-origin: 79% 89%;
+  animation: fgs-logo-arm-up 0.65s 1s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.fgs-logo--intro .fgs-logo__strand {
+  transform-origin: 25% 100%;
+  animation: fgs-logo-sway 0.7s 1.05s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.fgs-logo--intro .fgs-logo__strand--late {
+  animation-delay: 1.15s;
+}
+.fgs-logo--intro .fgs-logo__head {
+  transform-origin: 50% 50%;
+  animation: fgs-logo-pop 0.5s 0.95s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+.fgs-logo--intro .fgs-logo__drop {
+  transform-origin: 50% 100%;
+  animation: fgs-logo-drip 0.55s 1.35s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.fgs-logo--intro .fgs-logo__halo {
+  transform-origin: 50% 50%;
+  animation: fgs-logo-halo 1s 1.55s ease-out both;
+}
+/* Still waiting after the intro: breathe so the page does not look frozen. */
+.fgs-logo--intro.fgs-logo--idle .fgs-logo__figure {
+  animation: fgs-logo-bob 2.4s ease-in-out infinite;
+}
+.fgs-logo--intro.fgs-logo--idle .fgs-logo__halo {
+  animation: fgs-logo-halo 2.4s ease-out infinite;
+}
+
+/* Celebrate (~1.4s): pop in, figure jumps and cheers, sun rings out, droplets spray. */
+.fgs-logo--celebrate {
+  overflow: visible;
+  animation: fgs-logo-pop-in 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.fgs-logo--celebrate .fgs-logo__figure {
+  transform-origin: 45% 100%;
+  animation: fgs-logo-jump 0.8s 0.3s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+.fgs-logo--celebrate .fgs-logo__arm {
+  transform-origin: 79% 89%;
+  animation: fgs-logo-cheer 0.8s 0.3s ease-in-out both;
+}
+.fgs-logo--celebrate .fgs-logo__head {
+  transform-origin: 50% 50%;
+  animation: fgs-logo-nod 0.8s 0.3s ease-in-out both;
+}
+.fgs-logo--celebrate .fgs-logo__halo {
+  transform-origin: 50% 50%;
+  animation: fgs-logo-halo 0.9s 0.45s ease-out both;
+}
+.fgs-logo--celebrate .fgs-logo__halo2 {
+  transform-origin: 50% 50%;
+  animation: fgs-logo-halo 1s 0.7s ease-out both;
+}
+.fgs-logo--celebrate .fgs-logo__spark {
+  opacity: 0;
+  animation: fgs-logo-spray 0.9s calc(0.4s + var(--d, 0s)) cubic-bezier(0.15, 0.7, 0.4, 1) both;
+}
+
+.fgs-book-spinner__page {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: fgs-book-flip 0.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.fgs-book-spinner__page--late {
+  animation-delay: 0.45s;
+}
+
+/* Reduced motion: jump to each animation's end state (finished logo, still book). */
+@media (prefers-reduced-motion: reduce) {
+  .fgs-logo,
+  .fgs-logo *,
+  .fgs-book-spinner * {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@keyframes fgs-logo-book-open {
+  from { transform: scale(0.15, 0.5); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes fgs-logo-sun-rise {
+  from { transform: translateY(250px); }
+  to { transform: none; }
+}
+@keyframes fgs-logo-sweep {
+  from { stroke-dashoffset: 50; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes fgs-logo-rise {
+  from { transform: translateY(70px) scale(0.45); opacity: 0; }
+  40% { opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes fgs-logo-arm-up {
+  from { transform: rotate(-38deg); }
+  to { transform: none; }
+}
+@keyframes fgs-logo-sway {
+  from { transform: rotate(22deg) scaleY(0.5); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes fgs-logo-pop {
+  from { transform: scale(0); }
+  to { transform: none; }
+}
+@keyframes fgs-logo-drip {
+  from { transform: translateY(-60px) scale(0.3); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes fgs-logo-halo {
+  0% { transform: scale(0.96); opacity: 0; }
+  12% { opacity: 0.6; }
+  100% { transform: scale(1.14); opacity: 0; }
+}
+@keyframes fgs-logo-bob {
+  0%, 100% { transform: none; }
+  50% { transform: translateY(-6px); }
+}
+@keyframes fgs-logo-pop-in {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes fgs-logo-jump {
+  0% { transform: none; }
+  18% { transform: scale(1.08, 0.86); }
+  45% { transform: translateY(-80px) scale(0.95, 1.07); }
+  75% { transform: translateY(0) scale(1.06, 0.92); }
+  100% { transform: none; }
+}
+@keyframes fgs-logo-cheer {
+  0%, 100% { transform: none; }
+  35% { transform: rotate(22deg); }
+  60% { transform: rotate(-8deg); }
+}
+@keyframes fgs-logo-nod {
+  0%, 100% { transform: none; }
+  45% { transform: translateY(-4px) scale(1.06); }
+}
+@keyframes fgs-logo-spray {
+  0% { opacity: 0; transform: translate(0, 0) rotate(var(--r)) scale(0.5); }
+  15% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(1.7); }
+}
+@keyframes fgs-book-flip {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(0); }
+  100% { transform: scaleX(-1); }
+}
