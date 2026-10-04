@@ -39,7 +39,7 @@ export default function MarketingNav({ items }: MarketingNavProps) {
             alt='Farooqi Grammar School logo'
             width={44}
             height={44}
-            className='h-11 w-11 rounded-md bg-white object-cover'
+            className='h-11 w-11 object-contain'
             priority
           />
           <span className='text-fgs-ink text-sm font-semibold leading-tight sm:text-base'>
