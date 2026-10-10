@@ -18,10 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAdminUserActions } from '@/hooks/useAdminUserActions';
-import { useAdminUsersList } from '@/hooks/useAdminUsersList';
-import type { AdminUsersData } from '@/lib/client/admin';
-import type { AdminUserListItem } from '@/types';
+import type { AdminUserListItem } from '@/features/admin/domain/admin';
+import type { AdminUsersData } from '@/features/admin/presentation/admin-client';
+import { useAdminUserActions } from '@/features/admin/presentation/useAdminUserActions';
+import { useAdminUsersList } from '@/features/admin/presentation/useAdminUsersList';
 import { useState } from 'react';
 
 type PendingAdminAction =

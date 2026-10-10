@@ -1,7 +1,7 @@
-import { updateSuperAdminSchema } from '@/types';
-import { AdminActionError } from '@/types/auth';
+import { updateSuperAdminSchema } from '@/features/admin/domain/admin';
+import { AdminActionError } from '@/features/admin/domain/auth';
 import { NextResponse } from 'next/server';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 
 export async function DELETE(
   _req: Request,
@@ -74,11 +74,12 @@ export async function PATCH(
   }
 
   try {
-    const updatedAdmin = await adminManagementService.updateAdminSuperStatusWithGuards({
-      actingAdminId: Number(auth.payload.sub),
-      targetAdminId,
-      isSuperAdmin: parsed.data.isSuperAdmin,
-    });
+    const updatedAdmin =
+      await adminManagementService.updateAdminSuperStatusWithGuards({
+        actingAdminId: Number(auth.payload.sub),
+        targetAdminId,
+        isSuperAdmin: parsed.data.isSuperAdmin,
+      });
 
     const res = NextResponse.json({
       ok: true,
@@ -100,6 +101,3 @@ export async function PATCH(
     return res;
   }
 }
-
-
-

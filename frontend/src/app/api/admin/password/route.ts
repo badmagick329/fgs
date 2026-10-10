@@ -1,6 +1,6 @@
-import { adminPasswordChangeSchema } from '@/types';
+import { adminPasswordChangeSchema } from '@/features/admin/domain/admin';
 import { NextResponse } from 'next/server';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 
 export async function POST(req: Request) {
   const { adminAccessService, adminManagementService } = getServerContainer();
@@ -40,6 +40,3 @@ export async function POST(req: Request) {
   adminAccessService.clearAuthCookies(res);
   return res;
 }
-
-
-

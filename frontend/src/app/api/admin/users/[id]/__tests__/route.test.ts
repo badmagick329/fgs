@@ -1,11 +1,10 @@
+import { DELETE, PATCH } from '@/app/api/admin/users/[id]/route';
+import { AdminActionError } from '@/features/admin/domain/auth';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
-import { AdminActionError } from '@/types/auth';
 
 mock.module('server-only', () => ({}));
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({ getServerContainer }));
-
-import { DELETE, PATCH } from '@/app/api/admin/users/[id]/route';
+mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 describe('/api/admin/users/[id]', () => {
   beforeEach(() => {
@@ -18,7 +17,10 @@ describe('/api/admin/users/[id]', () => {
       adminAccessService: {
         requireAdminRouteAuth: mock(async () => ({
           ok: true,
-          auth: { payload: { sub: '1', email: 'a@a.com' }, refreshedTokens: null },
+          auth: {
+            payload: { sub: '1', email: 'a@a.com' },
+            refreshedTokens: null,
+          },
         })),
       },
       adminManagementService: {},
@@ -39,20 +41,29 @@ describe('/api/admin/users/[id]', () => {
       adminAccessService: {
         requireAdminRouteAuth: mock(async () => ({
           ok: true,
-          auth: { payload: { sub: '1', email: 'a@a.com' }, refreshedTokens: null },
+          auth: {
+            payload: { sub: '1', email: 'a@a.com' },
+            refreshedTokens: null,
+          },
         })),
         applyRefreshedAuthCookies,
       },
       adminManagementService: {
         removeAdminUserWithGuards: mock(async () => {
-          throw new AdminActionError('Only super admins can remove admins.', 403);
+          throw new AdminActionError(
+            'Only super admins can remove admins.',
+            403
+          );
         }),
       },
     });
 
-    const res = await DELETE(new Request('http://localhost', { method: 'DELETE' }), {
-      params: { id: '2' },
-    });
+    const res = await DELETE(
+      new Request('http://localhost', { method: 'DELETE' }),
+      {
+        params: { id: '2' },
+      }
+    );
 
     expect(res.status).toBe(403);
     expect(applyRefreshedAuthCookies).toHaveBeenCalled();

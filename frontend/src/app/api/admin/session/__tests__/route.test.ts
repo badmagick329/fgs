@@ -1,10 +1,9 @@
+import { GET } from '@/app/api/admin/session/route';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 mock.module('server-only', () => ({}));
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({ getServerContainer }));
-
-import { GET } from '@/app/api/admin/session/route';
+mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 describe('/api/admin/session', () => {
   beforeEach(() => {

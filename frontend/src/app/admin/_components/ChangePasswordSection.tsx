@@ -1,10 +1,10 @@
+import { changeAdminPassword } from '@/features/admin/presentation/admin-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { changeAdminPassword } from '@/lib/client/admin';
 import { ROUTES } from '@/lib/consts';
 
 const changePasswordFormSchema = z

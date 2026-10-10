@@ -1,9 +1,12 @@
-import { Registration, createRegistrationSchema } from '@/types';
+import {
+  Registration,
+  createRegistrationSchema,
+} from '@/features/registration/domain/registration';
+import { normalizeRegistrationCampus } from '@/features/registration/domain/registration-rules';
 import { NextResponse } from 'next/server';
 import { API } from '@/lib/consts';
-import { normalizeRegistrationCampus } from '@/lib/registration';
 import { Result, errorsFromZod } from '@/lib/result';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 import { errorMessageFromErrors } from '@/lib/utils';
 
 function getClientIp(req: Request): string {
@@ -183,7 +186,9 @@ export async function POST(
   });
 
   try {
-    if (await adminManagementService.areRegistrationDiscordNotificationsEnabled()) {
+    if (
+      await adminManagementService.areRegistrationDiscordNotificationsEnabled()
+    ) {
       const registration = creationResult.data;
       void registrationService
         .notifyDiscord({
@@ -195,7 +200,10 @@ export async function POST(
         });
     }
   } catch (error) {
-    console.error('registration Discord notification setting check failed', error);
+    console.error(
+      'registration Discord notification setting check failed',
+      error
+    );
   }
 
   return NextResponse.json(creationResult, { status: 201 });

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 
 const notificationEmailSchema = z.object({
   notificationEmail: z.email({ error: 'Invalid email address' }),
@@ -68,15 +68,17 @@ export async function PATCH(req: Request) {
     );
   }
 
-  const config = await adminManagementService.setRegistrationDiscordNotificationsEnabled(
-    parsed.data.registrationDiscordNotificationsEnabled,
-    Number(auth.payload.sub)
-  );
+  const config =
+    await adminManagementService.setRegistrationDiscordNotificationsEnabled(
+      parsed.data.registrationDiscordNotificationsEnabled,
+      Number(auth.payload.sub)
+    );
   if (!config) {
     return NextResponse.json(
       {
         ok: false,
-        message: 'Save a notification email before enabling Discord notifications.',
+        message:
+          'Save a notification email before enabling Discord notifications.',
       },
       { status: 409 }
     );
@@ -87,6 +89,3 @@ export async function PATCH(req: Request) {
   adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
   return res;
 }
-
-
-

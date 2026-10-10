@@ -1,5 +1,6 @@
 'use client';
 
+import { contactContent } from '@/app/_marketing/content';
 import { FgsBookSpinner, FgsLogo } from '@/components/brand/FgsLogo';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -19,22 +20,21 @@ import {
   type CreateRegistration,
   createRegistrationSchema,
   registrationResultSchema,
-} from '@/types';
-import { trackEvent } from '@/lib/analytics';
+} from '@/features/registration/domain/registration';
+import {
+  REGISTRATION_CAMPUSES,
+  combinePakistanDateAndTime,
+  getRegistrationTimeOptions,
+  isRegistrationDateAvailable,
+} from '@/features/registration/domain/registration-rules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { trackEvent } from '@/lib/analytics';
 import { API } from '@/lib/consts';
-import { contactContent } from '@/app/_marketing/content';
-import {
-  REGISTRATION_CAMPUSES,
-  combinePakistanDateAndTime,
-  getRegistrationTimeOptions,
-  isRegistrationDateAvailable,
-} from '@/lib/registration';
 import { cn } from '@/lib/utils';
 
 function getRequestErrorMessage(status: number, fallback?: string) {
@@ -201,7 +201,11 @@ export default function RegistrationForm() {
         role='status'
         className='flex flex-col items-center py-6 text-center outline-none'
       >
-        <FgsLogo animation='celebrate' decorative className='h-auto w-36 sm:w-40' />
+        <FgsLogo
+          animation='celebrate'
+          decorative
+          className='h-auto w-36 sm:w-40'
+        />
         <h3 className='text-fgs-ink mt-5 text-xl font-semibold'>
           Registration received
         </h3>
@@ -351,10 +355,7 @@ export default function RegistrationForm() {
       </div>
 
       <div className='mt-4'>
-        <label
-          htmlFor='campus'
-          className='text-fgs-ink text-sm font-medium'
-        >
+        <label htmlFor='campus' className='text-fgs-ink text-sm font-medium'>
           Campus
         </label>
         <Controller
@@ -544,7 +545,6 @@ export default function RegistrationForm() {
           {errors.root.server.message}
         </p>
       )}
-
     </form>
   );
 }

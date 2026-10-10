@@ -9,7 +9,7 @@ const cookiesMock = mock(async () => ({
 mock.module('next/headers', () => ({ cookies: cookiesMock }));
 
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({ getServerContainer }));
+mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 async function loadRoute() {
   return import('@/app/api/admin/logout/route');

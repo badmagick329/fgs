@@ -1,5 +1,5 @@
+import { AccessToken } from '@/features/admin/infrastructure/access-token';
 import { NextRequest, NextResponse } from 'next/server';
-import { AccessToken } from '@/lib/middleware/access-token';
 import {
   API,
   AUTH_COOKIE_KEYS,
@@ -15,13 +15,23 @@ export const isProtectedPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
   if (pathname === ROUTES.registrations) return true;
   if (pathname === ROUTES.admin.root) return true;
-  if (MIDDLEWARE_PATHS.protectedPrefixes.some((prefix) => pathname.startsWith(prefix))) return true;
+  if (
+    MIDDLEWARE_PATHS.protectedPrefixes.some((prefix) =>
+      pathname.startsWith(prefix)
+    )
+  )
+    return true;
   return false;
 };
 
 export const isPublicPath = (req: NextRequest) => {
   const { pathname } = req.nextUrl;
-  if (MIDDLEWARE_PATHS.publicPrefixes.some((prefix) => pathname.startsWith(prefix))) return true;
+  if (
+    MIDDLEWARE_PATHS.publicPrefixes.some((prefix) =>
+      pathname.startsWith(prefix)
+    )
+  )
+    return true;
   return false;
 };
 

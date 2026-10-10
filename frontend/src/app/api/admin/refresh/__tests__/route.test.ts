@@ -1,3 +1,4 @@
+import { POST } from '@/app/api/admin/refresh/route';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { AUTH_COOKIE_KEYS } from '@/lib/consts';
 
@@ -10,9 +11,7 @@ const cookiesMock = mock(async () => ({
 mock.module('next/headers', () => ({ cookies: cookiesMock }));
 
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({ getServerContainer }));
-
-import { POST } from '@/app/api/admin/refresh/route';
+mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 describe('/api/admin/refresh', () => {
   beforeEach(() => {
@@ -20,7 +19,9 @@ describe('/api/admin/refresh', () => {
     getServerContainer.mockReset();
     cookiesMock.mockResolvedValue({
       get: (name: string) =>
-        name === AUTH_COOKIE_KEYS.refresh ? { value: 'refresh-cookie' } : undefined,
+        name === AUTH_COOKIE_KEYS.refresh
+          ? { value: 'refresh-cookie' }
+          : undefined,
     });
   });
 
@@ -43,7 +44,10 @@ describe('/api/admin/refresh', () => {
     getServerContainer.mockReturnValue({
       adminAccessService: {
         unauthorizedJson: mock(() => new Response(null, { status: 401 })),
-        refreshSession: mock(async () => ({ accessToken: 'a', refreshToken: 'r' })),
+        refreshSession: mock(async () => ({
+          accessToken: 'a',
+          refreshToken: 'r',
+        })),
         setAuthCookies,
       },
     });

@@ -1,14 +1,14 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import {
   type AdminConfig,
   getAdminConfig,
   saveAdminConfig,
   setRegistrationDiscordNotifications,
-} from '@/lib/client/admin';
+} from '@/features/admin/presentation/admin-client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { QUERY_KEYS } from '@/lib/consts';
 
 const notificationEmailFormSchema = z.object({
@@ -57,7 +57,10 @@ export function NotificationEmailSection() {
   const registrationDiscordMutation = useMutation({
     mutationFn: setRegistrationDiscordNotifications,
     onSuccess: (config) => {
-      setStatus({ tone: 'success', message: 'Saved Discord notification setting.' });
+      setStatus({
+        tone: 'success',
+        message: 'Saved Discord notification setting.',
+      });
       queryClient.setQueryData<AdminConfig>(QUERY_KEYS.adminConfig, config);
     },
     onError: (error) => {
@@ -145,7 +148,9 @@ export function NotificationEmailSection() {
       </form>
 
       <div className='mt-8 border-t border-border pt-6'>
-        <h4 className='text-base font-semibold'>Discord registration notifications</h4>
+        <h4 className='text-base font-semibold'>
+          Discord registration notifications
+        </h4>
         <p className='fgs-copy mt-2'>
           Send a testing notification to Discord when a registration is created.
           Personal details are not included.
@@ -154,9 +159,12 @@ export function NotificationEmailSection() {
           <input
             type='checkbox'
             checked={
-              configQuery.data?.registration_discord_notifications_enabled ?? false
+              configQuery.data?.registration_discord_notifications_enabled ??
+              false
             }
-            disabled={!configQuery.data || registrationDiscordMutation.isPending}
+            disabled={
+              !configQuery.data || registrationDiscordMutation.isPending
+            }
             onChange={(event) => {
               setStatus(null);
               registrationDiscordMutation.mutate(event.target.checked);

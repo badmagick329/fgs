@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { API } from '@/lib/consts';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 
 export async function GET() {
   const { adminAccessService, registrationService } = getServerContainer();

@@ -1,12 +1,12 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import {
   createFutureRegistrationAppointmentAt,
   createFutureRegistrationAppointmentDate,
 } from '@/test/registration-test-utils';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 mock.module('server-only', () => ({}));
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({ getServerContainer }));
+mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 async function loadRoute() {
   return import('@/app/api/register/route');
@@ -149,7 +149,10 @@ describe('/api/register', () => {
   it('POST normalizes a legacy campus value before saving', async () => {
     const { POST } = await loadRoute();
     const antiSpamService = createAntiSpamServiceMock();
-    const createRegistration = mock(async () => ({ ok: true as const, data: {} }));
+    const createRegistration = mock(async () => ({
+      ok: true as const,
+      data: {},
+    }));
     getServerContainer.mockReturnValue({
       registrationAntiSpamService: antiSpamService,
       registrationService: { createRegistration },

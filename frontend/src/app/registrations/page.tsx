@@ -1,5 +1,4 @@
 'use client';
-import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -8,12 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import useRegistrationList from '@/hooks/useRegistrationList';
-import { Registration } from '@/types';
+import { Registration } from '@/features/registration/domain/registration';
+import { formatPakistanAppointment } from '@/features/registration/domain/registration-rules';
+import useRegistrationEmailStatus from '@/features/registration/presentation/useRegistrationEmailStatus';
+import useRegistrationList from '@/features/registration/presentation/useRegistrationList';
 import Image from 'next/image';
-import { formatPakistanAppointment } from '@/lib/registration';
+import { useEffect, useState } from 'react';
 import { AdminActions } from '../admin/_components/AdminActions';
-import useRegistrationEmailStatus from '@/hooks/useRegistrationEmailStatus';
 
 const tableHeaders = [
   'ID',

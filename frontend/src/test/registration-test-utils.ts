@@ -1,4 +1,4 @@
-import { combinePakistanDateAndTime } from '@/lib/registration';
+import { combinePakistanDateAndTime } from '@/features/registration/domain/registration-rules';
 
 function getNextRegistrationDate() {
   const date = new Date();

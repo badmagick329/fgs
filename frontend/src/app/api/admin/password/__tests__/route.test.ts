@@ -1,10 +1,9 @@
+import { POST } from '@/app/api/admin/password/route';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 mock.module('server-only', () => ({}));
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({ getServerContainer }));
-
-import { POST } from '@/app/api/admin/password/route';
+mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 describe('/api/admin/password', () => {
   beforeEach(() => {
@@ -17,7 +16,10 @@ describe('/api/admin/password', () => {
       adminAccessService: {
         requireAdminRouteAuth: mock(async () => ({
           ok: true,
-          auth: { payload: { sub: '1', email: 'admin@example.com' }, refreshedTokens: null },
+          auth: {
+            payload: { sub: '1', email: 'admin@example.com' },
+            refreshedTokens: null,
+          },
         })),
       },
       adminManagementService: {},
@@ -38,7 +40,10 @@ describe('/api/admin/password', () => {
       adminAccessService: {
         requireAdminRouteAuth: mock(async () => ({
           ok: true,
-          auth: { payload: { sub: '1', email: 'admin@example.com' }, refreshedTokens: null },
+          auth: {
+            payload: { sub: '1', email: 'admin@example.com' },
+            refreshedTokens: null,
+          },
         })),
         applyRefreshedAuthCookies: mock(() => {}),
         clearAuthCookies,

@@ -1,16 +1,19 @@
-import { EmailWorkerStatus, Registration } from '@/types';
-import { mock } from 'bun:test';
-import { Result } from '@/lib/result';
-import { createFutureRegistrationAppointmentDate } from '@/test/registration-test-utils';
 import {
   IAdminRepository,
   IAdminRepositoryTransaction,
   ICookie,
-  INotifier,
   IPasswordHasher,
-  IRegistrationRepository,
   IToken,
-} from '@/lib/serveronly/domain/interfaces';
+} from '@/features/admin/domain/interfaces';
+import { IRegistrationRepository } from '@/features/registration/domain/i-registration-repository';
+import {
+  EmailWorkerStatus,
+  Registration,
+} from '@/features/registration/domain/registration';
+import { createFutureRegistrationAppointmentDate } from '@/test/registration-test-utils';
+import { mock } from 'bun:test';
+import { Result } from '@/lib/result';
+import { INotifier } from '@/lib/server/i-notifier';
 
 export function createAdminRepositoryTransactionMock(
   overrides: Partial<IAdminRepositoryTransaction> = {}

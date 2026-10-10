@@ -1,10 +1,9 @@
+import { GET, PATCH, POST } from '@/app/api/admin/config/route';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 mock.module('server-only', () => ({}));
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({ getServerContainer }));
-
-import { GET, PATCH, POST } from '@/app/api/admin/config/route';
+mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 describe('/api/admin/config', () => {
   beforeEach(() => {
@@ -18,12 +17,18 @@ describe('/api/admin/config', () => {
       adminAccessService: {
         requireAdminRouteAuth: mock(async () => ({
           ok: true,
-          auth: { payload: { sub: '1', email: 'a@a.com' }, refreshedTokens: null },
+          auth: {
+            payload: { sub: '1', email: 'a@a.com' },
+            refreshedTokens: null,
+          },
         })),
         applyRefreshedAuthCookies,
       },
       adminManagementService: {
-        getAdminConfig: mock(async () => ({ id: 1, notification_email: 'n@n.com' })),
+        getAdminConfig: mock(async () => ({
+          id: 1,
+          notification_email: 'n@n.com',
+        })),
       },
     });
 
@@ -38,7 +43,10 @@ describe('/api/admin/config', () => {
       adminAccessService: {
         requireAdminRouteAuth: mock(async () => ({
           ok: true,
-          auth: { payload: { sub: '1', email: 'a@a.com' }, refreshedTokens: null },
+          auth: {
+            payload: { sub: '1', email: 'a@a.com' },
+            refreshedTokens: null,
+          },
         })),
       },
       adminManagementService: {},
@@ -64,7 +72,10 @@ describe('/api/admin/config', () => {
       adminAccessService: {
         requireAdminRouteAuth: mock(async () => ({
           ok: true,
-          auth: { payload: { sub: '1', email: 'a@a.com' }, refreshedTokens: null },
+          auth: {
+            payload: { sub: '1', email: 'a@a.com' },
+            refreshedTokens: null,
+          },
         })),
         applyRefreshedAuthCookies,
       },
@@ -86,7 +97,10 @@ describe('/api/admin/config', () => {
     );
 
     expect(res.status).toBe(200);
-    expect(setRegistrationDiscordNotificationsEnabled).toHaveBeenCalledWith(true, 1);
+    expect(setRegistrationDiscordNotificationsEnabled).toHaveBeenCalledWith(
+      true,
+      1
+    );
     expect(applyRefreshedAuthCookies).toHaveBeenCalled();
   });
 });

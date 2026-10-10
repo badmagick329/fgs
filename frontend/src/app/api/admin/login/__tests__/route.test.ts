@@ -1,13 +1,12 @@
+import { POST } from '@/app/api/admin/login/route';
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
 mock.module('server-only', () => ({}));
 
 const getServerContainer = mock(() => ({}));
-mock.module('@/lib/serveronly/container', () => ({
+mock.module('@/lib/server/container', () => ({
   getServerContainer,
 }));
-
-import { POST } from '@/app/api/admin/login/route';
 
 describe('/api/admin/login', () => {
   beforeEach(() => {
@@ -42,7 +41,10 @@ describe('/api/admin/login', () => {
 
     const req = new Request('http://localhost', {
       method: 'POST',
-      body: JSON.stringify({ email: 'admin@example.com', password: 'password123' }),
+      body: JSON.stringify({
+        email: 'admin@example.com',
+        password: 'password123',
+      }),
     });
     const res = await POST(req);
 

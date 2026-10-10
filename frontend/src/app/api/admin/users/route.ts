@@ -1,6 +1,6 @@
-import { adminCredentialsSchema } from '@/types';
+import { adminCredentialsSchema } from '@/features/admin/domain/admin';
 import { NextResponse } from 'next/server';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 
 export async function GET() {
   const { adminAccessService, adminManagementService } = getServerContainer();
@@ -57,6 +57,3 @@ export async function POST(req: Request) {
   adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
   return res;
 }
-
-
-

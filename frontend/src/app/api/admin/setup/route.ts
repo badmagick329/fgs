@@ -1,6 +1,6 @@
-import { adminCredentialsSchema } from '@/types';
+import { adminCredentialsSchema } from '@/features/admin/domain/admin';
 import { NextResponse } from 'next/server';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 
 export async function POST(req: Request) {
   const { adminAccessService } = getServerContainer();
@@ -15,7 +15,10 @@ export async function POST(req: Request) {
   }
 
   const { email, password } = parsed.data;
-  const setupResult = await adminAccessService.setupInitialAdmin({ email, password });
+  const setupResult = await adminAccessService.setupInitialAdmin({
+    email,
+    password,
+  });
   if (!setupResult.ok) {
     return NextResponse.json(
       { ok: false, message: setupResult.message },
@@ -31,6 +34,3 @@ export async function POST(req: Request) {
   );
   return res;
 }
-
-
-

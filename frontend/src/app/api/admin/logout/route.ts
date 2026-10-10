@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { AUTH_COOKIE_KEYS } from '@/lib/consts';
-import { getServerContainer } from '@/lib/serveronly/container';
+import { getServerContainer } from '@/lib/server/container';
 
 export async function POST() {
   const { adminAccessService } = getServerContainer();
@@ -12,6 +12,3 @@ export async function POST() {
   adminAccessService.clearAuthCookies(res);
   return res;
 }
-
-
-
