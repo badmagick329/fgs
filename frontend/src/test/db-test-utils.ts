@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { Pool } from 'pg';
 
 const TEST_DATABASE_URL =
@@ -74,6 +76,17 @@ export async function ensureSchema(pool: Pool) {
     );
   `);
 
+  // Alumni stories run the real migration so tests catch migration mistakes.
+  await pool.query(
+    await readFile(
+      path.resolve(
+        import.meta.dir,
+        '../../migrations/005_create_alumni_stories.sql'
+      ),
+      'utf-8'
+    )
+  );
+
   await pool.query(`
     ALTER TABLE admin_config
       ADD COLUMN IF NOT EXISTS registration_discord_notifications_enabled BOOLEAN NOT NULL DEFAULT FALSE;
@@ -88,13 +101,17 @@ export async function resetTables(pool: Pool) {
       admin_users,
       registrations,
       registration_requests,
-      email_worker_status
+      email_worker_status,
+      alumni_story_media,
+      alumni_stories
     RESTART IDENTITY CASCADE;
   `);
 }
 
 export async function dropSchema(pool: Pool) {
   await pool.query(`
+    DROP TABLE IF EXISTS alumni_story_media;
+    DROP TABLE IF EXISTS alumni_stories;
     DROP TABLE IF EXISTS admin_config;
     DROP TABLE IF EXISTS admin_refresh_tokens;
     DROP TABLE IF EXISTS email_worker_status;

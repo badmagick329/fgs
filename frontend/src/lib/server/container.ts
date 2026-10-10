@@ -7,6 +7,9 @@ import { AdminRepository } from '@/features/admin/infrastructure/admin-repositor
 import { Cookie } from '@/features/admin/infrastructure/cookie';
 import { PasswordHasher } from '@/features/admin/infrastructure/password-hasher';
 import { Token } from '@/features/admin/infrastructure/token';
+import { AlumniStoryService } from '@/features/alumni-stories/application/alumni-story-service';
+import { AlumniStoryRepository } from '@/features/alumni-stories/infrastructure/alumni-story-repository';
+import { LocalMediaStore } from '@/features/alumni-stories/infrastructure/local-media-store';
 import { RegistrationAntiSpamService } from '@/features/registration/application/registration-anti-spam-service';
 import { RegistrationService } from '@/features/registration/application/registration-service';
 import { RegistrationRepository } from '@/features/registration/infrastructure/registration-repository';
@@ -18,6 +21,7 @@ import { Notifier } from '@/lib/server/notifier';
 
 export type ServerContainer = {
   adminAccessService: AdminAccessService;
+  alumniStoryService: AlumniStoryService;
   adminManagementService: AdminManagementService;
   registrationService: RegistrationService;
   registrationAntiSpamService: RegistrationAntiSpamService;
@@ -45,7 +49,19 @@ const createServerContainer = (): ServerContainer => {
   );
   const superAdminPolicy = new SuperAdminPolicy(adminRepository);
 
+  // Built on first use so a missing MEDIA_ROOT only breaks Alumni Connect,
+  // not admin or registration.
+  let alumniStoryService: AlumniStoryService | undefined;
+
   return {
+    get alumniStoryService() {
+      alumniStoryService ??= new AlumniStoryService(
+        new AlumniStoryRepository(pool),
+        new LocalMediaStore(envConfig.getMediaRoot()),
+        clock
+      );
+      return alumniStoryService;
+    },
     adminAccessService: new AdminAccessService(
       adminRepository,
       passwordHasher,

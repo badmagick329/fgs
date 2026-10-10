@@ -1,3 +1,4 @@
+import path from 'node:path';
 import 'server-only';
 
 const DEFAULT_TEST_DATABASE_URL =
@@ -25,6 +26,19 @@ export class EnvConfig {
 
   getDiscordWebhookUrl() {
     return process.env.DISCORD_WEBHOOK_URL;
+  }
+
+  /**
+   * Root directory for uploaded media. Production must name it explicitly:
+   * a silent default inside the container would lose uploads on redeploy.
+   */
+  getMediaRoot() {
+    const root = process.env.MEDIA_ROOT;
+    if (root) return root;
+    if (this.isProduction()) {
+      throw new Error('MEDIA_ROOT is not set.');
+    }
+    return path.resolve(process.cwd(), '.media');
   }
 
   isProduction() {
