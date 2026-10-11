@@ -329,3 +329,33 @@ export const registerContent = {
 };
 
 export const contactDetails = contactContent;
+
+export const alumniConnectContent = {
+  eyebrow: 'FGS Alumni Connect',
+  title: 'Share Your Story with Today’s Students',
+  description: [
+    'Tell current FGS students where life has taken you since school, and what they should focus on to get there. Your video may be shown at the Annual Prize Distribution Ceremony 2026.',
+    'Please send your story by 20 October 2026.',
+  ],
+  tipsTitle: 'Recording Your Video',
+  tips: [
+    'Record on your phone, ideally at your workplace or in your work uniform.',
+    'Keep it to 30–40 seconds.',
+    'Start with your name, the year you graduated and your current profession or field.',
+    'Tell students which subjects, skills or areas they should focus on.',
+  ],
+  formTitle: 'Send Your Story',
+  contactHint:
+    'Only the school sees this, in case they need to reach you about your story.',
+  storyTextHint:
+    'Write your message to students here, or say it in a video. Which subjects, skills or areas should they focus on?',
+  mediaTitle: 'Video and Photos',
+  mediaHint: 'One video of 30–40 seconds and up to 3 photos.',
+  uploadNote:
+    'Large videos can take a few minutes on mobile data. Keep this page open until sending finishes; if your connection drops, the upload carries on from where it stopped once you are back online.',
+  reviewNote:
+    'Nothing you send is shown publicly until the school has reviewed it.',
+  successTitle: 'Thank you for your story',
+  successMessage:
+    'It has reached the school. Nothing is shown publicly until the school has reviewed it.',
+};

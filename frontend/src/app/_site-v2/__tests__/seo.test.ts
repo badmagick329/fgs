@@ -1,4 +1,5 @@
 import { metadata as adminMetadata } from '@/app/admin/layout';
+import { metadata as alumniConnectMetadata } from '@/app/alumni-connect/layout';
 import { metadata as registrationsMetadata } from '@/app/registrations/layout';
 import sitemap from '@/app/sitemap';
 import { describe, expect, it } from 'bun:test';
@@ -23,6 +24,15 @@ describe('seo', () => {
     expect(urls).not.toContainEqual(
       expect.stringMatching(/^\/(admin|registrations|archive|api)/)
     );
+  });
+
+  it('keeps Alumni Connect out of search results until it is complete', () => {
+    expect(alumniConnectMetadata.robots).toEqual({
+      index: false,
+      follow: false,
+    });
+    const urls = sitemap().map((entry) => new URL(entry.url).pathname);
+    expect(urls).not.toContain('/alumni-connect');
   });
 
   it('publishes the same admissions hours in structured data as on the site', () => {

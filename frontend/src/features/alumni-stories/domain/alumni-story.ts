@@ -51,6 +51,9 @@ export const MEDIA_LIMITS: Record<
 /** How long an alumnus has to finish uploading before the draft is swept. */
 export const DRAFT_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
+/** Carries the draft's upload token on every upload and on submit. */
+export const UPLOAD_TOKEN_HEADER = 'X-Upload-Token';
+
 export const STORY_TEXT_MAX_LENGTH = 5000;
 
 const PHONE_PATTERN = /^\+?[0-9][0-9 ()-]{5,18}[0-9]$/;
@@ -98,6 +101,26 @@ export const createAlumniStoryDraftSchema = z.object({
 export type CreateAlumniStoryDraft = z.output<
   typeof createAlumniStoryDraftSchema
 >;
+
+export type CreateAlumniStoryDraftInput = z.input<
+  typeof createAlumniStoryDraftSchema
+>;
+
+export const createdAlumniStoryDraftSchema = z.object({
+  storyId: z.number().int().positive(),
+  uploadToken: z.string().min(1),
+  uploadTokenExpiresAt: z.iso.datetime(),
+});
+
+export type CreatedAlumniStoryDraft = z.infer<
+  typeof createdAlumniStoryDraftSchema
+>;
+
+export const submittedAlumniStorySchema = z.object({
+  storyId: z.number().int().positive(),
+});
+
+export type SubmittedAlumniStory = z.infer<typeof submittedAlumniStorySchema>;
 
 export const alumniStorySchema = z.object({
   id: z.number().positive(),

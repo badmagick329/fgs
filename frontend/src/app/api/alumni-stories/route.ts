@@ -1,15 +1,12 @@
-import { createAlumniStoryDraftSchema } from '@/features/alumni-stories/domain/alumni-story';
+import {
+  CreatedAlumniStoryDraft,
+  createAlumniStoryDraftSchema,
+} from '@/features/alumni-stories/domain/alumni-story';
 import { NextResponse } from 'next/server';
 import { Result, errorsFromZod } from '@/lib/result';
 import { getClientIp } from '@/lib/server/client-ip';
 import { getServerContainer } from '@/lib/server/container';
 import { errorMessageFromErrors } from '@/lib/utils';
-
-export type CreatedAlumniStoryDraft = {
-  storyId: number;
-  uploadToken: string;
-  uploadTokenExpiresAt: string;
-};
 
 /** Starts an alumni story: saves the details and issues an upload token. */
 export async function POST(

@@ -3,6 +3,7 @@ export const API = {
   registerStatus: '/api/register/status',
   alumniStories: '/api/alumni-stories',
   alumniStoryUploads: '/api/alumni-stories/uploads',
+  alumniStorySubmit: '/api/alumni-stories/submit',
   admin: {
     login: '/api/admin/login',
     logout: '/api/admin/logout',

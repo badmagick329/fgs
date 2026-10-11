@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+
 const plausibleOrigin = 'https://analytics.mgck.ink';
 
 const nextConfig: NextConfig = {
@@ -7,6 +8,12 @@ const nextConfig: NextConfig = {
     return [
       { source: '/preview', destination: '/', permanent: true },
       { source: '/preview/:path+', destination: '/:path+', permanent: true },
+      // In case the pamphlet or a shared message drops the hyphen.
+      {
+        source: '/alumniconnect',
+        destination: '/alumni-connect',
+        permanent: true,
+      },
     ];
   },
   async rewrites() {

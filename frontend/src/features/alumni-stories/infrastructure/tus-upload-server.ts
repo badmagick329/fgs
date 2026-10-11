@@ -6,6 +6,7 @@ import {
 import {
   DRAFT_LIFETIME_MS,
   MEDIA_LIMITS,
+  UPLOAD_TOKEN_HEADER,
 } from '@/features/alumni-stories/domain/alumni-story';
 import { IUploadStaging } from '@/features/alumni-stories/domain/interfaces';
 import { FileStore } from '@tus/file-store';
@@ -16,9 +17,6 @@ import { Readable } from 'node:stream';
 import 'server-only';
 import { API } from '@/lib/consts';
 import { IClock } from '@/lib/server/i-clock';
-
-/** Carries the draft's upload token on every tus request. */
-export const UPLOAD_TOKEN_HEADER = 'X-Upload-Token';
 
 const STATUS_BY_ERROR: Record<UploadError, number> = {
   'bad-request': 400,

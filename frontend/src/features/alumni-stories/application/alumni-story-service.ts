@@ -152,6 +152,23 @@ export class AlumniStoryService {
     return { ok: true, data: outcome.media };
   }
 
+  /**
+   * Submits the draft `token` belongs to. Submitting moves the story out of
+   * `draft`, which is the only state a token unlocks, so the token is spent.
+   */
+  async submitWithUploadToken(
+    token: string
+  ): Promise<AlumniStoryResult<AlumniStory>> {
+    const draft = await this.findDraftByUploadToken(token);
+    if (!draft) {
+      return fail(
+        'not-draft',
+        'This upload link has expired or the story was already submitted'
+      );
+    }
+    return this.submit(draft.id);
+  }
+
   async submit(storyId: number): Promise<AlumniStoryResult<AlumniStory>> {
     const found = await this.repository.getWithMedia(storyId);
     if (!found) return fail('not-found', 'Story not found');

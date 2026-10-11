@@ -1,3 +1,4 @@
+import { UPLOAD_TOKEN_HEADER } from '@/features/alumni-stories/domain/alumni-story';
 import {
   acquireGlobalTestDbLock,
   closePool,
@@ -30,7 +31,7 @@ const { LocalMediaStore } =
   await import('@/features/alumni-stories/infrastructure/local-media-store');
 const { AlumniStoryService } =
   await import('@/features/alumni-stories/application/alumni-story-service');
-const { createAlumniStoryUploads, UPLOAD_TOKEN_HEADER } =
+const { createAlumniStoryUploads } =
   await import('@/features/alumni-stories/infrastructure/tus-upload-server');
 
 class FakeClock {

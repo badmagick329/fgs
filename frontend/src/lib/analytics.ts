@@ -12,6 +12,7 @@ declare global {
  */
 export type AnalyticsEvent =
   | 'Registration'
+  | 'Alumni Story'
   | 'Phone Click'
   | 'Email Click'
   | '404';
