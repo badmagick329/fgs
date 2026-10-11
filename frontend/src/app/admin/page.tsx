@@ -23,7 +23,7 @@ export default function AdminToolsPage() {
         <AdminHeader />
         <AdminActions
           navigationHref={ROUTES.registrations}
-          navigationLabel='Back to registrations'
+          navigationLabel='Registrations'
           extraLinks={[
             { href: ROUTES.admin.alumniStories, label: 'Alumni stories' },
           ]}
