@@ -1,4 +1,5 @@
 import { IClock } from '@/lib/server/i-clock';
+import { RateLimiter } from '@/lib/server/rate-limiter';
 
 export const REGISTER_RATE_LIMIT_MAX_REQUESTS = 5;
 export const REGISTER_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -16,12 +17,6 @@ export type AntiSpamCheckResult =
       message: string;
     };
 
-type RateLimitEntry = {
-  count: number;
-  windowEndsAtMs: number;
-  blockedUntilMs: number;
-};
-
 const RATE_LIMIT_MESSAGE =
   'Too many attempts from this network. Please try again in a few minutes.';
 const HONEYPOT_MESSAGE =
@@ -32,48 +27,26 @@ const DUPLICATE_PAYLOAD_MESSAGE =
   'This registration was already submitted recently. Please wait before submitting again.';
 
 export class RegistrationAntiSpamService {
-  private readonly rateLimits = new Map<string, RateLimitEntry>();
+  private readonly rateLimiter: RateLimiter;
   private readonly payloadCooldowns = new Map<string, number>();
   private lastPruneAtMs = 0;
 
-  constructor(private readonly clock: IClock) {}
+  constructor(private readonly clock: IClock) {
+    this.rateLimiter = new RateLimiter(clock, {
+      maxRequests: REGISTER_RATE_LIMIT_MAX_REQUESTS,
+      windowMs: REGISTER_RATE_LIMIT_WINDOW_MS,
+      blockMs: REGISTER_RATE_LIMIT_BLOCK_MS,
+    });
+  }
 
   checkRateLimit(input: { ip: string; route: string }): AntiSpamCheckResult {
-    const nowMs = this.clock.nowMs();
-    this.pruneExpiredEntries(nowMs);
-
-    const key = `${input.ip}:${input.route}`;
-    const current = this.rateLimits.get(key);
-
-    if (current && current.blockedUntilMs > nowMs) {
+    if (!this.rateLimiter.allow(`${input.ip}:${input.route}`)) {
       return {
         ok: false,
         status: 429,
         message: RATE_LIMIT_MESSAGE,
       };
     }
-
-    const entry =
-      current && current.windowEndsAtMs > nowMs
-        ? current
-        : {
-            count: 0,
-            windowEndsAtMs: nowMs + REGISTER_RATE_LIMIT_WINDOW_MS,
-            blockedUntilMs: 0,
-          };
-
-    entry.count += 1;
-    if (entry.count > REGISTER_RATE_LIMIT_MAX_REQUESTS) {
-      entry.blockedUntilMs = nowMs + REGISTER_RATE_LIMIT_BLOCK_MS;
-      this.rateLimits.set(key, entry);
-      return {
-        ok: false,
-        status: 429,
-        message: RATE_LIMIT_MESSAGE,
-      };
-    }
-
-    this.rateLimits.set(key, entry);
     return { ok: true };
   }
 
@@ -176,12 +149,6 @@ export class RegistrationAntiSpamService {
   private pruneExpiredEntries(nowMs: number) {
     if (nowMs - this.lastPruneAtMs < 60 * 1000) {
       return;
-    }
-
-    for (const [key, entry] of this.rateLimits.entries()) {
-      if (entry.windowEndsAtMs <= nowMs && entry.blockedUntilMs <= nowMs) {
-        this.rateLimits.delete(key);
-      }
     }
 
     for (const [key, cooldownUntilMs] of this.payloadCooldowns.entries()) {

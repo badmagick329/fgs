@@ -18,4 +18,6 @@ export interface IMediaStore {
   ): Promise<ReadableStream<Uint8Array>>;
   /** Removes the object; a missing key is not an error. */
   delete(key: string): Promise<void>;
+  /** Removes every object under `prefix/`, including ones no row records. */
+  deletePrefix(prefix: string): Promise<void>;
 }

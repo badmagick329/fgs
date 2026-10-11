@@ -152,15 +152,16 @@ export type NewAlumniStoryMedia = {
   originalFilename: string | null;
 };
 
-/** Why an upload is refused, or null when it fits the story's limits. */
-export function mediaUploadViolation(
-  upload: { kind: MediaKind; mimeType: string; sizeBytes: number },
+/**
+ * Why an upload of `sizeBytes` may not start, or null when it may. Checked
+ * when an upload is created, before any bytes arrive; the type is only known
+ * once the file's first bytes are in.
+ */
+export function mediaUploadStartViolation(
+  upload: { kind: MediaKind; sizeBytes: number },
   existingOfKind: number
 ): string | null {
   const limits = MEDIA_LIMITS[upload.kind];
-  if (!limits.mimeTypes.includes(upload.mimeType)) {
-    return `Unsupported ${upload.kind} type ${upload.mimeType}`;
-  }
   if (upload.sizeBytes <= 0 || upload.sizeBytes > limits.maxBytes) {
     return `A ${upload.kind} must be at most ${limits.maxBytes / 1024 / 1024} MB`;
   }
@@ -168,6 +169,17 @@ export function mediaUploadViolation(
     return `A story can have at most ${limits.maxCount} ${upload.kind}${limits.maxCount === 1 ? '' : 's'}`;
   }
   return null;
+}
+
+/** Why a finished upload is refused, or null when it fits the story's limits. */
+export function mediaUploadViolation(
+  upload: { kind: MediaKind; mimeType: string; sizeBytes: number },
+  existingOfKind: number
+): string | null {
+  if (!MEDIA_LIMITS[upload.kind].mimeTypes.includes(upload.mimeType)) {
+    return `Unsupported ${upload.kind} type ${upload.mimeType}`;
+  }
+  return mediaUploadStartViolation(upload, existingOfKind);
 }
 
 /**

@@ -46,6 +46,8 @@ const MIME_EXTENSIONS: Record<string, string> = {
 export const hashUploadToken = (token: string) =>
   createHash('sha256').update(token).digest('hex');
 
+const storyMediaPrefix = (storyId: number) => `stories/${storyId}`;
+
 const fail = <T>(
   error: AlumniStoryError,
   message: string
@@ -82,6 +84,10 @@ export class AlumniStoryService {
     );
   }
 
+  countOriginalMedia(storyId: number, kind: MediaKind) {
+    return this.repository.countOriginalMedia(storyId, kind);
+  }
+
   /**
    * Stores an original upload and records it. Limits are checked before the
    * bytes are written and again, atomically, when the row is inserted; the
@@ -112,7 +118,7 @@ export class AlumniStoryService {
       );
     }
 
-    const storageKey = `stories/${storyId}/${randomUUID()}.${MIME_EXTENSIONS[upload.mimeType]}`;
+    const storageKey = `${storyMediaPrefix(storyId)}/${randomUUID()}.${MIME_EXTENSIONS[upload.mimeType]}`;
     const { sizeBytes } = await this.mediaStore.put(storageKey, upload.body);
     if (sizeBytes !== upload.sizeBytes) {
       await this.mediaStore.delete(storageKey);
@@ -168,6 +174,22 @@ export class AlumniStoryService {
     return story
       ? { ok: true, data: story }
       : fail('not-draft', 'This story has already been submitted');
+  }
+
+  /**
+   * Removes drafts whose upload window has closed. Files go first, so a
+   * failure leaves the row behind for the next sweep instead of orphaning
+   * files no row points at.
+   */
+  async sweepExpiredDrafts() {
+    const now = this.clock.now();
+    const storyIds = await this.repository.listExpiredDraftIds(now);
+    for (const storyId of storyIds) {
+      await this.mediaStore.deletePrefix(storyMediaPrefix(storyId));
+    }
+    return storyIds.length
+      ? this.repository.deleteExpiredDrafts(storyIds, now)
+      : 0;
   }
 
   listByStatus(status: AlumniStoryStatus) {

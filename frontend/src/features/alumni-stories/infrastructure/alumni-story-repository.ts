@@ -149,6 +149,27 @@ export class AlumniStoryRepository implements IAlumniStoryRepository {
     return res.rows[0] ? alumniStorySchema.parse(res.rows[0]) : null;
   }
 
+  async listExpiredDraftIds(now: Date) {
+    const res = await this.pool.query<{ id: number }>(
+      `SELECT id FROM alumni_stories
+       WHERE status = 'draft' AND upload_token_expires_at <= $1
+       ORDER BY id`,
+      [now]
+    );
+    return res.rows.map((row) => row.id);
+  }
+
+  async deleteExpiredDrafts(storyIds: number[], now: Date) {
+    const res = await this.pool.query(
+      `DELETE FROM alumni_stories
+       WHERE id = ANY($1::int[])
+         AND status = 'draft'
+         AND upload_token_expires_at <= $2`,
+      [storyIds, now]
+    );
+    return res.rowCount ?? 0;
+  }
+
   async listByStatus(status: AlumniStoryStatus) {
     const res = await this.pool.query(
       `SELECT ${STORY_COLUMNS_QUALIFIED},

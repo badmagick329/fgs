@@ -10,18 +10,30 @@ import { Token } from '@/features/admin/infrastructure/token';
 import { AlumniStoryService } from '@/features/alumni-stories/application/alumni-story-service';
 import { AlumniStoryRepository } from '@/features/alumni-stories/infrastructure/alumni-story-repository';
 import { LocalMediaStore } from '@/features/alumni-stories/infrastructure/local-media-store';
+import { createAlumniStoryUploads } from '@/features/alumni-stories/infrastructure/tus-upload-server';
 import { RegistrationAntiSpamService } from '@/features/registration/application/registration-anti-spam-service';
 import { RegistrationService } from '@/features/registration/application/registration-service';
 import { RegistrationRepository } from '@/features/registration/infrastructure/registration-repository';
+import path from 'node:path';
 import { Pool } from 'pg';
 import 'server-only';
 import { Clock } from '@/lib/server/clock';
 import { EnvConfig } from '@/lib/server/env-config';
 import { Notifier } from '@/lib/server/notifier';
+import { RateLimiter } from '@/lib/server/rate-limiter';
+
+/** Drafts per IP: room for a family or an event sharing one connection. */
+const ALUMNI_STORY_DRAFT_RATE_LIMIT = {
+  maxRequests: 10,
+  windowMs: 10 * 60 * 1000,
+  blockMs: 10 * 60 * 1000,
+};
 
 export type ServerContainer = {
   adminAccessService: AdminAccessService;
   alumniStoryService: AlumniStoryService;
+  alumniStoryUploads: ReturnType<typeof createAlumniStoryUploads>;
+  alumniStoryDraftRateLimiter: RateLimiter;
   adminManagementService: AdminManagementService;
   registrationService: RegistrationService;
   registrationAntiSpamService: RegistrationAntiSpamService;
@@ -52,6 +64,7 @@ const createServerContainer = (): ServerContainer => {
   // Built on first use so a missing MEDIA_ROOT only breaks Alumni Connect,
   // not admin or registration.
   let alumniStoryService: AlumniStoryService | undefined;
+  let alumniStoryUploads: ServerContainer['alumniStoryUploads'] | undefined;
 
   return {
     get alumniStoryService() {
@@ -62,6 +75,19 @@ const createServerContainer = (): ServerContainer => {
       );
       return alumniStoryService;
     },
+    get alumniStoryUploads() {
+      alumniStoryUploads ??= createAlumniStoryUploads({
+        stories: this.alumniStoryService,
+        // Inside the media volume, so half-done uploads survive a redeploy.
+        directory: path.join(envConfig.getMediaRoot(), '.incoming'),
+        clock,
+      });
+      return alumniStoryUploads;
+    },
+    alumniStoryDraftRateLimiter: new RateLimiter(
+      clock,
+      ALUMNI_STORY_DRAFT_RATE_LIMIT
+    ),
     adminAccessService: new AdminAccessService(
       adminRepository,
       passwordHasher,

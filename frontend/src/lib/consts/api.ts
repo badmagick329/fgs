@@ -1,6 +1,8 @@
 export const API = {
   register: '/api/register',
   registerStatus: '/api/register/status',
+  alumniStories: '/api/alumni-stories',
+  alumniStoryUploads: '/api/alumni-stories/uploads',
   admin: {
     login: '/api/admin/login',
     logout: '/api/admin/logout',

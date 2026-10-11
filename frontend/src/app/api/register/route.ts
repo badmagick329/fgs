@@ -6,25 +6,9 @@ import { normalizeRegistrationCampus } from '@/features/registration/domain/regi
 import { NextResponse } from 'next/server';
 import { API } from '@/lib/consts';
 import { Result, errorsFromZod } from '@/lib/result';
+import { getClientIp } from '@/lib/server/client-ip';
 import { getServerContainer } from '@/lib/server/container';
 import { errorMessageFromErrors } from '@/lib/utils';
-
-function getClientIp(req: Request): string {
-  const forwardedFor = req.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    const firstIp = forwardedFor.split(',')[0]?.trim();
-    if (firstIp) {
-      return firstIp;
-    }
-  }
-
-  const realIp = req.headers.get('x-real-ip')?.trim();
-  if (realIp) {
-    return realIp;
-  }
-
-  return 'unknown';
-}
 
 export async function GET() {
   const { adminAccessService, registrationService } = getServerContainer();

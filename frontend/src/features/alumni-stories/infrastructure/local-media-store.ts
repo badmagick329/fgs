@@ -70,6 +70,10 @@ export class LocalMediaStore implements IMediaStore {
     await rm(this.resolve(key), { force: true });
   }
 
+  async deletePrefix(prefix: string) {
+    await rm(this.resolve(prefix), { recursive: true, force: true });
+  }
+
   private resolve(key: string) {
     if (!KEY_PATTERN.test(key) || key.includes('..')) {
       throw new Error(`Invalid media key: ${key}`);

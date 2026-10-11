@@ -81,6 +81,18 @@ describe('LocalMediaStore', () => {
     expect(await store.stat('stories/1/a.mp4')).toBeNull();
   });
 
+  it('deletes everything under a prefix and leaves siblings', async () => {
+    await store.put('stories/1/a.mp4', streamOf('x'));
+    await store.put('stories/1/b.jpg', streamOf('y'));
+    await store.put('stories/2/c.jpg', streamOf('z'));
+
+    await store.deletePrefix('stories/1');
+    await store.deletePrefix('stories/1');
+
+    expect(await store.stat('stories/1/a.mp4')).toBeNull();
+    expect(await readdir(path.join(root, 'stories'))).toEqual(['2']);
+  });
+
   it('rejects reads of missing keys', async () => {
     await expect(store.read('stories/1/missing.mp4')).rejects.toThrow();
   });
