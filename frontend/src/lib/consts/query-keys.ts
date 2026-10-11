@@ -4,4 +4,5 @@ export const QUERY_KEYS = {
   adminUsers: ['admin-users'],
   adminConfig: ['admin-config'],
   adminSession: ['admin-session'],
+  alumniStories: ['alumni-stories'],
 } as const;

@@ -166,6 +166,29 @@ export type AlumniStoryWithMedia = {
   media: AlumniStoryMedia[];
 };
 
+/** Statuses an admin can list; drafts are uploads still in progress. */
+export const SUBMITTED_ALUMNI_STORY_STATUSES = [
+  'pending',
+  'approved',
+  'rejected',
+] as const satisfies readonly AlumniStoryStatus[];
+
+/** Media as the admin API sends it: storage keys stay on the server. */
+export const adminAlumniStoryMediaSchema = alumniStoryMediaSchema.omit({
+  storage_key: true,
+});
+
+export type AdminAlumniStoryMedia = z.infer<typeof adminAlumniStoryMediaSchema>;
+
+export const adminAlumniStoryDetailSchema = z.object({
+  story: alumniStorySchema,
+  media: z.array(adminAlumniStoryMediaSchema),
+});
+
+export type AdminAlumniStoryDetail = z.infer<
+  typeof adminAlumniStoryDetailSchema
+>;
+
 export type NewAlumniStoryMedia = {
   kind: MediaKind;
   variant: MediaVariant;

@@ -47,6 +47,7 @@ export interface IAlumniStoryRepository {
   deleteExpiredDrafts(storyIds: number[], now: Date): Promise<number>;
   listByStatus(status: AlumniStoryStatus): Promise<AlumniStorySummary[]>;
   getWithMedia(storyId: number): Promise<AlumniStoryWithMedia | null>;
+  getMedia(mediaId: number): Promise<AlumniStoryMedia | null>;
   setReview(
     storyId: number,
     decision: AlumniStoryReviewDecision,

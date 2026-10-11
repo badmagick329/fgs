@@ -217,6 +217,15 @@ export class AlumniStoryService {
     return this.repository.getWithMedia(storyId);
   }
 
+  getMedia(mediaId: number) {
+    return this.repository.getMedia(mediaId);
+  }
+
+  /** Streams a media file, or its inclusive byte range, for admin playback. */
+  readMedia(media: AlumniStoryMedia, range?: { start: number; end: number }) {
+    return this.mediaStore.read(media.storage_key, range);
+  }
+
   async review(
     storyId: number,
     decision: AlumniStoryReviewDecision,

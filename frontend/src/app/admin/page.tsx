@@ -24,6 +24,9 @@ export default function AdminToolsPage() {
         <AdminActions
           navigationHref={ROUTES.registrations}
           navigationLabel='Back to registrations'
+          extraLinks={[
+            { href: ROUTES.admin.alumniStories, label: 'Alumni stories' },
+          ]}
         />
 
         <div className='mt-8 grid gap-6 lg:grid-cols-2'>

@@ -264,4 +264,16 @@ describe('Alumni stories (repository + service) integration', () => {
     expect(found?.media.map((m) => m.kind)).toEqual(['video', 'photo']);
     expect(found?.media[0].size_bytes).toBe(20);
   });
+
+  it('finds one media file by id and streams its bytes', async () => {
+    const { story } = await service.createDraft(draftInput);
+    const added = await service.addOriginalMedia(story.id, photo(12));
+    if (!added.ok) throw new Error(added.message);
+
+    const media = await service.getMedia(added.data.id);
+    expect(media).toMatchObject({ story_id: story.id, size_bytes: 12 });
+    const body = await service.readMedia(media!, { start: 2, end: 5 });
+    expect((await new Response(body).arrayBuffer()).byteLength).toBe(4);
+    expect(await service.getMedia(added.data.id + 1000)).toBeNull();
+  });
 });

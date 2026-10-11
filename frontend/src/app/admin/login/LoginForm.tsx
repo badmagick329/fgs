@@ -1,8 +1,8 @@
 'use client';
 
-import { API, ROUTES } from '@/lib/consts';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { API, ROUTES } from '@/lib/consts';
 
 export default function LoginForm() {
   const router = useRouter();

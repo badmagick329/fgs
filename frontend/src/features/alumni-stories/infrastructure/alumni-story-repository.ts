@@ -204,6 +204,14 @@ export class AlumniStoryRepository implements IAlumniStoryRepository {
     };
   }
 
+  async getMedia(mediaId: number) {
+    const res = await this.pool.query(
+      'SELECT * FROM alumni_story_media WHERE id = $1',
+      [mediaId]
+    );
+    return res.rows[0] ? alumniStoryMediaSchema.parse(res.rows[0]) : null;
+  }
+
   async setReview(
     storyId: number,
     decision: AlumniStoryReviewDecision,

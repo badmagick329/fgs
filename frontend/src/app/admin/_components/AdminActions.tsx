@@ -9,15 +9,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { API, QUERY_KEYS, ROUTES } from '@/lib/consts';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { API, QUERY_KEYS, ROUTES } from '@/lib/consts';
 
 type AdminActionsProps = {
   navigationHref: string;
   navigationLabel: string;
+  extraLinks?: { href: string; label: string }[];
   className?: string;
 };
 
@@ -30,6 +31,7 @@ type AdminSessionResponse = {
 export function AdminActions({
   navigationHref,
   navigationLabel,
+  extraLinks = [],
   className,
 }: AdminActionsProps) {
   const router = useRouter();
@@ -89,6 +91,15 @@ export function AdminActions({
         <Link href={navigationHref} className='fgs-btn-secondary w-fit'>
           {navigationLabel}
         </Link>
+        {extraLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className='fgs-btn-secondary w-fit'
+          >
+            {link.label}
+          </Link>
+        ))}
         <AlertDialog
           open={isLogoutDialogOpen}
           onOpenChange={(open) => {
@@ -114,7 +125,9 @@ export function AdminActions({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isLoggingOut}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={isLoggingOut}>
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
                 variant='destructive'
                 disabled={isLoggingOut}

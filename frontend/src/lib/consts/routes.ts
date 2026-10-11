@@ -5,6 +5,8 @@ export const ROUTES = {
     login: '/admin/login',
     setup: '/admin/setup',
     users: '/admin/users',
+    alumniStories: '/admin/alumni-stories',
+    alumniStory: (id: number | string) => `/admin/alumni-stories/${id}`,
   },
 } as const;
 
