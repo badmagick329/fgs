@@ -15,12 +15,12 @@ export type AlumniStoryReviewDecision =
 export const MEDIA_KINDS = ['video', 'photo'] as const;
 export type MediaKind = (typeof MEDIA_KINDS)[number];
 
-export const MEDIA_VARIANTS = ['original', 'edited', 'display'] as const;
+export const MEDIA_VARIANTS = ['original', 'edited'] as const;
 export type MediaVariant = (typeof MEDIA_VARIANTS)[number];
 
 /**
- * Which video the public page shows: the alumnus's own, or the school's edit
- * of it. Original until an admin uploads an edit and picks it.
+ * Which video goes on the hand-built display page: the alumnus's own, or the
+ * school's edit of it. Original until an admin uploads an edit and picks it.
  */
 export const PUBLIC_VIDEO_VARIANTS = [
   'original',
@@ -144,7 +144,6 @@ export const alumniStorySchema = z.object({
   submitted_at: z.coerce.date().nullable(),
   reviewed_at: z.coerce.date().nullable(),
   reviewed_by_admin_user_id: z.number().nullable(),
-  display_order: z.number().nullable(),
   public_video_variant: z.enum(PUBLIC_VIDEO_VARIANTS),
 });
 

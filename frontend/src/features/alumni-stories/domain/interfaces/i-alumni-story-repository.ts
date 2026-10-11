@@ -62,7 +62,7 @@ export interface IAlumniStoryRepository {
     media: Omit<NewAlumniStoryMedia, 'kind' | 'variant'>
   ): Promise<ReplaceEditedVideoOutcome>;
   /**
-   * Sets which video the public page shows, or returns null when the story
+   * Sets which video the display page uses, or returns null when the story
    * is a draft, is missing, or has no edited video to pick.
    */
   setPublicVideoVariant(

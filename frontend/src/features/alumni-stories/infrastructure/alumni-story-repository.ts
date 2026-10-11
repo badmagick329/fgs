@@ -21,7 +21,7 @@ import 'server-only';
 const STORY_COLUMNS = `
   id, status, full_name, graduation_year, profession, contact, story_text,
   created_at, submitted_at, reviewed_at, reviewed_by_admin_user_id,
-  display_order, public_video_variant`;
+  public_video_variant`;
 
 const STORY_COLUMNS_QUALIFIED = STORY_COLUMNS.split(',')
   .map((column) => `s.${column.trim()}`)

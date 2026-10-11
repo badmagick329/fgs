@@ -80,6 +80,7 @@ export async function ensureSchema(pool: Pool) {
   for (const migration of [
     '005_create_alumni_stories.sql',
     '006_add_alumni_story_public_video.sql',
+    '007_drop_alumni_story_display_fields.sql',
   ]) {
     await pool.query(
       await readFile(

@@ -36,7 +36,7 @@ export async function GET(
   return respond({ ok: true, data });
 }
 
-/** Picks which video the public page shows: the original or the edit. */
+/** Picks which video the display page uses: the original or the edit. */
 export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }

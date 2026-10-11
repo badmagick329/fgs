@@ -225,7 +225,7 @@ export class AlumniStoryService {
 
   /**
    * Stores the school's edit of a submitted story's video, replacing any
-   * earlier edit. The original stays, and the public page keeps showing
+   * earlier edit. The original stays, and the display page keeps using
    * whichever video was picked; an admin switches with choosePublicVideo.
    */
   async replaceEditedVideo(

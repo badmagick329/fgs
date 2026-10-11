@@ -123,7 +123,10 @@ const DECISIONS = [
   },
 ] as const;
 
-/** Approved stories go on the public page; a decision can be changed later. */
+/**
+ * Approved stories are the shortlist the school picks the hand-built display
+ * page from; a decision can be changed later.
+ */
 function ReviewSection({ story }: { story: AlumniStory }) {
   const review = useReviewAlumniStory(story.id);
 
@@ -166,8 +169,8 @@ function ReviewSection({ story }: { story: AlumniStory }) {
 }
 
 /**
- * The alumnus's video and the school's edit side by side. The site shows the
- * original until an admin uploads an edit and picks it.
+ * The alumnus's video and the school's edit side by side. The display page
+ * uses the original until an admin uploads an edit and picks it.
  */
 function VideoSection({
   story,
@@ -203,7 +206,7 @@ function VideoSection({
               {story.public_video_variant === variant ? (
                 <span className='inline-flex items-center gap-1 rounded-full bg-fgs-surface px-3 py-1 text-sm font-medium'>
                   <Globe className='size-4' aria-hidden />
-                  Shown on the site
+                  Chosen for the site
                 </span>
               ) : (
                 <button
@@ -212,7 +215,7 @@ function VideoSection({
                   disabled={choose.isPending}
                   onClick={() => choose.mutate(variant)}
                 >
-                  Show this one on the site
+                  Use this one on the site
                 </button>
               )}
             </div>
@@ -304,8 +307,8 @@ function EditedVideoUpload({
         <p className='text-error mt-2'>{upload.message}</p>
       ) : (
         <p className='mt-2 text-sm text-muted-foreground'>
-          The original is kept. Uploading doesn&apos;t change what the site
-          shows until you pick the edit.
+          The original is kept. Uploading doesn&apos;t change which video
+          the site uses until you pick the edit.
         </p>
       )}
     </div>
