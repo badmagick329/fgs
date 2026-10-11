@@ -44,7 +44,8 @@ const draftInput = {
   fullName: 'Ayesha Khan',
   graduationYear: 2010,
   profession: 'Commercial pilot',
-  contact: 'ayesha@example.com',
+  phone: null,
+  email: 'ayesha@example.com',
   storyText: null,
 };
 

@@ -86,7 +86,8 @@ const draftInput = {
   fullName: 'Ayesha Khan',
   graduationYear: 2010,
   profession: 'Commercial pilot',
-  contact: 'ayesha@example.com',
+  phone: null,
+  email: 'ayesha@example.com',
   storyText: null,
 };
 
@@ -102,6 +103,8 @@ describe('Alumni story upload client against the tus server', () => {
   let stories: InstanceType<typeof AlumniStoryService>;
   let http: ReturnType<typeof Bun.serve>;
   let endpoint: string;
+  let freeBytes: number;
+  let uploadCreates: number;
 
   beforeAll(async () => {
     lockClient = (await acquireGlobalTestDbLock(pool)) as PoolClient;
@@ -116,12 +119,22 @@ describe('Alumni story upload client against the tus server', () => {
       new LocalMediaStore(mediaRoot),
       { now: () => new Date(), nowMs: () => Date.now() }
     );
+    freeBytes = 100 * 1024 ** 3;
+    uploadCreates = 0;
     const { server } = createAlumniStoryUploads({
       stories,
       directory: path.join(mediaRoot, '.incoming'),
+      diskSpace: { freeBytes: async () => freeBytes },
+      notifier: { sendMessage: async () => ({}) },
       clock: { now: () => new Date(), nowMs: () => Date.now() },
     });
-    http = Bun.serve({ port: 0, fetch: (req) => server.handleWeb(req) });
+    http = Bun.serve({
+      port: 0,
+      fetch: (req) => {
+        if (req.method === 'POST') uploadCreates++;
+        return server.handleWeb(req);
+      },
+    });
     endpoint = `http://localhost:${http.port}/api/alumni-stories/uploads`;
   });
 
@@ -186,6 +199,22 @@ describe('Alumni story upload client against the tus server', () => {
     }).run();
 
     expect(outcome).toMatchObject({ outcome: 'refused', status: 415 });
+  });
+
+  it('gives up at once when the server’s disk is nearly full', async () => {
+    const { uploadToken } = await stories.createDraft(draftInput);
+    freeBytes = 1024 ** 3;
+
+    const outcome = await createMediaUpload(mp4Bytes(100), {
+      uploadToken,
+      kind: 'video',
+      endpoint,
+      httpStack: fetchHttpStack,
+      onProgress: () => undefined,
+    }).run();
+
+    expect(outcome).toMatchObject({ outcome: 'refused', status: 507 });
+    expect(uploadCreates).toBe(1);
   });
 
   it('refuses to submit a story with nothing in it', async () => {

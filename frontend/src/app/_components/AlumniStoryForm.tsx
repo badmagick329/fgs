@@ -1,5 +1,8 @@
 'use client';
 
+import TurnstileWidget, {
+  type TurnstileHandle,
+} from '@/app/_components/TurnstileWidget';
 import { alumniConnectContent } from '@/app/_site-v2/content';
 import { FgsBookSpinner, FgsLogo } from '@/components/brand/FgsLogo';
 import {
@@ -11,12 +14,12 @@ import {
   createAlumniStoryDraftSchema,
 } from '@/features/alumni-stories/domain/alumni-story';
 import {
+  type AlumniStorySubmission,
   type MediaItem,
-  useAlumniStorySubmission,
 } from '@/features/alumni-stories/presentation/useAlumniStorySubmission';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckCircle2, ImageIcon, Video, X } from 'lucide-react';
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +30,8 @@ const defaultValues: Partial<CreateAlumniStoryDraftInput> = {
   fullName: '',
   graduationYear: undefined,
   profession: '',
-  contact: '',
+  phone: '',
+  email: '',
   storyText: '',
 };
 
@@ -161,9 +165,16 @@ function MediaItemRow({
   );
 }
 
-export default function AlumniStoryForm() {
-  const submission = useAlumniStorySubmission();
+export default function AlumniStoryForm({
+  submission,
+  turnstileSiteKey,
+}: {
+  submission: AlumniStorySubmission;
+  turnstileSiteKey: string;
+}) {
   const { phase, items, busy, notice } = submission;
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<TurnstileHandle>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
@@ -180,7 +191,10 @@ export default function AlumniStoryForm() {
   });
 
   async function onSubmit(values: CreateAlumniStoryDraft) {
-    const fieldErrors = await submission.send(values);
+    const fieldErrors = await submission.send(values, captchaToken);
+    // A sent token is spent. Once the draft exists the widget is gone and
+    // this does nothing; otherwise the next attempt needs a new token.
+    if (captchaToken) captchaRef.current?.reset();
     fieldErrors?.forEach((error) => {
       if (!error.field) return;
       setError(error.field as keyof CreateAlumniStoryDraftInput, {
@@ -298,7 +312,7 @@ export default function AlumniStoryForm() {
           <input
             id='profession'
             type='text'
-            placeholder='e.g. Commercial pilot, software engineer, doctor'
+            placeholder='e.g. Civil servant, commercial pilot, lawyer'
             {...register('profession')}
             aria-invalid={!!errors.profession}
             aria-describedby={describedBy(
@@ -309,25 +323,36 @@ export default function AlumniStoryForm() {
           />
         </Field>
 
-        <Field
-          id='contact'
-          label='Phone or Email'
-          hint={alumniConnectContent.contactHint}
-          error={errors.contact?.message}
-        >
-          <input
-            id='contact'
-            type='text'
-            {...register('contact')}
-            aria-invalid={!!errors.contact}
-            aria-describedby={describedBy(
-              'contact',
-              errors.contact?.message,
-              alumniConnectContent.contactHint
-            )}
-            className={inputClassName}
-          />
-        </Field>
+        <div>
+          <div className='grid gap-4 sm:grid-cols-2'>
+            <Field id='phone' label='Phone' error={errors.phone?.message}>
+              <input
+                id='phone'
+                type='tel'
+                autoComplete='tel'
+                placeholder='e.g. 0300 1234567'
+                {...register('phone')}
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? 'phone-error' : 'contact-hint'}
+                className={inputClassName}
+              />
+            </Field>
+            <Field id='email' label='Email' error={errors.email?.message}>
+              <input
+                id='email'
+                type='email'
+                autoComplete='email'
+                {...register('email')}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : 'contact-hint'}
+                className={inputClassName}
+              />
+            </Field>
+          </div>
+          <p id='contact-hint' className='mt-1.5 text-xs text-muted-foreground'>
+            {alumniConnectContent.contactHint}
+          </p>
+        </div>
 
         <Field
           id='storyText'
@@ -416,6 +441,16 @@ export default function AlumniStoryForm() {
         <p className='text-xs text-muted-foreground'>
           {alumniConnectContent.uploadNote}
         </p>
+
+        {/* Only the draft needs the check; uploads then use its token. */}
+        {phase === 'editing' ? (
+          <TurnstileWidget
+            ref={captchaRef}
+            siteKey={turnstileSiteKey}
+            action='alumni-story'
+            onToken={setCaptchaToken}
+          />
+        ) : null}
 
         {notice ? (
           <p

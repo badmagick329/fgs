@@ -19,7 +19,7 @@ import 'server-only';
 
 // Never select the upload token hash: it stays inside this repository.
 const STORY_COLUMNS = `
-  id, status, full_name, graduation_year, profession, contact, story_text,
+  id, status, full_name, graduation_year, profession, phone, email, story_text,
   created_at, submitted_at, reviewed_at, reviewed_by_admin_user_id,
   public_video_variant`;
 
@@ -38,16 +38,17 @@ export class AlumniStoryRepository implements IAlumniStoryRepository {
   ) {
     const res = await this.pool.query(
       `INSERT INTO alumni_stories (
-         full_name, graduation_year, profession, contact, story_text,
+         full_name, graduation_year, profession, phone, email, story_text,
          upload_token_hash, upload_token_expires_at
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING ${STORY_COLUMNS}`,
       [
         input.fullName,
         input.graduationYear,
         input.profession,
-        input.contact,
+        input.phone,
+        input.email,
         input.storyText,
         input.uploadTokenHash,
         input.uploadTokenExpiresAt,

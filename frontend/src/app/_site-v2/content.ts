@@ -331,7 +331,6 @@ export const registerContent = {
 export const contactDetails = contactContent;
 
 export const alumniConnectContent = {
-  eyebrow: 'FGS Alumni Connect',
   title: 'Share Your Story with Today’s Students',
   description: [
     'Tell current FGS students where life has taken you since school, and what they should focus on to get there. Your video may be shown at the Annual Prize Distribution Ceremony 2026.',
@@ -346,7 +345,7 @@ export const alumniConnectContent = {
   ],
   formTitle: 'Send Your Story',
   contactHint:
-    'Only the school sees this, in case they need to reach you about your story.',
+    'Give at least one. Only the school sees these, in case they need to reach you about your story.',
   storyTextHint:
     'Write your message to students here, or say it in a video. Which subjects, skills or areas should they focus on?',
   mediaTitle: 'Video and Photos',

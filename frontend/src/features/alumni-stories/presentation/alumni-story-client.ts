@@ -6,7 +6,7 @@ import {
   createdAlumniStoryDraftSchema,
   submittedAlumniStorySchema,
 } from '@/features/alumni-stories/domain/alumni-story';
-import { type HttpStack, Upload } from 'tus-js-client';
+import { type HttpStack, Upload, defaultOptions } from 'tus-js-client';
 import { z } from 'zod';
 import { API } from '@/lib/consts';
 import { Result, resultSchema } from '@/lib/result';
@@ -28,15 +28,26 @@ async function postForResult<T extends z.ZodTypeAny>(
   return parsed.data as Result<z.output<T>>;
 }
 
-/** Saves the alumnus's details as a draft and returns its upload token. */
-export function createAlumniStoryDraft(details: CreateAlumniStoryDraft) {
+/**
+ * Saves the alumnus's details as a draft and returns its upload token. The
+ * Turnstile token is spent whatever the outcome.
+ */
+export function createAlumniStoryDraft(
+  details: CreateAlumniStoryDraft,
+  captchaToken: string
+) {
   return postForResult(
     API.alumniStories,
     {
       headers: { 'Content-Type': 'application/json' },
+      // Blank optional fields parse to null; the draft schema takes a string
+      // or nothing, so they are left out.
       body: JSON.stringify({
         ...details,
+        phone: details.phone ?? undefined,
+        email: details.email ?? undefined,
         storyText: details.storyText ?? undefined,
+        captchaToken,
       }),
     },
     createdAlumniStoryDraftSchema
@@ -69,12 +80,17 @@ export type MediaUploadOutcome =
 
 const megabytes = (bytes: number) => `${bytes / 1024 / 1024} MB`;
 
+/** The server's disk is nearly full; space won't come back within a retry. */
+const DISK_FULL_STATUS = 507;
+
 /** Turns a tus failure into what the alumnus can do about it. */
 export function uploadOutcomeFromError(
   error: Error & { originalResponse?: { getStatus(): number } | null }
 ): MediaUploadOutcome {
   const status = error.originalResponse?.getStatus() ?? 0;
-  if (status < 400 || status >= 500) return { outcome: 'interrupted' };
+  if (status !== DISK_FULL_STATUS && (status < 400 || status >= 500)) {
+    return { outcome: 'interrupted' };
+  }
 
   const message = (() => {
     switch (status) {
@@ -86,6 +102,8 @@ export function uploadOutcomeFromError(
         return 'This file is not a video or photo we can accept. Try an MP4 or MOV video, or a JPEG, PNG, WEBP or HEIC photo.';
       case 422:
         return `A story can have ${MEDIA_LIMITS.video.maxCount} video and up to ${MEDIA_LIMITS.photo.maxCount} photos.`;
+      case DISK_FULL_STATUS:
+        return 'We cannot accept videos or photos right now. Remove this file to send your story without it, or try again later.';
       default:
         return 'This file could not be uploaded.';
     }
@@ -128,6 +146,9 @@ export function createMediaUpload(
     },
     chunkSize: UPLOAD_CHUNK_BYTES,
     retryDelays: UPLOAD_RETRY_DELAYS_MS,
+    onShouldRetry: (error, attempt, opts) =>
+      error.originalResponse?.getStatus() !== DISK_FULL_STATUS &&
+      Boolean(defaultOptions.onShouldRetry?.(error, attempt, opts)),
     // The token lives only in page memory, so an upload URL stored for
     // resuming after a reload could never be authorised again.
     storeFingerprintForResuming: false,

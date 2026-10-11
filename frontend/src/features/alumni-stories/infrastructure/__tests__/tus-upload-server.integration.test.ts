@@ -44,6 +44,7 @@ class FakeClock {
   }
 }
 
+const GB = 1024 ** 3;
 const ORIGIN = 'http://localhost';
 const UPLOADS_URL = `${ORIGIN}/api/alumni-stories/uploads`;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -52,7 +53,8 @@ const draftInput = {
   fullName: 'Ayesha Khan',
   graduationYear: 2010,
   profession: 'Commercial pilot',
-  contact: 'ayesha@example.com',
+  phone: null,
+  email: 'ayesha@example.com',
   storyText: null,
 };
 
@@ -86,6 +88,8 @@ describe('Alumni story tus uploads integration', () => {
   let stories: InstanceType<typeof AlumniStoryService>;
   let mediaStore: InstanceType<typeof LocalMediaStore>;
   let uploads: ReturnType<typeof createAlumniStoryUploads>;
+  let freeBytes: number;
+  let alerts: { source: string; message: string }[];
 
   const tus = (
     method: string,
@@ -160,7 +164,20 @@ describe('Alumni story tus uploads integration', () => {
       mediaStore,
       clock
     );
-    uploads = createAlumniStoryUploads({ stories, directory: incoming, clock });
+    freeBytes = 100 * GB;
+    alerts = [];
+    uploads = createAlumniStoryUploads({
+      stories,
+      directory: incoming,
+      diskSpace: { freeBytes: async () => freeBytes },
+      notifier: {
+        sendMessage: async (input) => {
+          alerts.push(input);
+          return {};
+        },
+      },
+      clock,
+    });
   });
 
   afterEach(async () => {
@@ -327,6 +344,42 @@ describe('Alumni story tus uploads integration', () => {
     expect(
       (await create(uploadToken, { kind: 'video', length: 100 })).status
     ).toBe(422);
+  });
+
+  it('refuses uploads that would cut into the free-space floor, alerting hourly', async () => {
+    const { uploadToken } = await stories.createDraft(draftInput);
+    const video = 300 * 1024 * 1024;
+
+    freeBytes = 20 * GB + video;
+    expect(
+      (await create(uploadToken, { kind: 'video', length: video })).status
+    ).toBe(201);
+
+    // Room for a photo but not for the video.
+    freeBytes = 20 * GB + video - 1;
+    expect(
+      (await create(uploadToken, { kind: 'video', length: video })).status
+    ).toBe(507);
+    expect(
+      (await create(uploadToken, { kind: 'photo', length: 10 })).status
+    ).toBe(201);
+
+    freeBytes = 20 * GB;
+    expect(
+      (await create(uploadToken, { kind: 'photo', length: 10 })).status
+    ).toBe(507);
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]).toMatchObject({ source: 'alumni-story.disk-low' });
+
+    clock.ms += 60 * 60 * 1000;
+    try {
+      expect(
+        (await create(uploadToken, { kind: 'photo', length: 10 })).status
+      ).toBe(507);
+      expect(alerts).toHaveLength(2);
+    } finally {
+      clock.ms -= 60 * 60 * 1000;
+    }
   });
 
   it('sweeps expired drafts with their files and keeps submitted stories', async () => {

@@ -5,16 +5,21 @@ import {
   DRAFT_LIFETIME_MS,
   MEDIA_KINDS,
   MEDIA_LIMITS,
+  MIN_FREE_DISK_BYTES,
   MediaKind,
   mediaUploadStartViolation,
 } from '@/features/alumni-stories/domain/alumni-story';
-import { IUploadStaging } from '@/features/alumni-stories/domain/interfaces';
+import {
+  IDiskSpace,
+  IUploadStaging,
+} from '@/features/alumni-stories/domain/interfaces';
 import {
   MEDIA_SNIFF_BYTES,
   sniffMediaType,
 } from '@/features/alumni-stories/domain/media-type';
 import * as z from 'zod';
 import { IClock } from '@/lib/server/i-clock';
+import { INotifier } from '@/lib/server/i-notifier';
 
 export type UploadError =
   | 'bad-request'
@@ -24,7 +29,8 @@ export type UploadError =
   | 'not-draft'
   | 'too-large'
   | 'invalid-media'
-  | 'limit-reached';
+  | 'limit-reached'
+  | 'disk-full';
 
 export type UploadResult<T> =
   | { ok: true; data: T }
@@ -54,6 +60,11 @@ type Reservation = {
 
 const FILENAME_MAX_LENGTH = 200;
 
+/** Refusals repeat on every upload while the disk stays low; admins need one ping. */
+const DISK_LOW_ALERT_INTERVAL_MS = 60 * 60 * 1000;
+
+const gigabytes = (bytes: number) => (bytes / 1024 ** 3).toFixed(1);
+
 // Filenames come from the client and are shown to admins.
 export const cleanFilename = (filename: string | null | undefined) =>
   filename
@@ -72,10 +83,13 @@ export const cleanFilename = (filename: string | null | undefined) =>
  */
 export class AlumniStoryUploadService {
   private readonly reservations = new Map<string, Reservation>();
+  private lastDiskLowAlertMs = -Infinity;
 
   constructor(
     private readonly stories: AlumniStoryService,
     private readonly staging: IUploadStaging,
+    private readonly diskSpace: IDiskSpace,
+    private readonly notifier: INotifier,
     private readonly clock: IClock
   ) {}
 
@@ -139,6 +153,8 @@ export class AlumniStoryUploadService {
         violation
       );
     }
+    const noRoom = await this.checkDiskRoom(upload.sizeBytes);
+    if (noRoom) return noRoom;
 
     await this.evictUnfinished(
       story.id,
@@ -234,6 +250,35 @@ export class AlumniStoryUploadService {
       }
     }
     return { drafts, stagedUploads };
+  }
+
+  /**
+   * Refuses an upload that would leave less than MIN_FREE_DISK_BYTES free.
+   * Uploads running side by side are all checked against the same free
+   * space; the floor dwarfs what they can add up to, so it holds anyway.
+   */
+  private async checkDiskRoom(
+    sizeBytes: number
+  ): Promise<UploadResult<never> | null> {
+    const freeBytes = await this.diskSpace.freeBytes();
+    if (freeBytes - sizeBytes >= MIN_FREE_DISK_BYTES) return null;
+
+    const nowMs = this.clock.nowMs();
+    if (nowMs - this.lastDiskLowAlertMs >= DISK_LOW_ALERT_INTERVAL_MS) {
+      this.lastDiskLowAlertMs = nowMs;
+      void this.notifier
+        .sendMessage({
+          source: 'alumni-story.disk-low',
+          message: `Alumni Connect is refusing new uploads: ${gigabytes(freeBytes)} GB free on the media disk, below the ${gigabytes(MIN_FREE_DISK_BYTES)} GB floor. Free up space on the server to accept them again.`,
+        })
+        .catch((error) => {
+          console.error('alumni story disk alert failed', error);
+        });
+    }
+    return fail(
+      'disk-full',
+      'The server cannot take new uploads right now. Try again later.'
+    );
   }
 
   private async evictUnfinished(

@@ -13,7 +13,8 @@ const details = {
   fullName: 'Ayesha Khan',
   graduationYear: 2010,
   profession: 'Commercial pilot',
-  contact: '03001234567',
+  phone: '03001234567',
+  email: null,
   storyText: null,
 };
 
@@ -34,7 +35,7 @@ describe('alumni story client', () => {
   });
 
   it('refuses for good on the statuses the upload server uses', () => {
-    for (const status of [403, 413, 415, 422]) {
+    for (const status of [403, 413, 415, 422, 507]) {
       const outcome = uploadOutcomeFromError(tusError(status));
       expect(outcome).toMatchObject({ outcome: 'refused', status });
     }
@@ -48,22 +49,27 @@ describe('alumni story client', () => {
       Response.json(
         {
           ok: false,
-          message: 'Enter a valid phone number or email address',
-          errors: [{ field: 'contact', message: 'Enter a valid phone' }],
+          message: 'Enter a valid phone number',
+          errors: [{ field: 'phone', message: 'Enter a valid phone number' }],
         },
         { status: 400 }
       )
     );
 
-    const result = await createAlumniStoryDraft(details);
+    const result = await createAlumniStoryDraft(details, 'captcha-token');
 
     expect(result).toMatchObject({
       ok: false,
-      errors: [{ field: 'contact' }],
+      errors: [{ field: 'phone' }],
     });
     const [, init] = fetchSpy.mock.calls[0];
-    // A null story is left out: the draft schema accepts a string or nothing.
-    expect(JSON.parse(String(init?.body))).not.toHaveProperty('storyText');
+    // Null optional fields are left out: the draft schema accepts a string or
+    // nothing.
+    const body = JSON.parse(String(init?.body));
+    expect(body).not.toHaveProperty('storyText');
+    expect(body).not.toHaveProperty('email');
+    expect(body.phone).toBe('03001234567');
+    expect(body.captchaToken).toBe('captcha-token');
   });
 
   it('reports an unreachable server instead of throwing', async () => {
@@ -71,7 +77,7 @@ describe('alumni story client', () => {
       new TypeError('Failed to fetch')
     );
 
-    const result = await createAlumniStoryDraft(details);
+    const result = await createAlumniStoryDraft(details, 'captcha-token');
 
     expect(result).toMatchObject({ ok: false });
   });

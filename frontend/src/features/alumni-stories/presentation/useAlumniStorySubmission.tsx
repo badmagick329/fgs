@@ -189,10 +189,14 @@ export function useAlumniStorySubmission() {
 
   /**
    * Creates the draft on first use, then sends the media. Returns the
-   * server's field errors when the details were refused.
+   * server's field errors when the details were refused. `captchaToken` is
+   * needed only for the first call, which creates the draft.
    */
   const send = useCallback(
-    async (details: CreateAlumniStoryDraft): Promise<ErrorRecord[] | null> => {
+    async (
+      details: CreateAlumniStoryDraft,
+      captchaToken: string | null
+    ): Promise<ErrorRecord[] | null> => {
       if (tokenRef.current) {
         await pump();
         return null;
@@ -205,11 +209,19 @@ export function useAlumniStorySubmission() {
         });
         return null;
       }
+      if (!captchaToken) {
+        setNotice({
+          tone: 'error',
+          message:
+            'Please wait for the security check above the button to finish, then send again.',
+        });
+        return null;
+      }
 
       sendingRef.current = true;
       setBusy(true);
       setNotice(null);
-      const draft = await createAlumniStoryDraft(details);
+      const draft = await createAlumniStoryDraft(details, captchaToken);
       sendingRef.current = false;
       setBusy(false);
       if (!draft.ok) {
@@ -324,3 +336,5 @@ export function useAlumniStorySubmission() {
     reset,
   };
 }
+
+export type AlumniStorySubmission = ReturnType<typeof useAlumniStorySubmission>;

@@ -9,7 +9,10 @@ import {
   MEDIA_LIMITS,
   UPLOAD_TOKEN_HEADER,
 } from '@/features/alumni-stories/domain/alumni-story';
-import { IUploadStaging } from '@/features/alumni-stories/domain/interfaces';
+import {
+  IDiskSpace,
+  IUploadStaging,
+} from '@/features/alumni-stories/domain/interfaces';
 import { FileStore } from '@tus/file-store';
 import { ERRORS, EVENTS, Server, type ServerOptions } from '@tus/server';
 import { open } from 'node:fs/promises';
@@ -18,6 +21,7 @@ import { Readable } from 'node:stream';
 import 'server-only';
 import { API } from '@/lib/consts';
 import { IClock } from '@/lib/server/i-clock';
+import { INotifier } from '@/lib/server/i-notifier';
 
 const STATUS_BY_ERROR: Record<UploadError, number> = {
   'bad-request': 400,
@@ -29,6 +33,8 @@ const STATUS_BY_ERROR: Record<UploadError, number> = {
   'invalid-media': 415,
   // Not 409: tus clients treat 409 as an offset conflict and retry.
   'limit-reached': 422,
+  // Our client does not retry 507; a full disk outlasts any retry delay.
+  'disk-full': 507,
 };
 
 const tusError = (result: { error: UploadError; message: string }) => ({
@@ -105,6 +111,8 @@ const onResponseError: ServerOptions['onResponseError'] = (_req, error) => {
 export function createAlumniStoryUploads(options: {
   stories: AlumniStoryService;
   directory: string;
+  diskSpace: IDiskSpace;
+  notifier: INotifier;
   clock: IClock;
 }) {
   const store = new FileStore({
@@ -114,6 +122,8 @@ export function createAlumniStoryUploads(options: {
   const uploads = new AlumniStoryUploadService(
     options.stories,
     new FileStoreStaging(store),
+    options.diskSpace,
+    options.notifier,
     options.clock
   );
 

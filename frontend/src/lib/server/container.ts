@@ -10,6 +10,7 @@ import { Token } from '@/features/admin/infrastructure/token';
 import { AlumniStoryService } from '@/features/alumni-stories/application/alumni-story-service';
 import { AlumniStoryRepository } from '@/features/alumni-stories/infrastructure/alumni-story-repository';
 import { LocalMediaStore } from '@/features/alumni-stories/infrastructure/local-media-store';
+import { StatfsDiskSpace } from '@/features/alumni-stories/infrastructure/statfs-disk-space';
 import {
   createAlumniStoryUploads,
   createEditedVideoUploads,
@@ -22,11 +23,17 @@ import { Pool } from 'pg';
 import 'server-only';
 import { Clock } from '@/lib/server/clock';
 import { EnvConfig } from '@/lib/server/env-config';
+import { ICaptchaVerifier } from '@/lib/server/i-captcha-verifier';
 import { INotifier } from '@/lib/server/i-notifier';
 import { Notifier } from '@/lib/server/notifier';
 import { RateLimiter } from '@/lib/server/rate-limiter';
+import { TurnstileVerifier } from '@/lib/server/turnstile-verifier';
 
-/** Drafts per IP: room for a family or an event sharing one connection. */
+/**
+ * Drafts per IP: room for a family or an event sharing one connection, and
+ * for the many phones a mobile carrier puts behind one address. Turnstile on
+ * the draft API is what stops scripts; this only blunts a burst.
+ */
 const ALUMNI_STORY_DRAFT_RATE_LIMIT = {
   maxRequests: 10,
   windowMs: 10 * 60 * 1000,
@@ -39,6 +46,7 @@ export type ServerContainer = {
   alumniStoryUploads: ReturnType<typeof createAlumniStoryUploads>;
   editedVideoUploads: ReturnType<typeof createEditedVideoUploads>;
   alumniStoryDraftRateLimiter: RateLimiter;
+  alumniStoryCaptchaVerifier: ICaptchaVerifier;
   adminManagementService: AdminManagementService;
   notifier: INotifier;
   registrationService: RegistrationService;
@@ -67,11 +75,12 @@ const createServerContainer = (): ServerContainer => {
   );
   const superAdminPolicy = new SuperAdminPolicy(adminRepository);
 
-  // Built on first use so a missing MEDIA_ROOT only breaks Alumni Connect,
-  // not admin or registration.
+  // Built on first use so a missing MEDIA_ROOT or Turnstile key only breaks
+  // Alumni Connect, not admin or registration.
   let alumniStoryService: AlumniStoryService | undefined;
   let alumniStoryUploads: ServerContainer['alumniStoryUploads'] | undefined;
   let editedVideoUploads: ServerContainer['editedVideoUploads'] | undefined;
+  let alumniStoryCaptchaVerifier: ICaptchaVerifier | undefined;
 
   return {
     get alumniStoryService() {
@@ -83,10 +92,14 @@ const createServerContainer = (): ServerContainer => {
       return alumniStoryService;
     },
     get alumniStoryUploads() {
+      // Inside the media volume, so half-done uploads survive a redeploy.
+      const directory = path.join(envConfig.getMediaRoot(), '.incoming');
       alumniStoryUploads ??= createAlumniStoryUploads({
         stories: this.alumniStoryService,
-        // Inside the media volume, so half-done uploads survive a redeploy.
-        directory: path.join(envConfig.getMediaRoot(), '.incoming'),
+        directory,
+        // The tus store creates the folder, so it exists by the first check.
+        diskSpace: new StatfsDiskSpace(directory),
+        notifier,
         clock,
       });
       return alumniStoryUploads;
@@ -98,6 +111,12 @@ const createServerContainer = (): ServerContainer => {
         directory: path.join(envConfig.getMediaRoot(), '.incoming-edited'),
       });
       return editedVideoUploads;
+    },
+    get alumniStoryCaptchaVerifier() {
+      alumniStoryCaptchaVerifier ??= new TurnstileVerifier(
+        envConfig.getTurnstileSecretKey()
+      );
+      return alumniStoryCaptchaVerifier;
     },
     alumniStoryDraftRateLimiter: new RateLimiter(
       clock,

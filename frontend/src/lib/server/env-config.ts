@@ -4,6 +4,11 @@ import 'server-only';
 const DEFAULT_TEST_DATABASE_URL =
   'postgresql://testuser:testpassword@localhost:5433/testdb';
 
+// Cloudflare's published test keys: the widget always passes, and siteverify
+// accepts any token. Fine outside production only.
+const TURNSTILE_TEST_SITE_KEY = '1x00000000000000000000AA';
+const TURNSTILE_TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
+
 export class EnvConfig {
   getDatabaseUrl() {
     if (process.env.NODE_ENV === 'test') {
@@ -39,6 +44,30 @@ export class EnvConfig {
       throw new Error('MEDIA_ROOT is not set.');
     }
     return path.resolve(process.cwd(), '.media');
+  }
+
+  getTurnstileSiteKey() {
+    return this.requiredInProduction(
+      'TURNSTILE_SITE_KEY',
+      TURNSTILE_TEST_SITE_KEY
+    );
+  }
+
+  getTurnstileSecretKey() {
+    return this.requiredInProduction(
+      'TURNSTILE_SECRET_KEY',
+      TURNSTILE_TEST_SECRET_KEY
+    );
+  }
+
+  /** Test keys would let every bot through, so production must set its own. */
+  private requiredInProduction(name: string, fallback: string) {
+    const value = process.env[name];
+    if (value) return value;
+    if (this.isProduction()) {
+      throw new Error(`${name} is not set.`);
+    }
+    return fallback;
   }
 
   isProduction() {

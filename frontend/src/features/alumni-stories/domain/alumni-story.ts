@@ -61,52 +61,79 @@ export const MEDIA_LIMITS: Record<
 /** How long an alumnus has to finish uploading before the draft is swept. */
 export const DRAFT_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * Free space new uploads must leave on the media disk. The disk is shared
+ * with the database and the server's other apps, so a flood of uploads must
+ * stop well before it starves them.
+ */
+export const MIN_FREE_DISK_BYTES = 20 * 1024 * 1024 * 1024;
+
 /** Carries the draft's upload token on every upload and on submit. */
 export const UPLOAD_TOKEN_HEADER = 'X-Upload-Token';
 
 export const STORY_TEXT_MAX_LENGTH = 5000;
 
 const PHONE_PATTERN = /^\+?[0-9][0-9 ()-]{5,18}[0-9]$/;
-const isEmailOrPhone = (value: string) =>
-  z.email().safeParse(value).success || PHONE_PATTERN.test(value);
 
-export const createAlumniStoryDraftSchema = z.object({
-  fullName: z
+/** An optional text field: blank means not given, stored as null. */
+const optionalText = (
+  max: number,
+  isValid: (value: string) => boolean,
+  error: string
+) =>
+  z
     .string()
     .trim()
-    .nonempty({ error: 'Name is required' })
-    .max(120, { error: 'Name is too long' }),
-  graduationYear: z
-    .number({ error: 'Graduation year is required' })
-    .int()
-    .min(FIRST_GRADUATION_YEAR, {
-      error: `Graduation year must be ${FIRST_GRADUATION_YEAR} or later`,
-    })
-    .refine((year) => year <= new Date().getFullYear(), {
-      error: 'Graduation year cannot be in the future',
-    }),
-  profession: z
-    .string()
-    .trim()
-    .nonempty({ error: 'Profession or field is required' })
-    .max(160, { error: 'Profession or field is too long' }),
-  contact: z
-    .string()
-    .trim()
-    .nonempty({ error: 'A phone number or email is required' })
-    .max(160)
-    .refine(isEmailOrPhone, {
-      error: 'Enter a valid phone number or email address',
-    }),
-  storyText: z
-    .string()
-    .trim()
-    .max(STORY_TEXT_MAX_LENGTH, {
-      error: `Story must be ${STORY_TEXT_MAX_LENGTH} characters or fewer`,
-    })
+    .max(max, { error })
+    .refine((value) => value === '' || isValid(value), { error })
     .optional()
-    .transform((text) => text || null),
-});
+    .transform((value) => value || null);
+
+export const createAlumniStoryDraftSchema = z
+  .object({
+    fullName: z
+      .string()
+      .trim()
+      .nonempty({ error: 'Name is required' })
+      .max(120, { error: 'Name is too long' }),
+    graduationYear: z
+      .number({ error: 'Graduation year is required' })
+      .int()
+      .min(FIRST_GRADUATION_YEAR, {
+        error: `Graduation year must be ${FIRST_GRADUATION_YEAR} or later`,
+      })
+      .refine((year) => year <= new Date().getFullYear(), {
+        error: 'Graduation year cannot be in the future',
+      }),
+    profession: z
+      .string()
+      .trim()
+      .nonempty({ error: 'Profession or field is required' })
+      .max(160, { error: 'Profession or field is too long' }),
+    phone: optionalText(
+      32,
+      (value) => PHONE_PATTERN.test(value),
+      'Enter a valid phone number'
+    ),
+    email: optionalText(
+      160,
+      (value) => z.email().safeParse(value).success,
+      'Enter a valid email address'
+    ),
+    storyText: z
+      .string()
+      .trim()
+      .max(STORY_TEXT_MAX_LENGTH, {
+        error: `Story must be ${STORY_TEXT_MAX_LENGTH} characters or fewer`,
+      })
+      .optional()
+      .transform((text) => text || null),
+  })
+  // The school needs some way to reach the alumnus; either one will do.
+  .refine((draft) => draft.phone || draft.email, {
+    error: 'Enter a phone number or an email address',
+    path: ['phone'],
+  });
 
 export type CreateAlumniStoryDraft = z.output<
   typeof createAlumniStoryDraftSchema
@@ -138,7 +165,8 @@ export const alumniStorySchema = z.object({
   full_name: z.string(),
   graduation_year: z.number().int(),
   profession: z.string(),
-  contact: z.string(),
+  phone: z.string().nullable(),
+  email: z.string().nullable(),
   story_text: z.string().nullable(),
   created_at: z.coerce.date(),
   submitted_at: z.coerce.date().nullable(),

@@ -11,25 +11,50 @@ const validDraft = {
   fullName: 'Ayesha Khan',
   graduationYear: 2010,
   profession: 'Commercial pilot',
-  contact: '03001234567',
+  phone: '03001234567',
 };
 
 describe('createAlumniStoryDraftSchema', () => {
-  it('accepts a phone number, an international number or an email as contact', () => {
-    for (const contact of ['03001234567', '+44 7700 900123', 'a@b.com']) {
-      expect(
-        createAlumniStoryDraftSchema.safeParse({ ...validDraft, contact })
-          .success
-      ).toBe(true);
-    }
+  it('accepts a phone, an email or both, storing a blank one as null', () => {
+    const parse = (contact: { phone?: string; email?: string }) =>
+      createAlumniStoryDraftSchema.parse({
+        ...validDraft,
+        phone: undefined,
+        ...contact,
+      });
+
+    expect(parse({ phone: '+44 7700 900123', email: '' })).toMatchObject({
+      phone: '+44 7700 900123',
+      email: null,
+    });
+    expect(parse({ email: 'a@b.com' })).toMatchObject({
+      phone: null,
+      email: 'a@b.com',
+    });
+    expect(parse({ phone: '03001234567', email: 'a@b.com' })).toMatchObject({
+      phone: '03001234567',
+      email: 'a@b.com',
+    });
   });
 
-  it('rejects contact that is neither phone nor email', () => {
+  it('asks for a phone or an email when both are blank', () => {
     const result = createAlumniStoryDraftSchema.safeParse({
       ...validDraft,
-      contact: 'call me',
+      phone: ' ',
+      email: '',
     });
-    expect(result.success).toBe(false);
+    expect(result.error?.issues).toMatchObject([
+      { path: ['phone'], message: 'Enter a phone number or an email address' },
+    ]);
+  });
+
+  it('rejects a phone or email that is not one', () => {
+    for (const contact of [{ phone: 'call me' }, { email: 'not-an-email' }]) {
+      expect(
+        createAlumniStoryDraftSchema.safeParse({ ...validDraft, ...contact })
+          .success
+      ).toBe(false);
+    }
   });
 
   it('rejects graduation years before the school opened or in the future', () => {

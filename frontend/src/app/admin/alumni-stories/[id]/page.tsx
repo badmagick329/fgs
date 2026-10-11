@@ -58,7 +58,8 @@ function StoryDetail({
   const facts: [string, string][] = [
     ['Graduation year', String(story.graduation_year)],
     ['Profession', story.profession],
-    ['Contact (never shown publicly)', story.contact],
+    ['Phone (never shown publicly)', story.phone ?? '—'],
+    ['Email (never shown publicly)', story.email ?? '—'],
     [
       'Submitted',
       story.submitted_at ? formatPakistanAppointment(story.submitted_at) : '—',
@@ -307,8 +308,8 @@ function EditedVideoUpload({
         <p className='text-error mt-2'>{upload.message}</p>
       ) : (
         <p className='mt-2 text-sm text-muted-foreground'>
-          The original is kept. Uploading doesn&apos;t change which video
-          the site uses until you pick the edit.
+          The original is kept. Uploading doesn&apos;t change which video the
+          site uses until you pick the edit.
         </p>
       )}
     </div>
