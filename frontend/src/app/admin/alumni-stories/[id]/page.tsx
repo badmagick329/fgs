@@ -14,12 +14,13 @@ import {
   useReviewAlumniStory,
 } from '@/features/alumni-stories/presentation/useAdminAlumniStories';
 import { formatPakistanAppointment } from '@/features/registration/domain/registration-rules';
-import { Check, Download, Globe, Upload, X } from 'lucide-react';
+import { ArrowLeft, Check, Download, Globe, Upload, X } from 'lucide-react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { API, ROUTES } from '@/lib/consts';
-import { AdminActions } from '../../_components/AdminActions';
 import { AdminBackdrop } from '../../_components/AdminBackdrop';
+import { AdminNav } from '../../_components/AdminNav';
 
 export default function AlumniStoryPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,11 +30,14 @@ export default function AlumniStoryPage() {
     <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
       <AdminBackdrop />
       <div className='relative z-10 mx-auto flex max-w-5xl flex-col'>
-        <AdminActions
-          className='mb-6'
-          navigationHref={ROUTES.admin.alumniStories}
-          navigationLabel='All alumni stories'
-        />
+        <AdminNav />
+        <Link
+          href={ROUTES.admin.alumniStories}
+          className='fgs-link mb-6 inline-flex w-fit items-center gap-1 text-sm'
+        >
+          <ArrowLeft aria-hidden className='size-4' />
+          All alumni stories
+        </Link>
         {query.isLoading ? (
           <p className='fgs-copy'>Loading story...</p>
         ) : query.isError ? (

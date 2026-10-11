@@ -18,9 +18,9 @@ import { ImageIcon, Video } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ROUTES } from '@/lib/consts';
-import { AdminActions } from '../_components/AdminActions';
 import { AdminBackdrop } from '../_components/AdminBackdrop';
 import { AdminLogoWatermark } from '../_components/AdminLogoWatermark';
+import { AdminNav } from '../_components/AdminNav';
 
 type SubmittedStatus = (typeof SUBMITTED_ALUMNI_STORY_STATUSES)[number];
 
@@ -38,21 +38,11 @@ export default function AlumniStoriesPage() {
     <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
       <AdminBackdrop />
       <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
-        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
-          <div>
-            <h2 className='fgs-heading'>Alumni stories</h2>
-            <p className='fgs-copy mt-2'>
-              Stories sent from the Alumni Connect page, newest first.
-            </p>
-          </div>
-          <AdminActions
-            navigationHref={ROUTES.admin.root}
-            navigationLabel='Admin tools'
-            extraLinks={[
-              { href: ROUTES.registrations, label: 'Registrations' },
-            ]}
-          />
-        </div>
+        <AdminNav />
+        <h2 className='fgs-heading'>Alumni stories</h2>
+        <p className='fgs-copy mt-2'>
+          Stories sent from the Alumni Connect page, newest first.
+        </p>
 
         <div role='tablist' className='mt-6 flex flex-wrap gap-2'>
           {SUBMITTED_ALUMNI_STORY_STATUSES.map((option) => (

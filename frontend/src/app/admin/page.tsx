@@ -1,17 +1,16 @@
 'use client';
 
 import { useAdminUsersList } from '@/features/admin/presentation/useAdminUsersList';
-import { ROUTES } from '@/lib/consts';
-import { AdminActions } from './_components/AdminActions';
 import { AdminBackdrop } from './_components/AdminBackdrop';
-import { AdminHeader } from './_components/AdminHeader';
 import { AdminLogoWatermark } from './_components/AdminLogoWatermark';
+import { AdminNav } from './_components/AdminNav';
 import { AdminUsersSection } from './_components/AdminUsersSection';
 import { ChangePasswordSection } from './_components/ChangePasswordSection';
 import { CreateAdminSection } from './_components/CreateAdminSection';
 import { NotificationEmailSection } from './_components/NotificationEmailSection';
+import { SettingsGroup } from './_components/SettingsGroup';
 
-export default function AdminToolsPage() {
+export default function AdminSettingsPage() {
   const adminUsersQuery = useAdminUsersList();
   const canCreateAdmins =
     adminUsersQuery.data?.currentAdminIsSuperAdmin ?? false;
@@ -19,22 +18,35 @@ export default function AdminToolsPage() {
   return (
     <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
       <AdminBackdrop />
-      <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col'>
-        <AdminHeader />
-        <AdminActions
-          navigationHref={ROUTES.registrations}
-          navigationLabel='Registrations'
-          extraLinks={[
-            { href: ROUTES.admin.alumniStories, label: 'Alumni stories' },
-          ]}
-        />
+      <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl flex-col'>
+        <AdminNav />
+        <h1 className='fgs-heading'>Settings</h1>
+        <p className='fgs-copy mt-2 mb-8'>
+          How the school hears about new registrations, and who can use these
+          admin pages.
+        </p>
 
-        <div className='mt-8 grid gap-6 lg:grid-cols-2'>
+        <SettingsGroup
+          title='Registration alerts'
+          description='Where a new admission registration is announced as soon as it comes in.'
+        >
           <NotificationEmailSection />
+        </SettingsGroup>
+
+        <SettingsGroup
+          title='Admins'
+          description='Everyone who can sign in here. Super admins can add, promote and remove admins.'
+        >
           <AdminUsersSection />
           {canCreateAdmins ? <CreateAdminSection /> : null}
+        </SettingsGroup>
+
+        <SettingsGroup
+          title='Your password'
+          description='Change the password you sign in with. You will be signed out and asked to sign in again.'
+        >
           <ChangePasswordSection />
-        </div>
+        </SettingsGroup>
 
         <AdminLogoWatermark />
       </div>

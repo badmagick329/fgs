@@ -74,16 +74,8 @@ export function ChangePasswordSection() {
   const isDisabled = updatePasswordMutation.isPending || isSubmitting;
 
   return (
-    <section className='fgs-card'>
-      <h3 className='fgs-subheading'>Change Password</h3>
-      <p className='fgs-copy mt-2'>
-        Update your password. You will need to sign in again.
-      </p>
-      <form
-        className='mt-6 space-y-4'
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-      >
+    <section className='max-w-lg'>
+      <form className='space-y-4' onSubmit={handleSubmit(onSubmit)} noValidate>
         <label className='flex flex-col gap-2'>
           <span className='text-sm font-medium'>Current password</span>
           <input
@@ -162,7 +154,7 @@ export function ChangePasswordSection() {
           className='fgs-btn-primary disabled:cursor-not-allowed disabled:opacity-70'
           disabled={isDisabled}
         >
-          {isDisabled ? 'Updating...' : 'Update Password'}
+          {isDisabled ? 'Changing...' : 'Change password'}
         </button>
         {errors.root?.server?.message && (
           <p role='alert' className='text-sm text-error'>

@@ -13,7 +13,7 @@ import useRegistrationEmailStatus from '@/features/registration/presentation/use
 import useRegistrationList from '@/features/registration/presentation/useRegistrationList';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { AdminActions } from '../admin/_components/AdminActions';
+import { AdminNav } from '../admin/_components/AdminNav';
 
 const tableHeaders = [
   'ID',
@@ -59,16 +59,9 @@ export default function RegistrationList() {
       <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
         {backdrop}
         <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
-          <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
-            <div>
-              <h2 className='fgs-heading'>Registrations</h2>
-              <p className='fgs-copy mt-2'>Loading registration records...</p>
-            </div>
-            <AdminActions
-              navigationHref='/admin'
-              navigationLabel='Admin tools'
-            />
-          </div>
+          <AdminNav />
+          <h2 className='fgs-heading'>Registrations</h2>
+          <p className='fgs-copy mt-2'>Loading registration records...</p>
           <div className='mt-6 rounded-2xl border border-border bg-card p-2 sm:p-4'>
             <Table>
               <TableHeader>
@@ -92,21 +85,12 @@ export default function RegistrationList() {
     return (
       <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
         {backdrop}
-        <div className='relative z-10 mx-auto w-full max-w-7xl rounded-2xl border border-border bg-card p-6'>
-          <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
-            <div>
-              <h2 className='fgs-heading'>Registrations</h2>
-              <p className='mt-3 text-error'>
-                {error?.message ?? 'Failed to load registrations.'}
-              </p>
-            </div>
-            <AdminActions
-              navigationHref='/admin'
-              navigationLabel='Admin tools'
-            />
-          </div>
-        </div>
-        <div className='relative z-10 mx-auto flex min-h-[calc(100vh-18rem)] max-w-7xl flex-col'>
+        <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
+          <AdminNav />
+          <h2 className='fgs-heading'>Registrations</h2>
+          <p className='mt-3 text-error'>
+            {error?.message ?? 'Failed to load registrations.'}
+          </p>
           {logoWatermark}
         </div>
       </main>
@@ -119,15 +103,11 @@ export default function RegistrationList() {
     <main className='bg-background text-foreground relative min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8'>
       {backdrop}
       <div className='relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col'>
-        <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
-          <div>
-            <h2 className='fgs-heading'>Registrations</h2>
-            <p className='fgs-copy mt-2'>
-              Admission registration requests received from the landing page.
-            </p>
-          </div>
-          <AdminActions navigationHref='/admin' navigationLabel='Admin tools' />
-        </div>
+        <AdminNav />
+        <h2 className='fgs-heading'>Registrations</h2>
+        <p className='fgs-copy mt-2'>
+          Admission registration requests received from the landing page.
+        </p>
         <EmailRoundStatus
           isLoading={emailStatusQuery.isLoading}
           isError={emailStatusQuery.isError}

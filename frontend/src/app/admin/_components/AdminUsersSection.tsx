@@ -123,14 +123,9 @@ export function AdminUsersSection() {
       : 'destructive';
 
   return (
-    <section className='fgs-card min-w-0 lg:col-span-2'>
-      <h3 className='fgs-subheading'>Admin Access</h3>
-      <p className='fgs-copy mt-2'>
-        View admins and manage super admin access.
-      </p>
-
+    <div className='min-w-0 space-y-4'>
       {adminUsersQuery.isError && (
-        <p className='mt-4 text-sm text-error'>
+        <p className='text-sm text-error'>
           {adminUsersQuery.error instanceof Error
             ? adminUsersQuery.error.message
             : 'Failed to load admins.'}
@@ -139,13 +134,13 @@ export function AdminUsersSection() {
 
       {status && (
         <p
-          className={`mt-4 text-sm ${status.tone === 'error' ? 'text-error' : 'text-fgs-ink'}`}
+          className={`text-sm ${status.tone === 'error' ? 'text-error' : 'text-fgs-ink'}`}
         >
           {status.message}
         </p>
       )}
 
-      <div className='mt-4 min-w-0 rounded-xl border border-border bg-card p-2 sm:p-3'>
+      <div className='min-w-0 rounded-xl border border-border bg-card p-2 sm:p-3'>
         {adminUsersQuery.isLoading ? (
           <p className='py-8 text-center text-sm'>Loading admins...</p>
         ) : adminData && adminData.admins.length > 0 ? (
@@ -204,7 +199,7 @@ export function AdminUsersSection() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </section>
+    </div>
   );
 }
 

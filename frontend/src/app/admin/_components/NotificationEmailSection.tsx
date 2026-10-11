@@ -85,30 +85,46 @@ export function NotificationEmailSection() {
   const isDisabled = saveConfigMutation.isPending || isSubmitting;
 
   return (
-    <section className='fgs-card lg:col-span-2'>
-      <h3 className='fgs-subheading'>Notification Email</h3>
-      <p className='fgs-copy mt-2'>
-        Set the destination email for new registration notifications.
-      </p>
+    <>
       <form
-        className='mt-6 space-y-4'
+        className='max-w-lg space-y-3'
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
-        <label className='flex flex-col gap-2'>
-          <span className='text-sm font-medium'>Destination email</span>
-          <input
-            type='email'
-            {...register('notificationEmail')}
-            autoComplete='off'
-            aria-invalid={!!errors.notificationEmail}
-            aria-describedby={
-              errors.notificationEmail ? 'notification-email-error' : undefined
-            }
-            className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
-            placeholder='youremail@email.com'
-          />
-        </label>
+        <div className='flex flex-col gap-2'>
+          <label htmlFor='notification-email' className='text-sm font-semibold'>
+            Email address
+          </label>
+          <p
+            id='notification-email-hint'
+            className='text-sm text-muted-foreground'
+          >
+            Each new registration is emailed here.
+          </p>
+          <div className='flex flex-col gap-3 sm:flex-row'>
+            <input
+              id='notification-email'
+              type='email'
+              {...register('notificationEmail')}
+              autoComplete='off'
+              aria-invalid={!!errors.notificationEmail}
+              aria-describedby={
+                errors.notificationEmail
+                  ? 'notification-email-hint notification-email-error'
+                  : 'notification-email-hint'
+              }
+              className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+              placeholder='office@example.com'
+            />
+            <button
+              type='submit'
+              className='fgs-btn-primary shrink-0 disabled:cursor-not-allowed disabled:opacity-70'
+              disabled={isDisabled}
+            >
+              {isDisabled ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </div>
         {errors.notificationEmail?.message && (
           <p
             id='notification-email-error'
@@ -118,13 +134,6 @@ export function NotificationEmailSection() {
             {errors.notificationEmail.message}
           </p>
         )}
-        <button
-          type='submit'
-          className='fgs-btn-primary disabled:cursor-not-allowed disabled:opacity-70'
-          disabled={isDisabled}
-        >
-          {isDisabled ? 'Saving...' : 'Save'}
-        </button>
         {errors.root?.server?.message && (
           <p role='alert' className='text-sm text-error'>
             {errors.root.server.message}
@@ -140,22 +149,15 @@ export function NotificationEmailSection() {
         )}
         {configQuery.data?.updated_at && configQuery.data?.updated_by_email && (
           <p className='text-sm text-muted-foreground'>
-            Last updated{' '}
+            Last changed{' '}
             {new Date(configQuery.data.updated_at).toLocaleString()} by{' '}
             {configQuery.data.updated_by_email}
           </p>
         )}
       </form>
 
-      <div className='mt-8 border-t border-border pt-6'>
-        <h4 className='text-base font-semibold'>
-          Discord registration notifications
-        </h4>
-        <p className='fgs-copy mt-2'>
-          Send a testing notification to Discord when a registration is created.
-          Personal details are not included.
-        </p>
-        <label className='mt-4 flex items-center gap-3 text-sm font-medium'>
+      <div className='max-w-lg'>
+        <label className='flex items-start gap-3'>
           <input
             type='checkbox'
             checked={
@@ -169,13 +171,18 @@ export function NotificationEmailSection() {
               setStatus(null);
               registrationDiscordMutation.mutate(event.target.checked);
             }}
-            className='size-4 accent-fgs-blue disabled:cursor-not-allowed'
+            className='mt-0.5 size-4 shrink-0 accent-fgs-blue disabled:cursor-not-allowed'
           />
-          Enable testing notifications
+          <span className='flex flex-col gap-1'>
+            <span className='text-sm font-semibold'>Also post to Discord</span>
+            <span className='text-sm text-muted-foreground'>
+              For testing. The message leaves out personal details.
+            </span>
+          </span>
         </label>
         {!configQuery.data && !configQuery.isLoading && (
           <p className='mt-2 text-sm text-muted-foreground'>
-            Save a notification email before enabling this setting.
+            Save an email address before turning this on.
           </p>
         )}
         {status?.tone === 'error' && (
@@ -184,6 +191,6 @@ export function NotificationEmailSection() {
           </p>
         )}
       </div>
-    </section>
+    </>
   );
 }

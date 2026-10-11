@@ -1,3 +1,5 @@
+'use client';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,16 +13,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { API, QUERY_KEYS, ROUTES } from '@/lib/consts';
-
-type AdminActionsProps = {
-  navigationHref: string;
-  navigationLabel: string;
-  extraLinks?: { href: string; label: string }[];
-  className?: string;
-};
 
 type AdminSessionResponse = {
   data?: {
@@ -28,12 +23,25 @@ type AdminSessionResponse = {
   };
 };
 
-export function AdminActions({
-  navigationHref,
-  navigationLabel,
-  extraLinks = [],
-  className,
-}: AdminActionsProps) {
+/**
+ * Every signed-in admin page shows the same links in the same order, so an
+ * admin can always reach any page from any other and sees where they are.
+ */
+const ADMIN_PAGES = [
+  { href: ROUTES.admin.root, label: 'Settings' },
+  { href: ROUTES.registrations, label: 'Registrations' },
+  { href: ROUTES.admin.alumniStories, label: 'Alumni stories' },
+] as const;
+
+// /admin is a prefix of every other admin page, so it matches only exactly.
+function isCurrent(pathname: string, href: string) {
+  return href === ROUTES.admin.root
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function AdminNav() {
+  const pathname = usePathname();
   const router = useRouter();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -78,28 +86,34 @@ export function AdminActions({
   };
 
   return (
-    <div className={className ?? 'mt-4'}>
-      <div className='mb-3 text-sm text-muted-foreground'>
-        Signed in as{' '}
-        {sessionQuery.data ? (
-          <span className='font-medium text-fgs-ink'>{sessionQuery.data}</span>
-        ) : (
-          <span>...</span>
-        )}
-      </div>
-      <div className='flex flex-wrap gap-3'>
-        <Link href={navigationHref} className='fgs-btn-secondary w-fit'>
-          {navigationLabel}
-        </Link>
-        {extraLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className='fgs-btn-secondary w-fit'
-          >
-            {link.label}
-          </Link>
-        ))}
+    <nav
+      aria-label='Admin'
+      className='mb-8 flex flex-col-reverse gap-1 border-b border-border sm:flex-row sm:items-end sm:justify-between sm:gap-3'
+    >
+      <ul className='-mb-px flex flex-wrap gap-x-6'>
+        {ADMIN_PAGES.map((page) => {
+          const current = isCurrent(pathname, page.href);
+          return (
+            <li key={page.href}>
+              <Link
+                href={page.href}
+                aria-current={current ? 'page' : undefined}
+                className={`inline-block border-b-2 py-3 text-sm font-semibold transition-colors ${
+                  current
+                    ? 'border-fgs-blue text-fgs-ink'
+                    : 'border-transparent text-muted-foreground hover:text-fgs-ink'
+                }`}
+              >
+                {page.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+      <div className='flex items-center gap-4 text-sm sm:pb-3'>
+        <span className='min-w-0 truncate text-muted-foreground'>
+          {sessionQuery.data ?? '...'}
+        </span>
         <AlertDialog
           open={isLogoutDialogOpen}
           onOpenChange={(open) => {
@@ -111,10 +125,10 @@ export function AdminActions({
           <AlertDialogTrigger asChild>
             <button
               type='button'
-              className='fgs-btn-danger'
+              className='shrink-0 cursor-pointer font-semibold text-error hover:underline disabled:cursor-not-allowed'
               disabled={isLoggingOut}
             >
-              Logout
+              Log out
             </button>
           </AlertDialogTrigger>
           <AlertDialogContent size='sm'>
@@ -142,6 +156,6 @@ export function AdminActions({
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </div>
+    </nav>
   );
 }

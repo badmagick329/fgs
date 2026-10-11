@@ -66,13 +66,14 @@ export function CreateAdminSection() {
   const isDisabled = createAdminMutation.isPending || isSubmitting;
 
   return (
-    <section className='fgs-card'>
-      <h3 className='fgs-subheading'>Create Admin</h3>
-      <p className='fgs-copy mt-2'>
-        Add another admin account with email and password.
+    <section className='max-w-lg'>
+      <h3 className='text-base font-semibold'>Add an admin</h3>
+      <p className='mt-1 text-sm text-muted-foreground'>
+        They sign in with this email and password, and can change the password
+        afterwards.
       </p>
       <form
-        className='mt-6 space-y-4'
+        className='mt-4 space-y-4'
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
@@ -152,7 +153,7 @@ export function CreateAdminSection() {
           className='fgs-btn-primary disabled:cursor-not-allowed disabled:opacity-70'
           disabled={isDisabled}
         >
-          {isDisabled ? 'Creating...' : 'Create Admin'}
+          {isDisabled ? 'Adding...' : 'Add admin'}
         </button>
         {errors.root?.server?.message && (
           <p role='alert' className='text-sm text-error'>
