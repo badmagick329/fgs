@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  AlumniStoryReviewDecision,
   AlumniStoryStatus,
   PublicVideoVariant,
 } from '@/features/alumni-stories/domain/alumni-story';
@@ -8,6 +9,7 @@ import {
   chooseAdminPublicVideo,
   getAdminAlumniStories,
   getAdminAlumniStory,
+  reviewAdminAlumniStory,
 } from '@/features/alumni-stories/presentation/admin-alumni-story-client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/lib/consts';
@@ -41,5 +43,16 @@ export function useChoosePublicVideo(id: number) {
     mutationFn: (variant: PublicVideoVariant) =>
       chooseAdminPublicVideo(id, variant),
     onSuccess: refresh,
+  });
+}
+
+export function useReviewAlumniStory(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (decision: AlumniStoryReviewDecision) =>
+      reviewAdminAlumniStory(id, decision),
+    // The story moves between status lists, so refetch those too.
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.alumniStories }),
   });
 }

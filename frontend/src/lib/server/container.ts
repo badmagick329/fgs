@@ -22,6 +22,7 @@ import { Pool } from 'pg';
 import 'server-only';
 import { Clock } from '@/lib/server/clock';
 import { EnvConfig } from '@/lib/server/env-config';
+import { INotifier } from '@/lib/server/i-notifier';
 import { Notifier } from '@/lib/server/notifier';
 import { RateLimiter } from '@/lib/server/rate-limiter';
 
@@ -39,6 +40,7 @@ export type ServerContainer = {
   editedVideoUploads: ReturnType<typeof createEditedVideoUploads>;
   alumniStoryDraftRateLimiter: RateLimiter;
   adminManagementService: AdminManagementService;
+  notifier: INotifier;
   registrationService: RegistrationService;
   registrationAntiSpamService: RegistrationAntiSpamService;
 };
@@ -113,6 +115,7 @@ const createServerContainer = (): ServerContainer => {
       passwordHasher,
       superAdminPolicy
     ),
+    notifier,
     registrationService: new RegistrationService(
       registrationRepository,
       notifier

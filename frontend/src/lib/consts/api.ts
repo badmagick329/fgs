@@ -16,6 +16,8 @@ export const API = {
     userById: (id: number | string) => `/api/admin/users/${id}`,
     alumniStories: '/api/admin/alumni-stories',
     alumniStoryById: (id: number | string) => `/api/admin/alumni-stories/${id}`,
+    alumniStoryReview: (id: number | string) =>
+      `/api/admin/alumni-stories/${id}/review`,
     alumniStoryMedia: (mediaId: number | string) =>
       `/api/admin/alumni-stories/media/${mediaId}`,
     alumniStoryEditedVideoUploads:

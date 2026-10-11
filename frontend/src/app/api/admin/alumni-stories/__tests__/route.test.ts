@@ -7,6 +7,8 @@ mock.module('@/lib/server/container', () => ({ getServerContainer }));
 const { GET: list } = await import('@/app/api/admin/alumni-stories/route');
 const { GET: detail, PATCH: choose } =
   await import('@/app/api/admin/alumni-stories/[id]/route');
+const { POST: reviewRoute } =
+  await import('@/app/api/admin/alumni-stories/[id]/review/route');
 const { POST: createEditUpload } =
   await import('@/app/api/admin/alumni-stories/edited-video-uploads/[[...id]]/route');
 
@@ -46,12 +48,35 @@ const choosePublicVideo = mock(async (id: number, variant: string) =>
         }
       : { ok: false, error: 'not-found', message: 'Story not found' }
 );
+const review = mock(async (id: number, decision: string, adminId: number) =>
+  id === 3
+    ? {
+        ok: true,
+        data: { id: 3, status: decision, reviewed_by_admin_user_id: adminId },
+      }
+    : id === 6
+      ? {
+          ok: false,
+          error: 'not-reviewable',
+          message: 'Drafts cannot be reviewed',
+        }
+      : { ok: false, error: 'not-found', message: 'Story not found' }
+);
 const editUploadServer = { handleWeb: mock(async () => new Response(null)) };
 
 const chooseFor = (id: string, body: unknown) =>
   choose(
     new Request(`http://localhost/api/admin/alumni-stories/${id}`, {
       method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+    { params: Promise.resolve({ id }) }
+  );
+
+const reviewFor = (id: string, body: unknown) =>
+  reviewRoute(
+    new Request(`http://localhost/api/admin/alumni-stories/${id}/review`, {
+      method: 'POST',
       body: JSON.stringify(body),
     }),
     { params: Promise.resolve({ id }) }
@@ -68,10 +93,16 @@ describe('admin alumni story routes', () => {
   beforeEach(() => {
     listByStatus.mockClear();
     choosePublicVideo.mockClear();
+    review.mockClear();
     editUploadServer.handleWeb.mockClear();
     getServerContainer.mockReturnValue({
       adminAccessService: signedIn,
-      alumniStoryService: { listByStatus, getWithMedia, choosePublicVideo },
+      alumniStoryService: {
+        listByStatus,
+        getWithMedia,
+        choosePublicVideo,
+        review,
+      },
       editedVideoUploads: { server: editUploadServer },
     });
   });
@@ -79,7 +110,12 @@ describe('admin alumni story routes', () => {
   it('refuses every route without an admin session', async () => {
     getServerContainer.mockReturnValue({
       adminAccessService: signedOut,
-      alumniStoryService: { listByStatus, getWithMedia, choosePublicVideo },
+      alumniStoryService: {
+        listByStatus,
+        getWithMedia,
+        choosePublicVideo,
+        review,
+      },
       editedVideoUploads: { server: editUploadServer },
     });
 
@@ -88,6 +124,7 @@ describe('admin alumni story routes', () => {
     expect(
       (await chooseFor('3', { publicVideoVariant: 'edited' })).status
     ).toBe(401);
+    expect((await reviewFor('3', { decision: 'approved' })).status).toBe(401);
     const upload = await createEditUpload(
       new Request(
         'http://localhost/api/admin/alumni-stories/edited-video-uploads',
@@ -97,6 +134,7 @@ describe('admin alumni story routes', () => {
     expect(upload.status).toBe(401);
     expect(listByStatus).not.toHaveBeenCalled();
     expect(choosePublicVideo).not.toHaveBeenCalled();
+    expect(review).not.toHaveBeenCalled();
     expect(editUploadServer.handleWeb).not.toHaveBeenCalled();
   });
 
@@ -141,5 +179,20 @@ describe('admin alumni story routes', () => {
     expect(
       (await chooseFor('4', { publicVideoVariant: 'original' })).status
     ).toBe(404);
+  });
+
+  it('records the signed-in admin as the reviewer', async () => {
+    const res = await reviewFor('3', { decision: 'rejected' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      ok: true,
+      data: { id: 3, status: 'rejected', reviewed_by_admin_user_id: 1 },
+    });
+    expect(review.mock.calls).toEqual([[3, 'rejected', 1]]);
+
+    expect((await reviewFor('3', { decision: 'pending' })).status).toBe(400);
+    expect((await reviewFor('x', { decision: 'approved' })).status).toBe(400);
+    expect((await reviewFor('6', { decision: 'approved' })).status).toBe(409);
+    expect((await reviewFor('4', { decision: 'approved' })).status).toBe(404);
   });
 });

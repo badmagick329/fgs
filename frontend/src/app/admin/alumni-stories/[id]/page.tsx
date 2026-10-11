@@ -11,9 +11,10 @@ import {
   useAdminAlumniStory,
   useChoosePublicVideo,
   useRefreshAdminAlumniStory,
+  useReviewAlumniStory,
 } from '@/features/alumni-stories/presentation/useAdminAlumniStories';
 import { formatPakistanAppointment } from '@/features/registration/domain/registration-rules';
-import { Download, Globe, Upload } from 'lucide-react';
+import { Check, Download, Globe, Upload, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { API, ROUTES } from '@/lib/consts';
@@ -58,7 +59,6 @@ function StoryDetail({
     ['Graduation year', String(story.graduation_year)],
     ['Profession', story.profession],
     ['Contact (never shown publicly)', story.contact],
-    ['Status', story.status],
     [
       'Submitted',
       story.submitted_at ? formatPakistanAppointment(story.submitted_at) : '—',
@@ -71,6 +71,8 @@ function StoryDetail({
         <p className='text-sm text-muted-foreground'>Story #{story.id}</p>
         <h2 className='fgs-heading'>{story.full_name}</h2>
       </header>
+
+      <ReviewSection story={story} />
 
       <dl className='grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2'>
         {facts.map(([label, value]) => (
@@ -103,6 +105,63 @@ function StoryDetail({
         )}
       </section>
     </article>
+  );
+}
+
+const DECISIONS = [
+  {
+    decision: 'approved',
+    label: 'Approve',
+    className: 'fgs-btn-primary',
+    Icon: Check,
+  },
+  {
+    decision: 'rejected',
+    label: 'Reject',
+    className: 'fgs-btn-danger',
+    Icon: X,
+  },
+] as const;
+
+/** Approved stories go on the public page; a decision can be changed later. */
+function ReviewSection({ story }: { story: AlumniStory }) {
+  const review = useReviewAlumniStory(story.id);
+
+  return (
+    <section className='rounded-2xl border border-border bg-card p-4'>
+      <div className='flex flex-wrap items-center justify-between gap-3'>
+        <div>
+          <p className='text-xs text-muted-foreground'>Status</p>
+          <p className='font-medium capitalize'>{story.status}</p>
+          {story.reviewed_at ? (
+            <p className='text-sm text-muted-foreground'>
+              Reviewed {formatPakistanAppointment(story.reviewed_at)}
+            </p>
+          ) : null}
+        </div>
+        {story.status !== 'draft' ? (
+          <div className='flex flex-wrap gap-2'>
+            {DECISIONS.filter(({ decision }) => decision !== story.status).map(
+              ({ decision, label, className, Icon }) => (
+                <button
+                  key={decision}
+                  type='button'
+                  className={`${className} inline-flex items-center gap-2`}
+                  disabled={review.isPending}
+                  onClick={() => review.mutate(decision)}
+                >
+                  <Icon className='size-4' aria-hidden />
+                  {label}
+                </button>
+              )
+            )}
+          </div>
+        ) : null}
+      </div>
+      {review.isError ? (
+        <p className='text-error mt-2'>{review.error.message}</p>
+      ) : null}
+    </section>
   );
 }
 

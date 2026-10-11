@@ -1,4 +1,5 @@
 import {
+  AlumniStoryReviewDecision,
   AlumniStoryStatus,
   MEDIA_LIMITS,
   PublicVideoVariant,
@@ -53,6 +54,23 @@ export async function chooseAdminPublicVideo(
       status === 401
         ? 'Authentication required.'
         : (message ?? 'Failed to change the public video.'),
+  });
+  return result.data;
+}
+
+export async function reviewAdminAlumniStory(
+  storyId: number,
+  decision: AlumniStoryReviewDecision
+) {
+  const result = await requestJson(API.admin.alumniStoryReview(storyId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ decision }),
+    schema: okSchema(alumniStorySchema),
+    errorMessage: (status, message) =>
+      status === 401
+        ? 'Authentication required.'
+        : (message ?? 'Failed to save the review.'),
   });
   return result.data;
 }

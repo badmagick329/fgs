@@ -204,6 +204,10 @@ export const choosePublicVideoSchema = z.object({
   publicVideoVariant: z.enum(PUBLIC_VIDEO_VARIANTS),
 });
 
+export const reviewAlumniStorySchema = z.object({
+  decision: z.enum(ALUMNI_STORY_REVIEW_DECISIONS),
+});
+
 export type NewAlumniStoryMedia = {
   kind: MediaKind;
   variant: MediaVariant;
