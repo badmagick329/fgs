@@ -276,4 +276,122 @@ describe('Alumni stories (repository + service) integration', () => {
     expect((await new Response(body).arrayBuffer()).byteLength).toBe(4);
     expect(await service.getMedia(added.data.id + 1000)).toBeNull();
   });
+
+  const video = (sizeBytes: number, originalFilename = 'clip.mp4') => ({
+    mimeType: 'video/mp4',
+    sizeBytes,
+    originalFilename,
+    body: bytes(sizeBytes),
+  });
+
+  const submittedWithVideo = async () => {
+    const { story } = await service.createDraft(draftInput);
+    const original = await service.addOriginalMedia(story.id, {
+      kind: 'video',
+      ...video(20),
+    });
+    if (!original.ok) throw new Error(original.message);
+    await service.submit(story.id);
+    return { story, original: original.data };
+  };
+
+  it('replaces the edited video, keeping the original and dropping the old edit', async () => {
+    const { story, original } = await submittedWithVideo();
+
+    const first = await service.replaceEditedVideo(
+      story.id,
+      video(30, 'edit-1.mp4')
+    );
+    if (!first.ok) throw new Error(first.message);
+    const second = await service.replaceEditedVideo(
+      story.id,
+      video(40, 'edit-2.mp4')
+    );
+    if (!second.ok) throw new Error(second.message);
+
+    const found = await service.getWithMedia(story.id);
+    expect(found?.media.map((m) => [m.variant, m.original_filename])).toEqual([
+      ['original', 'clip.mp4'],
+      ['edited', 'edit-2.mp4'],
+    ]);
+    expect(await mediaStore.stat(first.data.storage_key)).toBeNull();
+    expect(await mediaStore.stat(second.data.storage_key)).toEqual({
+      sizeBytes: 40,
+    });
+    expect(await mediaStore.stat(original.storage_key)).toEqual({
+      sizeBytes: 20,
+    });
+  });
+
+  it('refuses an edited video for a draft or a missing story and keeps no file', async () => {
+    const { story } = await service.createDraft(draftInput);
+
+    expect(await service.replaceEditedVideo(story.id, video(30))).toMatchObject(
+      { ok: false, error: 'not-submitted' }
+    );
+    expect(await service.replaceEditedVideo(999, video(30))).toMatchObject({
+      ok: false,
+      error: 'not-found',
+    });
+    expect(await readdir(mediaRoot, { recursive: true })).not.toContainEqual(
+      expect.stringMatching(/\.mp4$/)
+    );
+  });
+
+  it('shows the original until an admin picks an uploaded edit', async () => {
+    const { story } = await submittedWithVideo();
+    const found = await service.getWithMedia(story.id);
+    expect(found?.story.public_video_variant).toBe('original');
+
+    expect(await service.choosePublicVideo(story.id, 'edited')).toMatchObject({
+      ok: false,
+      error: 'no-edited-video',
+    });
+
+    await service.replaceEditedVideo(story.id, video(30));
+    expect(
+      (await service.getWithMedia(story.id))?.story.public_video_variant
+    ).toBe('original');
+
+    expect(await service.choosePublicVideo(story.id, 'edited')).toMatchObject({
+      ok: true,
+      data: { public_video_variant: 'edited' },
+    });
+    expect(await service.choosePublicVideo(story.id, 'original')).toMatchObject(
+      { ok: true, data: { public_video_variant: 'original' } }
+    );
+  });
+
+  it('refuses a public video choice for a draft or a missing story', async () => {
+    const { story } = await service.createDraft(draftInput);
+
+    expect(await service.choosePublicVideo(story.id, 'original')).toMatchObject(
+      { ok: false, error: 'not-submitted' }
+    );
+    expect(await service.choosePublicVideo(999, 'original')).toMatchObject({
+      ok: false,
+      error: 'not-found',
+    });
+  });
+
+  it('allows one edited video per story in the schema', async () => {
+    const { story } = await submittedWithVideo();
+    // ON CONFLICT names the partial index, so a missing index fails the
+    // insert outright. A raised unique violation is avoided on purpose: under
+    // Bun 1.2 it makes `bun test` exit 127 once a later test file runs.
+    const insertEdit = async (key: string) => {
+      const res = await pool.query(
+        `INSERT INTO alumni_story_media
+           (story_id, kind, variant, storage_key, mime_type, size_bytes)
+         VALUES ($1, 'video', 'edited', $2, 'video/mp4', 1)
+         ON CONFLICT (story_id) WHERE kind = 'video' AND variant = 'edited'
+         DO NOTHING`,
+        [story.id, key]
+      );
+      return res.rowCount;
+    };
+
+    expect(await insertEdit('a.mp4')).toBe(1);
+    expect(await insertEdit('b.mp4')).toBe(0);
+  });
 });

@@ -18,5 +18,7 @@ export const API = {
     alumniStoryById: (id: number | string) => `/api/admin/alumni-stories/${id}`,
     alumniStoryMedia: (mediaId: number | string) =>
       `/api/admin/alumni-stories/media/${mediaId}`,
+    alumniStoryEditedVideoUploads:
+      '/api/admin/alumni-stories/edited-video-uploads',
   },
 } as const;

@@ -4,6 +4,7 @@ import {
   CreateAlumniStoryDraft,
   MediaKind,
   NewAlumniStoryMedia,
+  PublicVideoVariant,
   alumniStoryMediaSchema,
   alumniStorySchema,
   alumniStorySummarySchema,
@@ -11,6 +12,7 @@ import {
 import {
   AddMediaOutcome,
   IAlumniStoryRepository,
+  ReplaceEditedVideoOutcome,
 } from '@/features/alumni-stories/domain/interfaces';
 import { Pool } from 'pg';
 import 'server-only';
@@ -19,7 +21,7 @@ import 'server-only';
 const STORY_COLUMNS = `
   id, status, full_name, graduation_year, profession, contact, story_text,
   created_at, submitted_at, reviewed_at, reviewed_by_admin_user_id,
-  display_order`;
+  display_order, public_video_variant`;
 
 const STORY_COLUMNS_QUALIFIED = STORY_COLUMNS.split(',')
   .map((column) => `s.${column.trim()}`)
@@ -210,6 +212,79 @@ export class AlumniStoryRepository implements IAlumniStoryRepository {
       [mediaId]
     );
     return res.rows[0] ? alumniStoryMediaSchema.parse(res.rows[0]) : null;
+  }
+
+  async replaceEditedVideo(
+    storyId: number,
+    media: Omit<NewAlumniStoryMedia, 'kind' | 'variant'>
+  ): Promise<ReplaceEditedVideoOutcome> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const story = await client.query<{ status: AlumniStoryStatus }>(
+        `SELECT status FROM alumni_stories WHERE id = $1 FOR UPDATE`,
+        [storyId]
+      );
+      const status = story.rows[0]?.status;
+      if (!status || status === 'draft') {
+        await client.query('ROLLBACK');
+        return { ok: false, reason: status ? 'draft' : 'not-found' };
+      }
+
+      const replaced = await client.query(
+        `DELETE FROM alumni_story_media
+         WHERE story_id = $1 AND kind = 'video' AND variant = 'edited'
+         RETURNING *`,
+        [storyId]
+      );
+      const res = await client.query(
+        `INSERT INTO alumni_story_media (
+           story_id, kind, variant, storage_key, mime_type, size_bytes,
+           original_filename
+         )
+         VALUES ($1, 'video', 'edited', $2, $3, $4, $5)
+         RETURNING *`,
+        [
+          storyId,
+          media.storageKey,
+          media.mimeType,
+          media.sizeBytes,
+          media.originalFilename,
+        ]
+      );
+      await client.query('COMMIT');
+      return {
+        ok: true,
+        media: alumniStoryMediaSchema.parse(res.rows[0]),
+        replaced: replaced.rows[0]
+          ? alumniStoryMediaSchema.parse(replaced.rows[0])
+          : null,
+      };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async setPublicVideoVariant(storyId: number, variant: PublicVideoVariant) {
+    const res = await this.pool.query(
+      `UPDATE alumni_stories
+       SET public_video_variant = $2
+       WHERE id = $1
+         AND status <> 'draft'
+         AND (
+           $2 = 'original'
+           OR EXISTS (
+             SELECT 1 FROM alumni_story_media
+             WHERE story_id = $1 AND kind = 'video' AND variant = 'edited'
+           )
+         )
+       RETURNING ${STORY_COLUMNS}`,
+      [storyId, variant]
+    );
+    return res.rows[0] ? alumniStorySchema.parse(res.rows[0]) : null;
   }
 
   async setReview(

@@ -18,6 +18,16 @@ export type MediaKind = (typeof MEDIA_KINDS)[number];
 export const MEDIA_VARIANTS = ['original', 'edited', 'display'] as const;
 export type MediaVariant = (typeof MEDIA_VARIANTS)[number];
 
+/**
+ * Which video the public page shows: the alumnus's own, or the school's edit
+ * of it. Original until an admin uploads an edit and picks it.
+ */
+export const PUBLIC_VIDEO_VARIANTS = [
+  'original',
+  'edited',
+] as const satisfies readonly MediaVariant[];
+export type PublicVideoVariant = (typeof PUBLIC_VIDEO_VARIANTS)[number];
+
 /** The school was founded in 1978, so no alumnus graduated earlier. */
 export const FIRST_GRADUATION_YEAR = 1978;
 
@@ -135,6 +145,7 @@ export const alumniStorySchema = z.object({
   reviewed_at: z.coerce.date().nullable(),
   reviewed_by_admin_user_id: z.number().nullable(),
   display_order: z.number().nullable(),
+  public_video_variant: z.enum(PUBLIC_VIDEO_VARIANTS),
 });
 
 export type AlumniStory = z.infer<typeof alumniStorySchema>;
@@ -188,6 +199,10 @@ export const adminAlumniStoryDetailSchema = z.object({
 export type AdminAlumniStoryDetail = z.infer<
   typeof adminAlumniStoryDetailSchema
 >;
+
+export const choosePublicVideoSchema = z.object({
+  publicVideoVariant: z.enum(PUBLIC_VIDEO_VARIANTS),
+});
 
 export type NewAlumniStoryMedia = {
   kind: MediaKind;

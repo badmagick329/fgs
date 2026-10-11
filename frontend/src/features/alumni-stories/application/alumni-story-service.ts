@@ -7,6 +7,7 @@ import {
   DRAFT_LIFETIME_MS,
   MEDIA_LIMITS,
   MediaKind,
+  PublicVideoVariant,
   canReview,
   canSubmit,
   mediaUploadViolation,
@@ -24,7 +25,9 @@ export type AlumniStoryError =
   | 'invalid-media'
   | 'limit-reached'
   | 'empty-story'
-  | 'not-reviewable';
+  | 'not-reviewable'
+  | 'not-submitted'
+  | 'no-edited-video';
 
 export type AlumniStoryResult<T> =
   | { ok: true; data: T }
@@ -118,15 +121,9 @@ export class AlumniStoryService {
       );
     }
 
-    const storageKey = `${storyMediaPrefix(storyId)}/${randomUUID()}.${MIME_EXTENSIONS[upload.mimeType]}`;
-    const { sizeBytes } = await this.mediaStore.put(storageKey, upload.body);
-    if (sizeBytes !== upload.sizeBytes) {
-      await this.mediaStore.delete(storageKey);
-      return fail(
-        'invalid-media',
-        `Expected ${upload.sizeBytes} bytes but received ${sizeBytes}`
-      );
-    }
+    const stored = await this.store(storyId, upload);
+    if (!stored.ok) return stored;
+    const { storageKey, sizeBytes } = stored.data;
 
     const outcome = await this.repository.addMedia(
       storyId,
@@ -224,6 +221,85 @@ export class AlumniStoryService {
   /** Streams a media file, or its inclusive byte range, for admin playback. */
   readMedia(media: AlumniStoryMedia, range?: { start: number; end: number }) {
     return this.mediaStore.read(media.storage_key, range);
+  }
+
+  /**
+   * Stores the school's edit of a submitted story's video, replacing any
+   * earlier edit. The original stays, and the public page keeps showing
+   * whichever video was picked; an admin switches with choosePublicVideo.
+   */
+  async replaceEditedVideo(
+    storyId: number,
+    upload: {
+      mimeType: string;
+      sizeBytes: number;
+      originalFilename: string | null;
+      body: ReadableStream<Uint8Array>;
+    }
+  ): Promise<AlumniStoryResult<AlumniStoryMedia>> {
+    const violation = mediaUploadViolation({ kind: 'video', ...upload }, 0);
+    if (violation) {
+      await upload.body.cancel();
+      return fail('invalid-media', violation);
+    }
+
+    const stored = await this.store(storyId, upload);
+    if (!stored.ok) return stored;
+    const { storageKey, sizeBytes } = stored.data;
+
+    const outcome = await this.repository.replaceEditedVideo(storyId, {
+      storageKey,
+      mimeType: upload.mimeType,
+      sizeBytes,
+      originalFilename: upload.originalFilename,
+    });
+    if (!outcome.ok) {
+      await this.mediaStore.delete(storageKey);
+      return outcome.reason === 'draft'
+        ? fail('not-submitted', 'Only submitted stories can be edited')
+        : fail('not-found', 'Story not found');
+    }
+    // After the commit, so a failed insert never loses the previous edit.
+    if (outcome.replaced) {
+      await this.mediaStore.delete(outcome.replaced.storage_key);
+    }
+    return { ok: true, data: outcome.media };
+  }
+
+  async choosePublicVideo(
+    storyId: number,
+    variant: PublicVideoVariant
+  ): Promise<AlumniStoryResult<AlumniStory>> {
+    const story = await this.repository.setPublicVideoVariant(storyId, variant);
+    if (story) return { ok: true, data: story };
+
+    const found = await this.repository.getWithMedia(storyId);
+    if (!found) return fail('not-found', 'Story not found');
+    if (found.story.status === 'draft') {
+      return fail('not-submitted', 'Only submitted stories can be edited');
+    }
+    return fail('no-edited-video', 'Upload an edited video first');
+  }
+
+  /** Writes an upload under the story's prefix and checks every byte arrived. */
+  private async store(
+    storyId: number,
+    upload: {
+      mimeType: string;
+      sizeBytes: number;
+      body: ReadableStream<Uint8Array>;
+    }
+  ): Promise<AlumniStoryResult<{ storageKey: string; sizeBytes: number }>> {
+    const storageKey = `${storyMediaPrefix(storyId)}/${randomUUID()}.${MIME_EXTENSIONS[upload.mimeType]}`;
+    const { sizeBytes } = await this.mediaStore.put(storageKey, upload.body);
+    if (sizeBytes !== upload.sizeBytes) {
+      await this.mediaStore.delete(storageKey);
+      return fail(
+        'invalid-media',
+        `Expected ${upload.sizeBytes} bytes but received ${sizeBytes}`
+      );
+    }
+    return { ok: true, data: { storageKey, sizeBytes } };
   }
 
   async review(

@@ -76,16 +76,18 @@ export async function ensureSchema(pool: Pool) {
     );
   `);
 
-  // Alumni stories run the real migration so tests catch migration mistakes.
-  await pool.query(
-    await readFile(
-      path.resolve(
-        import.meta.dir,
-        '../../migrations/005_create_alumni_stories.sql'
-      ),
-      'utf-8'
-    )
-  );
+  // Alumni stories run the real migrations so tests catch migration mistakes.
+  for (const migration of [
+    '005_create_alumni_stories.sql',
+    '006_add_alumni_story_public_video.sql',
+  ]) {
+    await pool.query(
+      await readFile(
+        path.resolve(import.meta.dir, '../../migrations', migration),
+        'utf-8'
+      )
+    );
+  }
 
   await pool.query(`
     ALTER TABLE admin_config

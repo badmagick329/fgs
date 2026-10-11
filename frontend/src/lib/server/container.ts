@@ -10,7 +10,10 @@ import { Token } from '@/features/admin/infrastructure/token';
 import { AlumniStoryService } from '@/features/alumni-stories/application/alumni-story-service';
 import { AlumniStoryRepository } from '@/features/alumni-stories/infrastructure/alumni-story-repository';
 import { LocalMediaStore } from '@/features/alumni-stories/infrastructure/local-media-store';
-import { createAlumniStoryUploads } from '@/features/alumni-stories/infrastructure/tus-upload-server';
+import {
+  createAlumniStoryUploads,
+  createEditedVideoUploads,
+} from '@/features/alumni-stories/infrastructure/tus-upload-server';
 import { RegistrationAntiSpamService } from '@/features/registration/application/registration-anti-spam-service';
 import { RegistrationService } from '@/features/registration/application/registration-service';
 import { RegistrationRepository } from '@/features/registration/infrastructure/registration-repository';
@@ -33,6 +36,7 @@ export type ServerContainer = {
   adminAccessService: AdminAccessService;
   alumniStoryService: AlumniStoryService;
   alumniStoryUploads: ReturnType<typeof createAlumniStoryUploads>;
+  editedVideoUploads: ReturnType<typeof createEditedVideoUploads>;
   alumniStoryDraftRateLimiter: RateLimiter;
   adminManagementService: AdminManagementService;
   registrationService: RegistrationService;
@@ -65,6 +69,7 @@ const createServerContainer = (): ServerContainer => {
   // not admin or registration.
   let alumniStoryService: AlumniStoryService | undefined;
   let alumniStoryUploads: ServerContainer['alumniStoryUploads'] | undefined;
+  let editedVideoUploads: ServerContainer['editedVideoUploads'] | undefined;
 
   return {
     get alumniStoryService() {
@@ -83,6 +88,14 @@ const createServerContainer = (): ServerContainer => {
         clock,
       });
       return alumniStoryUploads;
+    },
+    get editedVideoUploads() {
+      editedVideoUploads ??= createEditedVideoUploads({
+        stories: this.alumniStoryService,
+        // Apart from alumnus uploads: each tus store sweeps its whole folder.
+        directory: path.join(envConfig.getMediaRoot(), '.incoming-edited'),
+      });
+      return editedVideoUploads;
     },
     alumniStoryDraftRateLimiter: new RateLimiter(
       clock,

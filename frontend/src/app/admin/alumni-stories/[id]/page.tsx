@@ -3,10 +3,17 @@
 import {
   AdminAlumniStoryDetail,
   AdminAlumniStoryMedia,
+  AlumniStory,
+  MEDIA_LIMITS,
 } from '@/features/alumni-stories/domain/alumni-story';
-import { useAdminAlumniStory } from '@/features/alumni-stories/presentation/useAdminAlumniStories';
+import { uploadEditedVideo } from '@/features/alumni-stories/presentation/admin-alumni-story-client';
+import {
+  useAdminAlumniStory,
+  useChoosePublicVideo,
+  useRefreshAdminAlumniStory,
+} from '@/features/alumni-stories/presentation/useAdminAlumniStories';
 import { formatPakistanAppointment } from '@/features/registration/domain/registration-rules';
-import { Download } from 'lucide-react';
+import { Download, Globe, Upload } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { API, ROUTES } from '@/lib/consts';
@@ -81,25 +88,7 @@ function StoryDetail({
         </p>
       </section>
 
-      <section className='rounded-2xl border border-border bg-card p-4'>
-        <h3 className='fgs-subheading'>Video</h3>
-        {videos.length ? (
-          videos.map((video) => (
-            <figure key={video.id} className='mt-3'>
-              {/* preload=metadata fetches only the header; seeking uses Range requests. */}
-              <video
-                controls
-                preload='metadata'
-                src={API.admin.alumniStoryMedia(video.id)}
-                className='max-h-[70vh] w-full rounded-xl bg-black'
-              />
-              <MediaCaption media={video} />
-            </figure>
-          ))
-        ) : (
-          <p className='fgs-copy mt-2'>No video.</p>
-        )}
-      </section>
+      <VideoSection story={story} videos={videos} />
 
       <section className='rounded-2xl border border-border bg-card p-4'>
         <h3 className='fgs-subheading'>Photos</h3>
@@ -114,6 +103,153 @@ function StoryDetail({
         )}
       </section>
     </article>
+  );
+}
+
+/**
+ * The alumnus's video and the school's edit side by side. The site shows the
+ * original until an admin uploads an edit and picks it.
+ */
+function VideoSection({
+  story,
+  videos,
+}: {
+  story: AlumniStory;
+  videos: AdminAlumniStoryMedia[];
+}) {
+  const original = videos.find((video) => video.variant === 'original');
+  const edited = videos.find((video) => video.variant === 'edited');
+  const choose = useChoosePublicVideo(story.id);
+
+  const versions = [
+    {
+      label: 'Original from the alumnus',
+      variant: 'original',
+      video: original,
+    },
+    { label: 'Edited by the school', variant: 'edited', video: edited },
+  ] as const;
+
+  return (
+    <section className='rounded-2xl border border-border bg-card p-4'>
+      <h3 className='fgs-subheading'>Video</h3>
+      {!original ? (
+        <p className='fgs-copy mt-2'>The alumnus sent no video.</p>
+      ) : null}
+      {versions.map(({ label, variant, video }) =>
+        video ? (
+          <figure key={video.id} className='mt-4'>
+            <div className='mb-2 flex flex-wrap items-center justify-between gap-2'>
+              <p className='font-medium'>{label}</p>
+              {story.public_video_variant === variant ? (
+                <span className='inline-flex items-center gap-1 rounded-full bg-fgs-surface px-3 py-1 text-sm font-medium'>
+                  <Globe className='size-4' aria-hidden />
+                  Shown on the site
+                </span>
+              ) : (
+                <button
+                  type='button'
+                  className='fgs-btn-secondary'
+                  disabled={choose.isPending}
+                  onClick={() => choose.mutate(variant)}
+                >
+                  Show this one on the site
+                </button>
+              )}
+            </div>
+            {/* preload=metadata fetches only the header; seeking uses Range requests. */}
+            <video
+              controls
+              preload='metadata'
+              src={API.admin.alumniStoryMedia(video.id)}
+              className='max-h-[70vh] w-full rounded-xl bg-black'
+            />
+            <MediaCaption media={video} />
+          </figure>
+        ) : null
+      )}
+      {choose.isError ? (
+        <p className='text-error mt-2'>{choose.error.message}</p>
+      ) : null}
+      {story.status !== 'draft' ? (
+        <EditedVideoUpload storyId={story.id} replacing={Boolean(edited)} />
+      ) : null}
+    </section>
+  );
+}
+
+type UploadState =
+  | { state: 'idle' }
+  | { state: 'uploading'; progress: number }
+  | { state: 'failed'; message: string };
+
+function EditedVideoUpload({
+  storyId,
+  replacing,
+}: {
+  storyId: number;
+  replacing: boolean;
+}) {
+  const [upload, setUpload] = useState<UploadState>({ state: 'idle' });
+  const refresh = useRefreshAdminAlumniStory(storyId);
+
+  const start = async (file: File) => {
+    setUpload({ state: 'uploading', progress: 0 });
+    const result = await uploadEditedVideo(file, {
+      storyId,
+      filename: file.name,
+      onProgress: (progress) => setUpload({ state: 'uploading', progress }),
+    });
+    if (result.outcome === 'failed') {
+      setUpload({ state: 'failed', message: result.message });
+      return;
+    }
+    setUpload({ state: 'idle' });
+    await refresh();
+  };
+
+  return (
+    <div className='mt-4 border-t border-border pt-4'>
+      {upload.state === 'uploading' ? (
+        <div>
+          <p className='text-sm'>
+            {/* The server copies the file into storage after the last byte. */}
+            {upload.progress < 1
+              ? `Uploading edited video… ${Math.round(upload.progress * 100)}%`
+              : 'Saving edited video…'}
+          </p>
+          <progress
+            className='mt-2 w-full'
+            max={1}
+            value={upload.progress}
+            aria-label='Edited video upload progress'
+          />
+        </div>
+      ) : (
+        <label className='fgs-btn-secondary inline-flex cursor-pointer items-center gap-2'>
+          <Upload className='size-4' aria-hidden />
+          {replacing ? 'Replace edited video' : 'Upload edited video'}
+          <input
+            type='file'
+            accept={MEDIA_LIMITS.video.mimeTypes.join(',')}
+            className='sr-only'
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = '';
+              if (file) void start(file);
+            }}
+          />
+        </label>
+      )}
+      {upload.state === 'failed' ? (
+        <p className='text-error mt-2'>{upload.message}</p>
+      ) : (
+        <p className='mt-2 text-sm text-muted-foreground'>
+          The original is kept. Uploading doesn&apos;t change what the site
+          shows until you pick the edit.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -153,7 +289,7 @@ function MediaCaption({ media }: { media: AdminAlumniStoryMedia }) {
         className='fgs-link inline-flex items-center gap-1'
       >
         <Download className='size-4' aria-hidden />
-        Download original
+        {media.variant === 'edited' ? 'Download edit' : 'Download original'}
       </a>
     </figcaption>
   );

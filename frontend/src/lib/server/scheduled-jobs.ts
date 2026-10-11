@@ -11,9 +11,12 @@ declare global {
 
 async function sweepAlumniStoryDrafts() {
   try {
-    const removed =
-      await getServerContainer().alumniStoryUploads.uploads.sweep();
-    if (removed.drafts || removed.stagedUploads) {
+    const container = getServerContainer();
+    const removed = {
+      ...(await container.alumniStoryUploads.uploads.sweep()),
+      stagedEditedVideos: await container.editedVideoUploads.uploads.sweep(),
+    };
+    if (removed.drafts || removed.stagedUploads || removed.stagedEditedVideos) {
       console.info('alumni story sweep', removed);
     }
   } catch (error) {

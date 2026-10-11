@@ -5,8 +5,10 @@ const getServerContainer = mock(() => ({}));
 mock.module('@/lib/server/container', () => ({ getServerContainer }));
 
 const { GET: list } = await import('@/app/api/admin/alumni-stories/route');
-const { GET: detail } =
+const { GET: detail, PATCH: choose } =
   await import('@/app/api/admin/alumni-stories/[id]/route');
+const { POST: createEditUpload } =
+  await import('@/app/api/admin/alumni-stories/edited-video-uploads/[[...id]]/route');
 
 const signedIn = {
   requireAdminRouteAuth: async () => ({
@@ -33,6 +35,28 @@ const getWithMedia = mock(async (id: number) =>
     : null
 );
 
+const choosePublicVideo = mock(async (id: number, variant: string) =>
+  id === 3
+    ? { ok: true, data: { id: 3, public_video_variant: variant } }
+    : id === 5
+      ? {
+          ok: false,
+          error: 'no-edited-video',
+          message: 'Upload an edited video first',
+        }
+      : { ok: false, error: 'not-found', message: 'Story not found' }
+);
+const editUploadServer = { handleWeb: mock(async () => new Response(null)) };
+
+const chooseFor = (id: string, body: unknown) =>
+  choose(
+    new Request(`http://localhost/api/admin/alumni-stories/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+    { params: Promise.resolve({ id }) }
+  );
+
 const listUrl = (query = '') =>
   new Request(`http://localhost/api/admin/alumni-stories${query}`);
 const detailOf = (id: string) =>
@@ -43,21 +67,37 @@ const detailOf = (id: string) =>
 describe('admin alumni story routes', () => {
   beforeEach(() => {
     listByStatus.mockClear();
+    choosePublicVideo.mockClear();
+    editUploadServer.handleWeb.mockClear();
     getServerContainer.mockReturnValue({
       adminAccessService: signedIn,
-      alumniStoryService: { listByStatus, getWithMedia },
+      alumniStoryService: { listByStatus, getWithMedia, choosePublicVideo },
+      editedVideoUploads: { server: editUploadServer },
     });
   });
 
-  it('refuses both routes without an admin session', async () => {
+  it('refuses every route without an admin session', async () => {
     getServerContainer.mockReturnValue({
       adminAccessService: signedOut,
-      alumniStoryService: { listByStatus, getWithMedia },
+      alumniStoryService: { listByStatus, getWithMedia, choosePublicVideo },
+      editedVideoUploads: { server: editUploadServer },
     });
 
     expect((await list(listUrl())).status).toBe(401);
     expect((await detailOf('3')).status).toBe(401);
+    expect(
+      (await chooseFor('3', { publicVideoVariant: 'edited' })).status
+    ).toBe(401);
+    const upload = await createEditUpload(
+      new Request(
+        'http://localhost/api/admin/alumni-stories/edited-video-uploads',
+        { method: 'POST' }
+      )
+    );
+    expect(upload.status).toBe(401);
     expect(listByStatus).not.toHaveBeenCalled();
+    expect(choosePublicVideo).not.toHaveBeenCalled();
+    expect(editUploadServer.handleWeb).not.toHaveBeenCalled();
   });
 
   it('lists pending stories unless another status is asked for', async () => {
@@ -78,5 +118,28 @@ describe('admin alumni story routes', () => {
     });
     expect((await detailOf('4')).status).toBe(404);
     expect((await detailOf('x')).status).toBe(400);
+  });
+
+  it('picks the public video, refusing unknown variants and missing edits', async () => {
+    const res = await chooseFor('3', { publicVideoVariant: 'edited' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      ok: true,
+      data: { id: 3, public_video_variant: 'edited' },
+    });
+    expect(choosePublicVideo.mock.calls).toEqual([[3, 'edited']]);
+
+    expect(
+      (await chooseFor('3', { publicVideoVariant: 'display' })).status
+    ).toBe(400);
+    expect(
+      (await chooseFor('x', { publicVideoVariant: 'edited' })).status
+    ).toBe(400);
+    expect(
+      (await chooseFor('5', { publicVideoVariant: 'edited' })).status
+    ).toBe(409);
+    expect(
+      (await chooseFor('4', { publicVideoVariant: 'original' })).status
+    ).toBe(404);
   });
 });

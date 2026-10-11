@@ -8,11 +8,16 @@ import {
   CreateAlumniStoryDraft,
   MediaKind,
   NewAlumniStoryMedia,
+  PublicVideoVariant,
 } from '@/features/alumni-stories/domain/alumni-story';
 
 export type AddMediaOutcome =
   | { ok: true; media: AlumniStoryMedia }
   | { ok: false; reason: 'not-draft' | 'limit-reached' };
+
+export type ReplaceEditedVideoOutcome =
+  | { ok: true; media: AlumniStoryMedia; replaced: AlumniStoryMedia | null }
+  | { ok: false; reason: 'not-found' | 'draft' };
 
 export interface IAlumniStoryRepository {
   createDraft(
@@ -48,6 +53,22 @@ export interface IAlumniStoryRepository {
   listByStatus(status: AlumniStoryStatus): Promise<AlumniStorySummary[]>;
   getWithMedia(storyId: number): Promise<AlumniStoryWithMedia | null>;
   getMedia(mediaId: number): Promise<AlumniStoryMedia | null>;
+  /**
+   * Records `media` as the story's edited video in one transaction, removing
+   * the row of any edit it replaces. The caller deletes the replaced file.
+   */
+  replaceEditedVideo(
+    storyId: number,
+    media: Omit<NewAlumniStoryMedia, 'kind' | 'variant'>
+  ): Promise<ReplaceEditedVideoOutcome>;
+  /**
+   * Sets which video the public page shows, or returns null when the story
+   * is a draft, is missing, or has no edited video to pick.
+   */
+  setPublicVideoVariant(
+    storyId: number,
+    variant: PublicVideoVariant
+  ): Promise<AlumniStory | null>;
   setReview(
     storyId: number,
     decision: AlumniStoryReviewDecision,

@@ -18,6 +18,7 @@ import { IClock } from '@/lib/server/i-clock';
 
 export type UploadError =
   | 'bad-request'
+  | 'not-found'
   | 'invalid-token'
   | 'forbidden'
   | 'not-draft'
@@ -54,7 +55,7 @@ type Reservation = {
 const FILENAME_MAX_LENGTH = 200;
 
 // Filenames come from the client and are shown to admins.
-const cleanFilename = (filename: string | null | undefined) =>
+export const cleanFilename = (filename: string | null | undefined) =>
   filename
     ?.replace(/[\u0000-\u001f\u007f]/g, '')
     .trim()
