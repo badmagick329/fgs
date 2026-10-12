@@ -294,14 +294,6 @@ export function useAlumniStorySubmission() {
     setPhase('editing');
   }, [setItems]);
 
-  /** After a submission: clears everything for the next story. */
-  const reset = useCallback(() => {
-    forgetUploads();
-    setItems(() => []);
-    setNotice(null);
-    setPhase('editing');
-  }, [setItems]);
-
   const waiting = items.some((item) => item.status.state === 'interrupted');
   useEffect(() => {
     if (phase !== 'sending' || !waiting) return;
@@ -333,7 +325,6 @@ export function useAlumniStorySubmission() {
     addFiles,
     removeItem,
     startOver,
-    reset,
   };
 }
 

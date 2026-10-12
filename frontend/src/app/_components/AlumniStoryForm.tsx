@@ -182,7 +182,6 @@ export default function AlumniStoryForm({
   const {
     register,
     handleSubmit,
-    reset,
     setError,
     formState: { errors },
   } = useForm<CreateAlumniStoryDraftInput, unknown, CreateAlumniStoryDraft>({
@@ -236,16 +235,6 @@ export default function AlumniStoryForm({
         <p className='mt-1 max-w-sm text-sm text-muted-foreground'>
           {alumniConnectContent.successMessage}
         </p>
-        <button
-          type='button'
-          className='fgs-btn-secondary mt-5'
-          onClick={() => {
-            submission.reset();
-            reset(defaultValues);
-          }}
-        >
-          Share another story
-        </button>
       </div>
     );
   }
