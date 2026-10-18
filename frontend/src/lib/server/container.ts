@@ -15,6 +15,7 @@ import {
   createAlumniStoryUploads,
   createEditedVideoUploads,
 } from '@/features/alumni-stories/infrastructure/tus-upload-server';
+import { PostgresHealthCheck } from '@/features/health/infrastructure/postgres-health-check';
 import { RegistrationAntiSpamService } from '@/features/registration/application/registration-anti-spam-service';
 import { RegistrationService } from '@/features/registration/application/registration-service';
 import { RegistrationRepository } from '@/features/registration/infrastructure/registration-repository';
@@ -41,6 +42,7 @@ const ALUMNI_STORY_DRAFT_RATE_LIMIT = {
 };
 
 export type ServerContainer = {
+  healthCheck: PostgresHealthCheck;
   adminAccessService: AdminAccessService;
   alumniStoryService: AlumniStoryService;
   alumniStoryUploads: ReturnType<typeof createAlumniStoryUploads>;
@@ -83,6 +85,7 @@ const createServerContainer = (): ServerContainer => {
   let alumniStoryCaptchaVerifier: ICaptchaVerifier | undefined;
 
   return {
+    healthCheck: new PostgresHealthCheck(envConfig.getDatabaseUrl()),
     get alumniStoryService() {
       alumniStoryService ??= new AlumniStoryService(
         new AlumniStoryRepository(pool),
