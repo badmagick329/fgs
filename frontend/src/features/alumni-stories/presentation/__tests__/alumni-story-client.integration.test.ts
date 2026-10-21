@@ -30,7 +30,7 @@ const { LocalMediaStore } =
   await import('@/features/alumni-stories/infrastructure/local-media-store');
 const { AlumniStoryService } =
   await import('@/features/alumni-stories/application/alumni-story-service');
-const { createAlumniStoryUploads } =
+const { createAlumniStoryUploadEndpoints } =
   await import('@/features/alumni-stories/infrastructure/tus-upload-server');
 const { UPLOAD_CHUNK_BYTES, createMediaUpload } =
   await import('@/features/alumni-stories/presentation/alumni-story-client');
@@ -121,13 +121,16 @@ describe('Alumni story upload client against the tus server', () => {
     );
     freeBytes = 100 * 1024 ** 3;
     uploadCreates = 0;
-    const { server } = createAlumniStoryUploads({
+    const { server } = createAlumniStoryUploadEndpoints({
       stories,
-      directory: path.join(mediaRoot, '.incoming'),
+      directories: {
+        alumniMedia: path.join(mediaRoot, '.incoming'),
+        editedVideos: path.join(mediaRoot, '.incoming-edited'),
+      },
       diskSpace: { freeBytes: async () => freeBytes },
       notifier: { sendMessage: async () => ({}) },
       clock: { now: () => new Date(), nowMs: () => Date.now() },
-    });
+    }).alumniStoryUploads;
     http = Bun.serve({
       port: 0,
       fetch: (req) => {

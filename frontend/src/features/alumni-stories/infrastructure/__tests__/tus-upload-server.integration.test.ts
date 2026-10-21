@@ -31,7 +31,7 @@ const { LocalMediaStore } =
   await import('@/features/alumni-stories/infrastructure/local-media-store');
 const { AlumniStoryService } =
   await import('@/features/alumni-stories/application/alumni-story-service');
-const { createAlumniStoryUploads } =
+const { createAlumniStoryUploadEndpoints } =
   await import('@/features/alumni-stories/infrastructure/tus-upload-server');
 
 class FakeClock {
@@ -87,9 +87,29 @@ describe('Alumni story tus uploads integration', () => {
   let incoming: string;
   let stories: InstanceType<typeof AlumniStoryService>;
   let mediaStore: InstanceType<typeof LocalMediaStore>;
-  let uploads: ReturnType<typeof createAlumniStoryUploads>;
+  let uploads: ReturnType<
+    typeof createAlumniStoryUploadEndpoints
+  >['alumniStoryUploads'];
   let freeBytes: number;
   let alerts: { source: string; message: string }[];
+
+  /** Endpoints over this test's folders; a second call models a restart. */
+  const buildUploads = () =>
+    createAlumniStoryUploadEndpoints({
+      stories,
+      directories: {
+        alumniMedia: incoming,
+        editedVideos: path.join(mediaRoot, '.incoming-edited'),
+      },
+      diskSpace: { freeBytes: async () => freeBytes },
+      notifier: {
+        sendMessage: async (input) => {
+          alerts.push(input);
+          return {};
+        },
+      },
+      clock,
+    }).alumniStoryUploads;
 
   const tus = (
     method: string,
@@ -166,18 +186,7 @@ describe('Alumni story tus uploads integration', () => {
     );
     freeBytes = 100 * GB;
     alerts = [];
-    uploads = createAlumniStoryUploads({
-      stories,
-      directory: incoming,
-      diskSpace: { freeBytes: async () => freeBytes },
-      notifier: {
-        sendMessage: async (input) => {
-          alerts.push(input);
-          return {};
-        },
-      },
-      clock,
-    });
+    uploads = buildUploads();
   });
 
   afterEach(async () => {
@@ -347,13 +356,9 @@ describe('Alumni story tus uploads integration', () => {
   });
 
   it('refuses uploads that would cut into the free-space floor, alerting hourly', async () => {
+    const first = await stories.createDraft(draftInput);
     const { uploadToken } = await stories.createDraft(draftInput);
     const video = 300 * 1024 * 1024;
-
-    freeBytes = 20 * GB + video;
-    expect(
-      (await create(uploadToken, { kind: 'video', length: video })).status
-    ).toBe(201);
 
     // Room for a photo but not for the video.
     freeBytes = 20 * GB + video - 1;
@@ -363,10 +368,12 @@ describe('Alumni story tus uploads integration', () => {
     expect(
       (await create(uploadToken, { kind: 'photo', length: 10 })).status
     ).toBe(201);
+    expect(alerts).toHaveLength(1);
 
-    freeBytes = 20 * GB;
+    // The first photo still owes its 10 bytes, leaving no room for another.
+    freeBytes = 20 * GB + 10;
     expect(
-      (await create(uploadToken, { kind: 'photo', length: 10 })).status
+      (await create(first.uploadToken, { kind: 'photo', length: 10 })).status
     ).toBe(507);
     expect(alerts).toHaveLength(1);
     expect(alerts[0]).toMatchObject({ source: 'alumni-story.disk-low' });
@@ -380,6 +387,69 @@ describe('Alumni story tus uploads integration', () => {
     } finally {
       clock.ms -= 60 * 60 * 1000;
     }
+  });
+
+  it('admits only as many simultaneous uploads as the disk has room for', async () => {
+    const drafts = await Promise.all(
+      [1, 2, 3].map(() => stories.createDraft(draftInput))
+    );
+    const video = 300 * 1024 * 1024;
+    freeBytes = 20 * GB + 2 * video + 1;
+
+    const statuses = await Promise.all(
+      drafts.map((draft) =>
+        create(draft.uploadToken, { kind: 'video', length: video }).then(
+          (res) => res.status
+        )
+      )
+    );
+
+    expect(statuses.sort()).toEqual([201, 201, 507]);
+  });
+
+  it('frees the room of a finished or terminated upload', async () => {
+    const drafts = await Promise.all(
+      [1, 2, 3].map(() => stories.createDraft(draftInput))
+    );
+    const [a, b, c] = drafts.map((draft) => draft.uploadToken);
+    freeBytes = 20 * GB + 10;
+
+    const first = await createOk(a, { kind: 'photo', length: 10 });
+    expect((await create(b, { kind: 'photo', length: 10 })).status).toBe(507);
+
+    expect((await patch(first, a, 0, jpegBytes(10))).status).toBe(204);
+    const second = await createOk(b, { kind: 'photo', length: 10 });
+    expect((await create(c, { kind: 'photo', length: 10 })).status).toBe(507);
+
+    expect(
+      (await tus('DELETE', second, { [UPLOAD_TOKEN_HEADER]: b })).status
+    ).toBe(204);
+    expect((await create(c, { kind: 'photo', length: 10 })).status).toBe(201);
+  });
+
+  it('counts uploads left half-done by a restart against the floor', async () => {
+    const before = await stories.createDraft(draftInput);
+    const after = await stories.createDraft(draftInput);
+    const video = mp4Bytes(64 * 1024);
+    const url = await createOk(before.uploadToken, {
+      kind: 'video',
+      length: video.length,
+    });
+    expect(
+      (await patch(url, before.uploadToken, 0, video.slice(0, 1024))).status
+    ).toBe(204);
+
+    uploads = buildUploads();
+    const owed = video.length - 1024;
+
+    freeBytes = 20 * GB + owed + 9;
+    expect(
+      (await create(after.uploadToken, { kind: 'photo', length: 10 })).status
+    ).toBe(507);
+    freeBytes = 20 * GB + owed + 10;
+    expect(
+      (await create(after.uploadToken, { kind: 'photo', length: 10 })).status
+    ).toBe(201);
   });
 
   it('sweeps expired drafts with their files and keeps submitted stories', async () => {

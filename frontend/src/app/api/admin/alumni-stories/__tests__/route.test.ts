@@ -28,7 +28,7 @@ const signedOut = {
 };
 
 const listByStatus = mock(async (_status: string) => [{ id: 1 }]);
-const getWithMedia = mock(async (id: number) =>
+const getSubmittedWithMedia = mock(async (id: number) =>
   id === 3
     ? {
         story: { id: 3 },
@@ -99,7 +99,7 @@ describe('admin alumni story routes', () => {
       adminAccessService: signedIn,
       alumniStoryService: {
         listByStatus,
-        getWithMedia,
+        getSubmittedWithMedia,
         choosePublicVideo,
         review,
       },
@@ -112,7 +112,7 @@ describe('admin alumni story routes', () => {
       adminAccessService: signedOut,
       alumniStoryService: {
         listByStatus,
-        getWithMedia,
+        getSubmittedWithMedia,
         choosePublicVideo,
         review,
       },

@@ -71,7 +71,8 @@ describe('GET /api/admin/alumni-stories/media/[mediaId]', () => {
     getServerContainer.mockReturnValue({
       adminAccessService: signedIn,
       alumniStoryService: {
-        getMedia: async (id: number) => (id === media.id ? media : null),
+        getSubmittedMedia: async (id: number) =>
+          id === media.id ? media : null,
         readMedia: (
           found: typeof media,
           range?: { start: number; end: number }

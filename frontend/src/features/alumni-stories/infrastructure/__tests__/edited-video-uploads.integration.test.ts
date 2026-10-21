@@ -1,3 +1,4 @@
+import { UPLOAD_TOKEN_HEADER } from '@/features/alumni-stories/domain/alumni-story';
 import {
   acquireGlobalTestDbLock,
   closePool,
@@ -30,7 +31,7 @@ const { LocalMediaStore } =
   await import('@/features/alumni-stories/infrastructure/local-media-store');
 const { AlumniStoryService } =
   await import('@/features/alumni-stories/application/alumni-story-service');
-const { createEditedVideoUploads } =
+const { createAlumniStoryUploadEndpoints } =
   await import('@/features/alumni-stories/infrastructure/tus-upload-server');
 
 const clock = {
@@ -38,8 +39,10 @@ const clock = {
   nowMs: () => Date.parse('2026-10-11T10:00:00Z'),
 };
 
+const GB = 1024 ** 3;
 const ORIGIN = 'http://localhost';
 const UPLOADS_URL = `${ORIGIN}/api/admin/alumni-stories/edited-video-uploads`;
+const ALUMNI_UPLOADS_URL = `${ORIGIN}/api/alumni-stories/uploads`;
 
 const draftInput = {
   fullName: 'Ayesha Khan',
@@ -71,15 +74,17 @@ describe('Edited video tus uploads integration', () => {
   let incoming: string;
   let stories: InstanceType<typeof AlumniStoryService>;
   let mediaStore: InstanceType<typeof LocalMediaStore>;
-  let uploads: ReturnType<typeof createEditedVideoUploads>;
+  let endpoints: ReturnType<typeof createAlumniStoryUploadEndpoints>;
+  let freeBytes: number;
 
   const tus = (
     method: string,
     url: string,
     headers: Record<string, string>,
-    body?: BodyInit
+    body?: BodyInit,
+    server = endpoints.editedVideoUploads.server
   ) =>
-    uploads.server.handleWeb(
+    server.handleWeb(
       new Request(url, {
         method,
         headers: { 'Tus-Resumable': '1.0.0', ...headers },
@@ -88,15 +93,18 @@ describe('Edited video tus uploads integration', () => {
       } as RequestInit)
     );
 
-  /** Uploads `bytes` in one PATCH and returns the creation and PATCH statuses. */
-  const upload = async (storyId: number, bytes: Uint8Array<ArrayBuffer>) => {
-    const created = await tus('POST', UPLOADS_URL, {
-      'Upload-Length': String(bytes.length),
+  const createEdit = (storyId: number, length: number) =>
+    tus('POST', UPLOADS_URL, {
+      'Upload-Length': String(length),
       'Upload-Metadata': tusMetadata({
         storyId: String(storyId),
         filename: 'edit.mp4',
       }),
     });
+
+  /** Uploads `bytes` in one PATCH and returns the creation and PATCH statuses. */
+  const upload = async (storyId: number, bytes: Uint8Array<ArrayBuffer>) => {
+    const created = await createEdit(storyId, bytes.length);
     if (created.status !== 201) return { created: created.status };
     const url = new URL(created.headers.get('location')!, ORIGIN).toString();
     const patched = await tus(
@@ -135,7 +143,17 @@ describe('Edited video tus uploads integration', () => {
       mediaStore,
       clock
     );
-    uploads = createEditedVideoUploads({ stories, directory: incoming });
+    freeBytes = 100 * GB;
+    endpoints = createAlumniStoryUploadEndpoints({
+      stories,
+      directories: {
+        alumniMedia: path.join(mediaRoot, '.incoming'),
+        editedVideos: incoming,
+      },
+      diskSpace: { freeBytes: async () => freeBytes },
+      notifier: { sendMessage: async () => ({}) },
+      clock,
+    });
   });
 
   afterEach(async () => {
@@ -192,5 +210,37 @@ describe('Edited video tus uploads integration', () => {
     });
     expect((await stories.getWithMedia(story.id))?.media).toEqual([]);
     expect(await stagedFiles()).toEqual([]);
+  });
+
+  it('shares the free-space floor with alumnus uploads', async () => {
+    const story = await submittedStory();
+    const draft = await stories.createDraft(draftInput);
+    freeBytes = 20 * GB + 1024;
+
+    expect((await createEdit(story.id, 1024)).status).toBe(201);
+    expect((await createEdit(story.id, 1)).status).toBe(507);
+    const alumnus = await tus(
+      'POST',
+      ALUMNI_UPLOADS_URL,
+      {
+        [UPLOAD_TOKEN_HEADER]: draft.uploadToken,
+        'Upload-Length': '1',
+        'Upload-Metadata': tusMetadata({ kind: 'photo' }),
+      },
+      undefined,
+      endpoints.alumniStoryUploads.server
+    );
+    expect(alumnus.status).toBe(507);
+  });
+
+  it('frees the room of a terminated edit', async () => {
+    const story = await submittedStory();
+    freeBytes = 20 * GB + 1024;
+
+    const created = await createEdit(story.id, 1024);
+    expect((await createEdit(story.id, 1024)).status).toBe(507);
+    const url = new URL(created.headers.get('location')!, ORIGIN).toString();
+    expect((await tus('DELETE', url, {})).status).toBe(204);
+    expect((await createEdit(story.id, 1024)).status).toBe(201);
   });
 });

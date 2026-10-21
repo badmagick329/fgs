@@ -1,25 +1,21 @@
 import { AlumniStoryService } from '@/features/alumni-stories/application/alumni-story-service';
+import { UploadBudget } from '@/features/alumni-stories/application/upload-budget';
 import {
   AlumniStory,
   AlumniStoryMedia,
   DRAFT_LIFETIME_MS,
   MEDIA_KINDS,
   MEDIA_LIMITS,
-  MIN_FREE_DISK_BYTES,
   MediaKind,
   mediaUploadStartViolation,
 } from '@/features/alumni-stories/domain/alumni-story';
-import {
-  IDiskSpace,
-  IUploadStaging,
-} from '@/features/alumni-stories/domain/interfaces';
+import { IUploadStaging } from '@/features/alumni-stories/domain/interfaces';
 import {
   MEDIA_SNIFF_BYTES,
   sniffMediaType,
 } from '@/features/alumni-stories/domain/media-type';
 import * as z from 'zod';
 import { IClock } from '@/lib/server/i-clock';
-import { INotifier } from '@/lib/server/i-notifier';
 
 export type UploadError =
   | 'bad-request'
@@ -60,11 +56,6 @@ type Reservation = {
 
 const FILENAME_MAX_LENGTH = 200;
 
-/** Refusals repeat on every upload while the disk stays low; admins need one ping. */
-const DISK_LOW_ALERT_INTERVAL_MS = 60 * 60 * 1000;
-
-const gigabytes = (bytes: number) => (bytes / 1024 ** 3).toFixed(1);
-
 // Filenames come from the client and are shown to admins.
 export const cleanFilename = (filename: string | null | undefined) =>
   filename
@@ -83,13 +74,11 @@ export const cleanFilename = (filename: string | null | undefined) =>
  */
 export class AlumniStoryUploadService {
   private readonly reservations = new Map<string, Reservation>();
-  private lastDiskLowAlertMs = -Infinity;
 
   constructor(
     private readonly stories: AlumniStoryService,
     private readonly staging: IUploadStaging,
-    private readonly diskSpace: IDiskSpace,
-    private readonly notifier: INotifier,
+    private readonly budget: UploadBudget,
     private readonly clock: IClock
   ) {}
 
@@ -153,14 +142,19 @@ export class AlumniStoryUploadService {
         violation
       );
     }
-    const noRoom = await this.checkDiskRoom(upload.sizeBytes);
+    const noRoom = await this.budget.admit(upload.uploadId, upload.sizeBytes);
     if (noRoom) return noRoom;
 
-    await this.evictUnfinished(
-      story.id,
-      kind.data,
-      MEDIA_LIMITS[kind.data].maxCount - recorded
-    );
+    try {
+      await this.evictUnfinished(
+        story.id,
+        kind.data,
+        MEDIA_LIMITS[kind.data].maxCount - recorded
+      );
+    } catch (error) {
+      this.budget.release(upload.uploadId);
+      throw error;
+    }
     this.reservations.set(upload.uploadId, {
       storyId: story.id,
       kind: kind.data,
@@ -226,13 +220,15 @@ export class AlumniStoryUploadService {
       }
     } finally {
       this.reservations.delete(upload.uploadId);
+      this.budget.release(upload.uploadId);
       await this.staging.remove(upload.uploadId);
     }
   }
 
-  /** Frees the slot of an upload the client terminated. */
+  /** Frees the slot and disk room of an upload the client terminated. */
   release(uploadId: string) {
     this.reservations.delete(uploadId);
+    this.budget.release(uploadId);
   }
 
   /**
@@ -252,35 +248,6 @@ export class AlumniStoryUploadService {
     return { drafts, stagedUploads };
   }
 
-  /**
-   * Refuses an upload that would leave less than MIN_FREE_DISK_BYTES free.
-   * Uploads running side by side are all checked against the same free
-   * space; the floor dwarfs what they can add up to, so it holds anyway.
-   */
-  private async checkDiskRoom(
-    sizeBytes: number
-  ): Promise<UploadResult<never> | null> {
-    const freeBytes = await this.diskSpace.freeBytes();
-    if (freeBytes - sizeBytes >= MIN_FREE_DISK_BYTES) return null;
-
-    const nowMs = this.clock.nowMs();
-    if (nowMs - this.lastDiskLowAlertMs >= DISK_LOW_ALERT_INTERVAL_MS) {
-      this.lastDiskLowAlertMs = nowMs;
-      void this.notifier
-        .sendMessage({
-          source: 'alumni-story.disk-low',
-          message: `Alumni Connect is refusing new uploads: ${gigabytes(freeBytes)} GB free on the media disk, below the ${gigabytes(MIN_FREE_DISK_BYTES)} GB floor. Free up space on the server to accept them again.`,
-        })
-        .catch((error) => {
-          console.error('alumni story disk alert failed', error);
-        });
-    }
-    return fail(
-      'disk-full',
-      'The server cannot take new uploads right now. Try again later.'
-    );
-  }
-
   private async evictUnfinished(
     storyId: number,
     kind: MediaKind,
@@ -295,6 +262,7 @@ export class AlumniStoryUploadService {
     while (unfinished.length >= slots && unfinished.length > 0) {
       const [uploadId] = unfinished.shift()!;
       this.reservations.delete(uploadId);
+      this.budget.release(uploadId);
       await this.staging.remove(uploadId);
     }
   }

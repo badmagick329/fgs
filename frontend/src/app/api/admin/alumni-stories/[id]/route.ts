@@ -26,7 +26,7 @@ export async function GET(
   const id = idSchema.safeParse((await context.params).id);
   if (!id.success) return respond({ ok: false, message: 'Invalid id.' }, 400);
 
-  const found = await alumniStoryService.getWithMedia(id.data);
+  const found = await alumniStoryService.getSubmittedWithMedia(id.data);
   if (!found) return respond({ ok: false, message: 'Story not found.' }, 404);
 
   const data: AdminAlumniStoryDetail = {

@@ -188,10 +188,22 @@ export class AlumniStoryRepository implements IAlumniStoryRepository {
     return res.rows.map((row) => alumniStorySummarySchema.parse(row));
   }
 
-  async getWithMedia(storyId: number) {
+  getWithMedia(storyId: number) {
+    return this.findWithMedia(storyId, { submittedOnly: false });
+  }
+
+  getSubmittedWithMedia(storyId: number) {
+    return this.findWithMedia(storyId, { submittedOnly: true });
+  }
+
+  private async findWithMedia(
+    storyId: number,
+    { submittedOnly }: { submittedOnly: boolean }
+  ) {
     const story = await this.pool.query(
-      `SELECT ${STORY_COLUMNS} FROM alumni_stories WHERE id = $1`,
-      [storyId]
+      `SELECT ${STORY_COLUMNS} FROM alumni_stories
+       WHERE id = $1 AND (NOT $2 OR status <> 'draft')`,
+      [storyId, submittedOnly]
     );
     if (!story.rows[0]) return null;
 
@@ -207,9 +219,11 @@ export class AlumniStoryRepository implements IAlumniStoryRepository {
     };
   }
 
-  async getMedia(mediaId: number) {
+  async getSubmittedMedia(mediaId: number) {
     const res = await this.pool.query(
-      'SELECT * FROM alumni_story_media WHERE id = $1',
+      `SELECT m.* FROM alumni_story_media m
+       JOIN alumni_stories s ON s.id = m.story_id
+       WHERE m.id = $1 AND s.status <> 'draft'`,
       [mediaId]
     );
     return res.rows[0] ? alumniStoryMediaSchema.parse(res.rows[0]) : null;

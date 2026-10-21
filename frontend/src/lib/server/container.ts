@@ -11,10 +11,7 @@ import { AlumniStoryService } from '@/features/alumni-stories/application/alumni
 import { AlumniStoryRepository } from '@/features/alumni-stories/infrastructure/alumni-story-repository';
 import { LocalMediaStore } from '@/features/alumni-stories/infrastructure/local-media-store';
 import { StatfsDiskSpace } from '@/features/alumni-stories/infrastructure/statfs-disk-space';
-import {
-  createAlumniStoryUploads,
-  createEditedVideoUploads,
-} from '@/features/alumni-stories/infrastructure/tus-upload-server';
+import { createAlumniStoryUploadEndpoints } from '@/features/alumni-stories/infrastructure/tus-upload-server';
 import { PostgresHealthCheck } from '@/features/health/infrastructure/postgres-health-check';
 import { RegistrationAntiSpamService } from '@/features/registration/application/registration-anti-spam-service';
 import { RegistrationService } from '@/features/registration/application/registration-service';
@@ -41,12 +38,16 @@ const ALUMNI_STORY_DRAFT_RATE_LIMIT = {
   blockMs: 10 * 60 * 1000,
 };
 
+type AlumniStoryUploadEndpoints = ReturnType<
+  typeof createAlumniStoryUploadEndpoints
+>;
+
 export type ServerContainer = {
   healthCheck: PostgresHealthCheck;
   adminAccessService: AdminAccessService;
   alumniStoryService: AlumniStoryService;
-  alumniStoryUploads: ReturnType<typeof createAlumniStoryUploads>;
-  editedVideoUploads: ReturnType<typeof createEditedVideoUploads>;
+  alumniStoryUploads: AlumniStoryUploadEndpoints['alumniStoryUploads'];
+  editedVideoUploads: AlumniStoryUploadEndpoints['editedVideoUploads'];
   alumniStoryDraftRateLimiter: RateLimiter;
   alumniStoryCaptchaVerifier: ICaptchaVerifier;
   adminManagementService: AdminManagementService;
@@ -80,8 +81,26 @@ const createServerContainer = (): ServerContainer => {
   // Built on first use so a missing MEDIA_ROOT or Turnstile key only breaks
   // Alumni Connect, not admin or registration.
   let alumniStoryService: AlumniStoryService | undefined;
-  let alumniStoryUploads: ServerContainer['alumniStoryUploads'] | undefined;
-  let editedVideoUploads: ServerContainer['editedVideoUploads'] | undefined;
+  let alumniStoryUploadEndpoints: AlumniStoryUploadEndpoints | undefined;
+  // Built together: both endpoints draw on one disk budget.
+  const uploadEndpoints = (stories: AlumniStoryService) => {
+    if (alumniStoryUploadEndpoints) return alumniStoryUploadEndpoints;
+    // Inside the media volume, so half-done uploads survive a redeploy.
+    const mediaRoot = envConfig.getMediaRoot();
+    const alumniMedia = path.join(mediaRoot, '.incoming');
+    alumniStoryUploadEndpoints = createAlumniStoryUploadEndpoints({
+      stories,
+      directories: {
+        alumniMedia,
+        editedVideos: path.join(mediaRoot, '.incoming-edited'),
+      },
+      // The tus store creates the folder, so it exists by the first check.
+      diskSpace: new StatfsDiskSpace(alumniMedia),
+      notifier,
+      clock,
+    });
+    return alumniStoryUploadEndpoints;
+  };
   let alumniStoryCaptchaVerifier: ICaptchaVerifier | undefined;
 
   return {
@@ -95,25 +114,10 @@ const createServerContainer = (): ServerContainer => {
       return alumniStoryService;
     },
     get alumniStoryUploads() {
-      // Inside the media volume, so half-done uploads survive a redeploy.
-      const directory = path.join(envConfig.getMediaRoot(), '.incoming');
-      alumniStoryUploads ??= createAlumniStoryUploads({
-        stories: this.alumniStoryService,
-        directory,
-        // The tus store creates the folder, so it exists by the first check.
-        diskSpace: new StatfsDiskSpace(directory),
-        notifier,
-        clock,
-      });
-      return alumniStoryUploads;
+      return uploadEndpoints(this.alumniStoryService).alumniStoryUploads;
     },
     get editedVideoUploads() {
-      editedVideoUploads ??= createEditedVideoUploads({
-        stories: this.alumniStoryService,
-        // Apart from alumnus uploads: each tus store sweeps its whole folder.
-        directory: path.join(envConfig.getMediaRoot(), '.incoming-edited'),
-      });
-      return editedVideoUploads;
+      return uploadEndpoints(this.alumniStoryService).editedVideoUploads;
     },
     get alumniStoryCaptchaVerifier() {
       alumniStoryCaptchaVerifier ??= new TurnstileVerifier(

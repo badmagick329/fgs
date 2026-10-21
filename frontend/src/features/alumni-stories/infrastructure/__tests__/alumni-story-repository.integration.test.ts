@@ -270,12 +270,30 @@ describe('Alumni stories (repository + service) integration', () => {
     const { story } = await service.createDraft(draftInput);
     const added = await service.addOriginalMedia(story.id, photo(12));
     if (!added.ok) throw new Error(added.message);
+    await service.submit(story.id);
 
-    const media = await service.getMedia(added.data.id);
+    const media = await service.getSubmittedMedia(added.data.id);
     expect(media).toMatchObject({ story_id: story.id, size_bytes: 12 });
     const body = await service.readMedia(media!, { start: 2, end: 5 });
     expect((await new Response(body).arrayBuffer()).byteLength).toBe(4);
-    expect(await service.getMedia(added.data.id + 1000)).toBeNull();
+    expect(await service.getSubmittedMedia(added.data.id + 1000)).toBeNull();
+  });
+
+  it('hides a draft and its media from admin lookups until it is submitted', async () => {
+    const { story } = await service.createDraft(draftInput);
+    const added = await service.addOriginalMedia(story.id, photo(12));
+    if (!added.ok) throw new Error(added.message);
+
+    expect(await service.getSubmittedWithMedia(story.id)).toBeNull();
+    expect(await service.getSubmittedMedia(added.data.id)).toBeNull();
+
+    await service.submit(story.id);
+    expect(
+      (await service.getSubmittedWithMedia(story.id))?.media.map((m) => m.id)
+    ).toEqual([added.data.id]);
+    expect(await service.getSubmittedMedia(added.data.id)).toMatchObject({
+      id: added.data.id,
+    });
   });
 
   const video = (sizeBytes: number, originalFilename = 'clip.mp4') => ({

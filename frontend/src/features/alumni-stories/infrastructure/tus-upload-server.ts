@@ -4,6 +4,7 @@ import {
   UploadError,
 } from '@/features/alumni-stories/application/alumni-story-upload-service';
 import { EditedVideoUploadService } from '@/features/alumni-stories/application/edited-video-upload-service';
+import { UploadBudget } from '@/features/alumni-stories/application/upload-budget';
 import {
   DRAFT_LIFETIME_MS,
   MEDIA_LIMITS,
@@ -12,6 +13,7 @@ import {
 import {
   IDiskSpace,
   IUploadStaging,
+  StagedUpload,
 } from '@/features/alumni-stories/domain/interfaces';
 import { FileStore } from '@tus/file-store';
 import { ERRORS, EVENTS, Server, type ServerOptions } from '@tus/server';
@@ -44,6 +46,42 @@ const tusError = (result: { error: UploadError; message: string }) => ({
 
 class FileStoreStaging implements IUploadStaging {
   constructor(private readonly store: FileStore) {}
+
+  async list() {
+    // The store makes its folder asynchronously, so the first call may beat it.
+    const ids = await this.store.configstore.list!().catch(
+      (error: NodeJS.ErrnoException) => {
+        if (error.code === 'ENOENT') return [];
+        throw error;
+      }
+    );
+    const uploads = await Promise.all(
+      ids.map((id) =>
+        this.store.getUpload(id).catch((error) => {
+          // Finished or removed since the folder was read.
+          if (
+            error === ERRORS.FILE_NOT_FOUND ||
+            error === ERRORS.FILE_NO_LONGER_EXISTS
+          ) {
+            return null;
+          }
+          throw error;
+        })
+      )
+    );
+    return uploads.flatMap((upload): StagedUpload[] =>
+      upload
+        ? [
+            {
+              uploadId: upload.id,
+              // Admission refuses deferred lengths, so every staged upload has one.
+              sizeBytes: upload.size ?? 0,
+              receivedBytes: upload.offset,
+            },
+          ]
+        : []
+    );
+  }
 
   async readHead(uploadId: string, length: number) {
     const file = await open(path.join(this.store.directory, uploadId), 'r');
@@ -103,30 +141,61 @@ const onResponseError: ServerOptions['onResponseError'] = (_req, error) => {
   };
 };
 
+const stagingStore = (directory: string) =>
+  new FileStore({
+    directory,
+    expirationPeriodInMilliseconds: DRAFT_LIFETIME_MS,
+  });
+
 /**
- * Builds the tus endpoint for alumni story media. Uploads stage under
- * `directory` and move into the media store once complete; the
- * application service decides who may upload what.
+ * Builds both tus endpoints for Alumni Connect: alumnus media and admins'
+ * edited videos. Each stages in its own folder, since a tus store sweeps its
+ * whole folder, but both draw on one disk budget, so the free-space floor
+ * holds across them. The folders must sit on the disk `diskSpace` measures.
  */
-export function createAlumniStoryUploads(options: {
+export function createAlumniStoryUploadEndpoints(options: {
   stories: AlumniStoryService;
-  directory: string;
+  directories: { alumniMedia: string; editedVideos: string };
   diskSpace: IDiskSpace;
   notifier: INotifier;
   clock: IClock;
 }) {
-  const store = new FileStore({
-    directory: options.directory,
-    expirationPeriodInMilliseconds: DRAFT_LIFETIME_MS,
-  });
-  const uploads = new AlumniStoryUploadService(
-    options.stories,
-    new FileStoreStaging(store),
+  const alumniStore = stagingStore(options.directories.alumniMedia);
+  const editedStore = stagingStore(options.directories.editedVideos);
+  const alumniStaging = new FileStoreStaging(alumniStore);
+  const editedStaging = new FileStoreStaging(editedStore);
+  const budget = new UploadBudget(
+    [alumniStaging, editedStaging],
     options.diskSpace,
     options.notifier,
     options.clock
   );
+  return {
+    alumniStoryUploads: createAlumniStoryUploads(
+      new AlumniStoryUploadService(
+        options.stories,
+        alumniStaging,
+        budget,
+        options.clock
+      ),
+      alumniStore
+    ),
+    editedVideoUploads: createEditedVideoUploads(
+      new EditedVideoUploadService(options.stories, editedStaging, budget),
+      editedStore
+    ),
+  };
+}
 
+/**
+ * The tus endpoint for alumni story media. Uploads stage in `store` and move
+ * into the media store once complete; the application service decides who
+ * may upload what.
+ */
+function createAlumniStoryUploads(
+  uploads: AlumniStoryUploadService,
+  store: FileStore
+) {
   const server = new Server({
     path: API.alumniStoryUploads,
     datastore: store,
@@ -180,22 +249,13 @@ export function createAlumniStoryUploads(options: {
 }
 
 /**
- * Builds the tus endpoint admins upload edited videos to. It authorizes
- * nothing itself: its route admits only signed-in admins, on every method.
+ * The tus endpoint admins upload edited videos to. It authorizes nothing
+ * itself: its route admits only signed-in admins, on every method.
  */
-export function createEditedVideoUploads(options: {
-  stories: AlumniStoryService;
-  directory: string;
-}) {
-  const store = new FileStore({
-    directory: options.directory,
-    expirationPeriodInMilliseconds: DRAFT_LIFETIME_MS,
-  });
-  const uploads = new EditedVideoUploadService(
-    options.stories,
-    new FileStoreStaging(store)
-  );
-
+function createEditedVideoUploads(
+  uploads: EditedVideoUploadService,
+  store: FileStore
+) {
   const server = new Server({
     path: API.admin.alumniStoryEditedVideoUploads,
     datastore: store,
@@ -207,6 +267,7 @@ export function createEditedVideoUploads(options: {
     async onUploadCreate(req, upload) {
       refuseCreationWithUpload(req);
       const result = await uploads.begin({
+        uploadId: upload.id,
         storyId: upload.metadata?.storyId,
         sizeBytes: upload.size,
         filename: upload.metadata?.filename,
@@ -226,6 +287,10 @@ export function createEditedVideoUploads(options: {
     },
 
     onResponseError,
+  });
+
+  server.on(EVENTS.POST_TERMINATE, (_req, _res, uploadId: string) => {
+    uploads.release(uploadId);
   });
 
   return { server, uploads };

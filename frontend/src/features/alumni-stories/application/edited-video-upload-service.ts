@@ -5,6 +5,7 @@ import {
   UploadResult,
   cleanFilename,
 } from '@/features/alumni-stories/application/alumni-story-upload-service';
+import { UploadBudget } from '@/features/alumni-stories/application/upload-budget';
 import {
   AlumniStoryMedia,
   MEDIA_LIMITS,
@@ -31,16 +32,20 @@ const stagedMetadataSchema = z.object({
 /**
  * Runs the rules around an admin's resumable upload of an edited video.
  * Callers admit only signed-in admins, and any admin may edit any story, so
- * unlike alumnus uploads there is no per-upload owner to check.
+ * unlike alumnus uploads there is no per-upload owner to check. Disk room
+ * comes from the same budget as alumnus uploads: an admin's half-finished
+ * edits draw on the same disk.
  */
 export class EditedVideoUploadService {
   constructor(
     private readonly stories: AlumniStoryService,
-    private readonly staging: IUploadStaging
+    private readonly staging: IUploadStaging,
+    private readonly budget: UploadBudget
   ) {}
 
   /** Admits a new upload and returns the metadata to store on it. */
   async begin(upload: {
+    uploadId: string;
     storyId: string | null | undefined;
     sizeBytes: number | undefined;
     filename: string | null | undefined;
@@ -67,6 +72,8 @@ export class EditedVideoUploadService {
     if (found.story.status === 'draft') {
       return fail('forbidden', 'Only submitted stories can be edited');
     }
+    const noRoom = await this.budget.admit(upload.uploadId, upload.sizeBytes);
+    if (noRoom) return noRoom;
 
     const filename = cleanFilename(upload.filename);
     return {
@@ -121,8 +128,14 @@ export class EditedVideoUploadService {
           return fail('forbidden', stored.message);
       }
     } finally {
+      this.budget.release(upload.uploadId);
       await this.staging.remove(upload.uploadId);
     }
+  }
+
+  /** Frees the disk room of an upload the admin terminated. */
+  release(uploadId: string) {
+    this.budget.release(uploadId);
   }
 
   /** Removes unfinished uploads past their expiry. Meant to run periodically. */

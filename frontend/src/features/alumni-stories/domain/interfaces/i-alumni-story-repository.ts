@@ -52,7 +52,10 @@ export interface IAlumniStoryRepository {
   deleteExpiredDrafts(storyIds: number[], now: Date): Promise<number>;
   listByStatus(status: AlumniStoryStatus): Promise<AlumniStorySummary[]>;
   getWithMedia(storyId: number): Promise<AlumniStoryWithMedia | null>;
-  getMedia(mediaId: number): Promise<AlumniStoryMedia | null>;
+  /** As getWithMedia, but null for a draft: admins see only submitted stories. */
+  getSubmittedWithMedia(storyId: number): Promise<AlumniStoryWithMedia | null>;
+  /** One media file, or null when its story is still a draft. */
+  getSubmittedMedia(mediaId: number): Promise<AlumniStoryMedia | null>;
   /**
    * Records `media` as the story's edited video in one transaction, removing
    * the row of any edit it replaces. The caller deletes the replaced file.

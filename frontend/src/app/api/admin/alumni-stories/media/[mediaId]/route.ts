@@ -12,9 +12,10 @@ function contentDisposition(type: 'inline' | 'attachment', filename: string) {
 }
 
 /**
- * Serves an uploaded original to signed-in admins. Range support lets the
- * browser's video player seek without fetching the whole file first;
- * `?download=1` saves the file under the alumnus's original name.
+ * Serves a submitted story's media to signed-in admins; a draft's files stay
+ * hidden like the draft. Range support lets the browser's video player seek
+ * without fetching the whole file first; `?download=1` saves the file under
+ * the alumnus's original name.
  */
 export async function GET(
   req: Request,
@@ -39,7 +40,7 @@ export async function GET(
 
   const id = idSchema.safeParse((await context.params).mediaId);
   if (!id.success) return notFound();
-  const media = await alumniStoryService.getMedia(id.data);
+  const media = await alumniStoryService.getSubmittedMedia(id.data);
   if (!media) return notFound();
 
   const size = media.size_bytes;
