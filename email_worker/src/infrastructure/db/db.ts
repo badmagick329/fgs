@@ -51,24 +51,62 @@ export class DB implements IUserRepository {
     await this.pool.end();
   }
 
-  async getPending(): Promise<Result<Registration[], string>> {
+  /**
+   * Atomically claims up to `limit` of the oldest unsent rows by stamping
+   * `email_claimed_at`. SKIP LOCKED makes a concurrent claim pass over rows
+   * another transaction is stamping, and the committed stamp hides them from
+   * every later claim, so no two passes or worker instances get the same row.
+   * A stamp older than `claimTimeoutMs` is treated as left behind by a crashed
+   * pass and the row is claimable again.
+   */
+  async claimPending(
+    limit: number,
+    claimTimeoutMs: number
+  ): Promise<Result<Registration[], string>> {
     try {
-      const res = await this.pool.query<Registration>(`
-    SELECT * FROM registration_requests
-    WHERE email_status != 'success' AND retry_count < 3
-    ORDER BY registered_at ASC, id ASC
-  `);
-      if (res.rowCount != null) {
-        return { ok: true, data: res.rows };
-      }
-      return { ok: false, error: 'No rows returned' };
+      const res = await this.pool.query<Registration>(
+        `
+    WITH claimed AS (
+      UPDATE registration_requests
+      SET email_claimed_at = NOW()
+      WHERE id IN (
+        SELECT id FROM registration_requests
+        WHERE email_status != 'success'
+          AND retry_count < 3
+          AND (
+            email_claimed_at IS NULL
+            OR email_claimed_at < NOW() - ($2::bigint * INTERVAL '1 millisecond')
+          )
+        ORDER BY registered_at ASC, id ASC
+        LIMIT $1
+        FOR UPDATE SKIP LOCKED
+      )
+      RETURNING *
+    )
+    SELECT * FROM claimed ORDER BY registered_at ASC, id ASC
+  `,
+        [limit, claimTimeoutMs]
+      );
+      return { ok: true, data: res.rows };
     } catch (err: any) {
-      this.log.error('getPendingNotificationData DB Error:', err);
+      this.log.error('claimPending DB Error:', err);
       return {
         ok: false,
         error: `Database error: ${err.message}`,
       };
     }
+  }
+
+  /** Hands claimed rows back untouched so the next pass can pick them up. */
+  async releaseClaims(ids: number[]): Promise<void> {
+    await this.pool.query(
+      `
+    UPDATE registration_requests
+    SET email_claimed_at = NULL
+    WHERE id = ANY($1::int[])
+  `,
+      [ids]
+    );
   }
 
   async markWorkerCycleStarted(nextRunAt: Date): Promise<void> {
@@ -85,14 +123,18 @@ export class DB implements IUserRepository {
     );
   }
 
-  async markWorkerCycleFinished(): Promise<void> {
-    await this.pool.query(`
-      INSERT INTO email_worker_status (id, last_finished_at, updated_at)
-      VALUES (1, NOW(), NOW())
+  async markWorkerCycleFinished(nextRunAt: Date): Promise<void> {
+    await this.pool.query(
+      `
+      INSERT INTO email_worker_status (id, last_finished_at, next_run_at, updated_at)
+      VALUES (1, NOW(), $1, NOW())
       ON CONFLICT (id) DO UPDATE
       SET last_finished_at = NOW(),
+          next_run_at = EXCLUDED.next_run_at,
           updated_at = NOW()
-    `);
+    `,
+      [nextRunAt.toISOString()]
+    );
   }
 
   async setFailedStatus(
@@ -107,8 +149,10 @@ export class DB implements IUserRepository {
       const res = await this.pool.query<IdResult>(
         `
     UPDATE registration_requests
-    SET email_status = 'failed', retry_count = retry_count + 1
-    WHERE id = ANY($1::int[]) 
+    SET email_status = 'failed',
+        retry_count = retry_count + 1,
+        email_claimed_at = NULL
+    WHERE id = ANY($1::int[])
       AND retry_count < 3
     RETURNING id
   `,
@@ -149,7 +193,7 @@ export class DB implements IUserRepository {
       const res = await this.pool.query<IdResult>(
         `
     UPDATE registration_requests
-    SET email_status = 'success'
+    SET email_status = 'success', email_claimed_at = NULL
     WHERE id = ANY($1::int[])
     RETURNING id
   `,

@@ -9,6 +9,7 @@ import { IRegistrationRepository } from '@/features/registration/domain/i-regist
 import {
   EmailWorkerStatus,
   Registration,
+  RegistrationPage,
 } from '@/features/registration/domain/registration';
 import { createFutureRegistrationAppointmentDate } from '@/test/registration-test-utils';
 import { mock } from 'bun:test';
@@ -130,9 +131,9 @@ export function createNotifierMock(
 export function createRegistrationRepositoryMock(
   overrides: Partial<IRegistrationRepository> = {}
 ): IRegistrationRepository {
-  const getRegistrationsResult: Result<Registration[]> = {
+  const getRegistrationsResult: Result<RegistrationPage> = {
     ok: true,
-    data: [],
+    data: { registrations: [], page: 1, pageSize: 50, hasNextPage: false },
   };
   const getEmailWorkerStatusResult: Result<EmailWorkerStatus | null> = {
     ok: true,

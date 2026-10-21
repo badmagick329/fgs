@@ -1,13 +1,13 @@
 import {
   emailWorkerStatusResultSchema,
-  registrationListResultSchema,
+  registrationPageResultSchema,
 } from '@/features/registration/domain/registration';
 import { requestJson } from '@/lib/client/request-json';
 import { API } from '@/lib/consts';
 
-export async function getRegistrations() {
-  const result = await requestJson(API.register, {
-    schema: registrationListResultSchema,
+export async function getRegistrations(page: number) {
+  const result = await requestJson(`${API.register}?page=${page}`, {
+    schema: registrationPageResultSchema,
     errorMessage: (status) =>
       status === 401
         ? 'Authentication required.'

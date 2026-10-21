@@ -11,7 +11,7 @@ describe('registration client', () => {
     fetchSpy.mockRestore();
   });
 
-  it.each([getRegistrations, getRegistrationEmailStatus])(
+  it.each([() => getRegistrations(1), getRegistrationEmailStatus])(
     'preserves the authentication error for protected queries',
     async (query) => {
       fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(
@@ -22,7 +22,7 @@ describe('registration client', () => {
     }
   );
 
-  it.each([getRegistrations, getRegistrationEmailStatus])(
+  it.each([() => getRegistrations(1), getRegistrationEmailStatus])(
     'rejects an unsuccessful result even when HTTP status is successful',
     async (query) => {
       fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(
@@ -39,28 +39,35 @@ describe('registration client', () => {
     fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(
       Response.json({
         ok: true,
-        data: [
-          {
-            id: 1,
-            student_name: 'Student',
-            parent_name: 'Parent',
-            class_name: 'Class 5',
-            mobile_number: '03001234567',
-            campus: 'Boys Campus',
-            preferred_appointment_at: appointment,
-            registration_message: null,
-            registered_at: registeredAt,
-            updated_at: null,
-            email_status: 'pending',
-            retry_count: 0,
-          },
-        ],
+        data: {
+          page: 2,
+          pageSize: 50,
+          hasNextPage: true,
+          registrations: [
+            {
+              id: 1,
+              student_name: 'Student',
+              parent_name: 'Parent',
+              class_name: 'Class 5',
+              mobile_number: '03001234567',
+              campus: 'Boys Campus',
+              preferred_appointment_at: appointment,
+              registration_message: null,
+              registered_at: registeredAt,
+              updated_at: null,
+              email_status: 'pending',
+              retry_count: 0,
+            },
+          ],
+        },
       })
     );
 
-    const registrations = await getRegistrations();
+    const result = await getRegistrations(2);
 
-    expect(registrations[0]).toMatchObject({
+    expect(fetchSpy.mock.calls[0]?.[0]).toBe('/api/register?page=2');
+    expect(result.hasNextPage).toBe(true);
+    expect(result.registrations[0]).toMatchObject({
       campus: 'FGS Ravi Road Boys Campus',
       preferred_appointment_at: new Date(appointment),
       registered_at: new Date(registeredAt),

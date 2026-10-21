@@ -1,6 +1,7 @@
 import { DB } from '@/infrastructure/db/db';
 import { loggerFactory } from '@/infrastructure/logger';
 import { NotificationService } from './application/notification-service';
+import { scheduleSequentialRuns } from './application/schedule-sequential-runs';
 import {
   emailConfigReader,
   getDatabaseConfig,
@@ -33,9 +34,10 @@ async function main(): Promise<void> {
   log.info(
     `Starting notification worker. Next run in ${Math.ceil(workerInterval / 1000)} seconds`
   );
-  setInterval(
-    () => void service.processUnsentNotifications(workerInterval),
-    workerInterval
+  scheduleSequentialRuns(
+    () => service.processUnsentNotifications(workerInterval),
+    workerInterval,
+    log
   );
 }
 

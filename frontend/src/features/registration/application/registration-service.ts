@@ -1,7 +1,9 @@
 import { IRegistrationRepository } from '@/features/registration/domain/i-registration-repository';
 import {
   EmailWorkerStatus,
+  REGISTRATIONS_PAGE_SIZE,
   Registration,
+  RegistrationPage,
 } from '@/features/registration/domain/registration';
 import { Result } from '@/lib/result';
 import { INotifier } from '@/lib/server/i-notifier';
@@ -12,8 +14,11 @@ export class RegistrationService {
     private readonly notifier: INotifier
   ) {}
 
-  async getRegistrations() {
-    return this.registrationRepository.getRegistrations();
+  async getRegistrations(page: number): Promise<Result<RegistrationPage>> {
+    return this.registrationRepository.getRegistrations({
+      page,
+      pageSize: REGISTRATIONS_PAGE_SIZE,
+    });
   }
 
   async getEmailWorkerStatus(): Promise<Result<EmailWorkerStatus | null>> {

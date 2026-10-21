@@ -1,4 +1,5 @@
 'use client';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -29,7 +30,18 @@ const tableHeaders = [
 ];
 
 export default function RegistrationList() {
-  const { isLoading, isError, error, data } = useRegistrationList();
+  const {
+    isLoading,
+    isError,
+    isFetching,
+    error,
+    data,
+    page,
+    hasPreviousPage,
+    hasNextPage,
+    goToPreviousPage,
+    goToNextPage,
+  } = useRegistrationList();
   const emailStatusQuery = useRegistrationEmailStatus();
   const backdrop = (
     <>
@@ -115,6 +127,14 @@ export default function RegistrationList() {
           lastFinishedAt={emailStatusQuery.data?.last_finished_at ?? null}
         />
         <RegistrationTable registrations={registrations} />
+        <RegistrationPager
+          page={page}
+          isFetching={isFetching}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPrevious={goToPreviousPage}
+          onNext={goToNextPage}
+        />
         {logoWatermark}
       </div>
     </main>
@@ -233,5 +253,50 @@ function RegistrationTable({
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+function RegistrationPager({
+  page,
+  isFetching,
+  hasPreviousPage,
+  hasNextPage,
+  onPrevious,
+  onNext,
+}: {
+  page: number;
+  isFetching: boolean;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
+}) {
+  if (!hasPreviousPage && !hasNextPage) return null;
+
+  return (
+    <nav
+      aria-label='Registration pages'
+      className='mt-4 flex items-center justify-end gap-3'
+    >
+      <Button
+        variant='outline'
+        size='sm'
+        onClick={onPrevious}
+        disabled={!hasPreviousPage || isFetching}
+      >
+        Previous
+      </Button>
+      <span className='text-sm text-muted-foreground' aria-live='polite'>
+        Page {page}
+      </span>
+      <Button
+        variant='outline'
+        size='sm'
+        onClick={onNext}
+        disabled={!hasNextPage || isFetching}
+      >
+        Next
+      </Button>
+    </nav>
   );
 }

@@ -53,9 +53,9 @@ describe('RegistrationRepository integration', () => {
     });
     expect(create.ok).toBeTrue();
 
-    const list = await repo.getRegistrations();
+    const list = await repo.getRegistrations({ page: 1, pageSize: 50 });
     expect(list.ok).toBeTrue();
-    if (list.ok) expect(list.data.length).toBe(1);
+    if (list.ok) expect(list.data.registrations.length).toBe(1);
   });
 
   it('normalizes legacy campus values when listing registrations', async () => {
@@ -66,11 +66,50 @@ describe('RegistrationRepository integration', () => {
       ) VALUES ('A', 'B', 'Class 5', '03001234567', 'Boys Campus', NOW(), NOW(), 'pending', 0)
     `);
 
-    const list = await repo.getRegistrations();
+    const list = await repo.getRegistrations({ page: 1, pageSize: 50 });
     expect(list.ok).toBeTrue();
     if (list.ok) {
-      expect(list.data[0]?.campus).toBe('FGS Ravi Road Boys Campus');
+      expect(list.data.registrations[0]?.campus).toBe(
+        'FGS Ravi Road Boys Campus'
+      );
     }
+  });
+
+  it('pages newest-first with a bounded row count and a next-page flag', async () => {
+    // Same registered_at on two rows checks the id tiebreak keeps the order stable.
+    await pool.query(`
+      INSERT INTO registration_requests (
+        student_name, parent_name, class_name, mobile_number, campus,
+        preferred_appointment_at, registered_at
+      ) VALUES
+        ('Oldest', 'P', 'Class 5', '03001234567', 'FGS Ravi Road Boys Campus', NOW(), NOW() - INTERVAL '2 days'),
+        ('Middle', 'P', 'Class 5', '03001234567', 'FGS Ravi Road Boys Campus', NOW(), NOW() - INTERVAL '1 day'),
+        ('NewestA', 'P', 'Class 5', '03001234567', 'FGS Ravi Road Boys Campus', NOW(), '2030-01-01T00:00:00Z'),
+        ('NewestB', 'P', 'Class 5', '03001234567', 'FGS Ravi Road Boys Campus', NOW(), '2030-01-01T00:00:00Z'),
+        ('Middle2', 'P', 'Class 5', '03001234567', 'FGS Ravi Road Boys Campus', NOW(), NOW() - INTERVAL '1 hour')
+    `);
+
+    const names = (r: {
+      data: { registrations: { student_name: string }[] };
+    }) => r.data.registrations.map((row) => row.student_name);
+
+    const first = await repo.getRegistrations({ page: 1, pageSize: 2 });
+    const second = await repo.getRegistrations({ page: 2, pageSize: 2 });
+    const third = await repo.getRegistrations({ page: 3, pageSize: 2 });
+    const beyond = await repo.getRegistrations({ page: 4, pageSize: 2 });
+
+    expect(names(first)).toEqual(['NewestB', 'NewestA']);
+    expect(first.data.hasNextPage).toBeTrue();
+    expect(names(second)).toEqual(['Middle2', 'Middle']);
+    expect(second.data.hasNextPage).toBeTrue();
+    expect(names(third)).toEqual(['Oldest']);
+    expect(third.data.hasNextPage).toBeFalse();
+    expect(names(beyond)).toEqual([]);
+    expect(beyond.data).toMatchObject({
+      page: 4,
+      pageSize: 2,
+      hasNextPage: false,
+    });
   });
 
   it('returns parse errors when row shape invalid', async () => {
@@ -88,7 +127,7 @@ describe('RegistrationRepository integration', () => {
       ) VALUES ('A', 'B', '', '03001234567', 'Invalid Campus', NOW(), NOW(), 'pending', 0)
     `);
 
-    const list = await repo.getRegistrations();
+    const list = await repo.getRegistrations({ page: 1, pageSize: 50 });
     expect(list.ok).toBeFalse();
   });
 });

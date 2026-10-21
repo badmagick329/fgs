@@ -1,4 +1,7 @@
-import { NotificationService } from '@/application/notification-service';
+import {
+  NOTIFICATION_BATCH_SIZE,
+  NotificationService,
+} from '@/application/notification-service';
 import { emailConfigReader } from '@/infrastructure/config';
 import { DB } from '@/infrastructure/db/db';
 import {
@@ -205,5 +208,61 @@ describeIfIntegrationSetup('Notification flow integration', () => {
     expect(result.rows[0]?.retry_count).toBe(0);
     expect(result.rows[1]?.email_status).toBe('pending');
     expect(result.rows[1]?.retry_count).toBe(2);
+
+    // Claims are handed back so the rows go out as soon as an address is set.
+    const claimed = await db.query(
+      'SELECT COUNT(*)::int AS count FROM registration_requests WHERE email_claimed_at IS NOT NULL'
+    );
+    expect(claimed.rows[0]?.count).toBe(0);
+  });
+
+  test('a pass mails at most one batch and leaves the rest pending', async () => {
+    await seedAdminConfig('notify@example.com');
+    await seedRegistrations(
+      Array.from({ length: NOTIFICATION_BATCH_SIZE + 5 }, (_, i) => ({
+        email: `batch-${i}@example.com`,
+      }))
+    );
+
+    await service.processUnsentNotifications(600000);
+
+    expect(resendMockState?.getRequests().length).toBe(1);
+    const counts = await db.query(
+      `SELECT email_status, COUNT(*)::int AS count
+       FROM registration_requests GROUP BY email_status`
+    );
+    expect(
+      Object.fromEntries(counts.rows.map((r) => [r.email_status, r.count]))
+    ).toEqual({ success: NOTIFICATION_BATCH_SIZE, pending: 5 });
+  });
+
+  test('overlapping passes never mail the same registration twice', async () => {
+    await seedAdminConfig('notify@example.com');
+    const total = NOTIFICATION_BATCH_SIZE * 2;
+    await seedRegistrations(
+      Array.from({ length: total }, (_, i) => ({
+        email: `M${String(i).padStart(3, '0')}X`,
+      }))
+    );
+
+    await Promise.all([
+      service.processUnsentNotifications(600000),
+      service.processUnsentNotifications(600000),
+      service.processUnsentNotifications(600000),
+    ]);
+
+    // The fake Resend receives the rendered HTML; each seeded mobile number
+    // is unique, so counting them across emails finds any double send.
+    const html = (resendMockState?.getRequests() ?? [])
+      .map((request) => (request.body as { html?: string }).html ?? '')
+      .join('\n');
+    const sent = html.match(/M\d{3}X/g) ?? [];
+    expect(sent.length).toBe(total);
+    expect(new Set(sent).size).toBe(total);
+
+    const success = await db.query(
+      `SELECT COUNT(*)::int AS count FROM registration_requests WHERE email_status = 'success'`
+    );
+    expect(success.rows[0]?.count).toBe(total);
   });
 });

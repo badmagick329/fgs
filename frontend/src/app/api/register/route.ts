@@ -1,6 +1,7 @@
 import {
   Registration,
   createRegistrationSchema,
+  registrationPageNumberSchema,
 } from '@/features/registration/domain/registration';
 import { normalizeRegistrationCampus } from '@/features/registration/domain/registration-rules';
 import { NextResponse } from 'next/server';
@@ -10,7 +11,7 @@ import { getClientIp } from '@/lib/server/client-ip';
 import { getServerContainer } from '@/lib/server/container';
 import { errorMessageFromErrors } from '@/lib/utils';
 
-export async function GET() {
+export async function GET(req: Request) {
   const { adminAccessService, registrationService } = getServerContainer();
   const authResult = await adminAccessService.requireAdminRouteAuth({
     clearCookies: false,
@@ -20,7 +21,26 @@ export async function GET() {
   }
   const auth = authResult.auth;
 
-  const result = await registrationService.getRegistrations();
+  const pageParam = new URL(req.url).searchParams.get('page');
+  const pageParsed = registrationPageNumberSchema.safeParse(pageParam ?? 1);
+  if (!pageParsed.success) {
+    const errors = errorsFromZod(pageParsed.error).map((error) => ({
+      ...error,
+      field: 'page',
+    }));
+    const res = NextResponse.json(
+      {
+        ok: false as const,
+        message: 'Invalid page number.',
+        errors,
+      },
+      { status: 400 }
+    );
+    adminAccessService.applyRefreshedAuthCookies(res, auth.refreshedTokens);
+    return res;
+  }
+
+  const result = await registrationService.getRegistrations(pageParsed.data);
   if (!result.ok) {
     console.error('getRegistrations validation error', result.errors);
     await registrationService.notifyDiscord({

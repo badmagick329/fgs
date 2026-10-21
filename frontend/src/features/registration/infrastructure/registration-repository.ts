@@ -2,6 +2,7 @@ import { IRegistrationRepository } from '@/features/registration/domain/i-regist
 import {
   EmailWorkerStatus,
   Registration,
+  RegistrationPage,
 } from '@/features/registration/domain/registration';
 import {
   emailWorkerStatusSchema,
@@ -15,13 +16,26 @@ import { Result, errorsFromZod } from '@/lib/result';
 export class RegistrationRepository implements IRegistrationRepository {
   constructor(private readonly pool: Pool) {}
 
-  async getRegistrations(): Promise<Result<Registration[]>> {
-    const res = await this.pool.query(`
+  async getRegistrations({
+    page,
+    pageSize,
+  }: {
+    page: number;
+    pageSize: number;
+  }): Promise<Result<RegistrationPage>> {
+    // One extra row tells us whether a next page exists without a COUNT(*).
+    const res = await this.pool.query(
+      `
       SELECT *
       FROM registration_requests
       ORDER BY registered_at DESC, id DESC
-    `);
-    const parsed = registrationListSchema.safeParse(res.rows);
+      LIMIT $1 OFFSET $2
+    `,
+      [pageSize + 1, (page - 1) * pageSize]
+    );
+    const parsed = registrationListSchema.safeParse(
+      res.rows.slice(0, pageSize)
+    );
     if (!parsed.success) {
       console.error('getRegistrations validation error', parsed.error);
       return {
@@ -31,7 +45,15 @@ export class RegistrationRepository implements IRegistrationRepository {
       };
     }
 
-    return { ok: true, data: parsed.data };
+    return {
+      ok: true,
+      data: {
+        registrations: parsed.data,
+        page,
+        pageSize,
+        hasNextPage: res.rows.length > pageSize,
+      },
+    };
   }
 
   async getEmailWorkerStatus(): Promise<Result<EmailWorkerStatus | null>> {

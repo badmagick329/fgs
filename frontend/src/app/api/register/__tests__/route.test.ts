@@ -53,9 +53,89 @@ describe('/api/register', () => {
       registrationService: {},
     });
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost/api/register'));
     expect(res.status).toBe(401);
   });
+
+  function adminContainer(getRegistrations: ReturnType<typeof mock>) {
+    return {
+      adminAccessService: {
+        requireAdminRouteAuth: mock(async () => ({
+          ok: true,
+          auth: { refreshedTokens: null },
+        })),
+        applyRefreshedAuthCookies: mock(() => {}),
+      },
+      registrationService: { getRegistrations },
+    };
+  }
+
+  it('GET requests the page named in the query string, defaulting to 1', async () => {
+    const { GET } = await loadRoute();
+    const getRegistrations = mock(async (_page: number) => ({
+      ok: true as const,
+      data: { registrations: [], page: 1, pageSize: 50, hasNextPage: false },
+    }));
+    getServerContainer.mockReturnValue(adminContainer(getRegistrations));
+
+    expect(
+      (await GET(new Request('http://localhost/api/register?page=3'))).status
+    ).toBe(200);
+    expect(
+      (await GET(new Request('http://localhost/api/register'))).status
+    ).toBe(200);
+
+    expect(getRegistrations.mock.calls).toEqual([[3], [1]]);
+  });
+
+  for (const page of ['0', '-1', '1.5', 'abc', '10001']) {
+    it(`GET rejects page=${page} with 400 before querying`, async () => {
+      const { GET } = await loadRoute();
+      const getRegistrations = mock(async () => ({ ok: true as const }));
+      getServerContainer.mockReturnValue(adminContainer(getRegistrations));
+
+      const res = await GET(
+        new Request(`http://localhost/api/register?page=${page}`)
+      );
+
+      expect(res.status).toBe(400);
+      expect((await res.json()).ok).toBe(false);
+      expect(getRegistrations).not.toHaveBeenCalled();
+    });
+  }
+
+  for (const [field, length] of [
+    ['studentName', 121],
+    ['parentName', 121],
+    ['className', 41],
+  ] as const) {
+    it(`POST rejects an oversize ${field} with 400 before creating a registration`, async () => {
+      const { POST } = await loadRoute();
+      const createRegistration = mock(async () => ({ ok: true as const }));
+      getServerContainer.mockReturnValue({
+        registrationAntiSpamService: createAntiSpamServiceMock(),
+        registrationService: { createRegistration },
+      });
+
+      const res = await POST(
+        new Request('http://localhost', {
+          method: 'POST',
+          body: JSON.stringify({
+            ...createValidPayload(),
+            [field]: 'x'.repeat(length),
+          }),
+        })
+      );
+
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.ok).toBe(false);
+      expect(json.errors).toContainEqual(
+        expect.objectContaining({ field, code: 'too_big' })
+      );
+      expect(createRegistration).not.toHaveBeenCalled();
+    });
+  }
 
   it('POST returns 400 on validation failure', async () => {
     const { POST } = await loadRoute();
@@ -179,7 +259,9 @@ describe('/api/register', () => {
 
   it('POST sends a PII-free Discord notification when testing is enabled', async () => {
     const { POST } = await loadRoute();
-    const notifyDiscord = mock(async () => ({}));
+    const notifyDiscord = mock(
+      async (_input: { source: string; message: string }) => ({})
+    );
     getServerContainer.mockReturnValue({
       registrationAntiSpamService: createAntiSpamServiceMock(),
       registrationService: {

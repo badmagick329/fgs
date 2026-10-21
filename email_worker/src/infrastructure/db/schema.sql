@@ -72,6 +72,11 @@ WHERE campus IN (
 ALTER TABLE admin_config
     ADD COLUMN IF NOT EXISTS registration_discord_notifications_enabled BOOLEAN NOT NULL DEFAULT FALSE;
 
+-- Mirrors frontend/migrations/010_add_registration_email_claim.sql; see
+-- DB.claimPending for how the claim is taken and when it expires.
+ALTER TABLE registration_requests
+    ADD COLUMN IF NOT EXISTS email_claimed_at TIMESTAMPTZ;
+
 -- Trigger to update updated_at column on row update
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

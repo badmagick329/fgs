@@ -6,9 +6,13 @@ export interface INotificationSender {
 }
 
 export interface IUserRepository {
-  getPending(): Promise<Result<Registration[], string>>;
+  claimPending(
+    limit: number,
+    claimTimeoutMs: number
+  ): Promise<Result<Registration[], string>>;
+  releaseClaims(ids: number[]): Promise<void>;
   markWorkerCycleStarted(nextRunAt: Date): Promise<void>;
-  markWorkerCycleFinished(): Promise<void>;
+  markWorkerCycleFinished(nextRunAt: Date): Promise<void>;
 
   setFailedStatus(
     ids: number[]
@@ -73,6 +77,7 @@ export type Registration = {
   updated_at: string | null;
   email_status: status;
   retry_count: number;
+  email_claimed_at: string | null;
 };
 
 export interface Notification {
