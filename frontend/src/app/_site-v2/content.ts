@@ -334,7 +334,6 @@ export const alumniConnectContent = {
   title: 'Share Your Story with Today’s Students',
   description: [
     'Tell current FGS students where life has taken you since school, and what they should focus on to get there. Your video may be shown at the Annual Prize Distribution Ceremony 2026.',
-    'Please send your story by 20 October 2026.',
   ],
   tipsTitle: 'Recording Your Video',
   tips: [
