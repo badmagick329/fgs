@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import ContactLinkTracker from './_components/ContactLinkTracker';
+import PlausibleScript from './_components/PlausibleScript';
 import Providers from './Providers';
 import './globals.css';
 
@@ -18,7 +19,6 @@ const geistMono = Geist_Mono({
 
 const ogImage = '/fgs-logo.jpg';
 const logoImage = '/fgs-logo.png';
-const plausibleDomain = 'farooqigrammar.school';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -106,16 +106,11 @@ export default function RootLayout({
         <Script id='plausible-init' strategy='beforeInteractive'>
           {`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}`}
         </Script>
-        <Script
-          defer
-          src='/ingest/js/script.js'
-          data-domain={plausibleDomain}
-          data-api='/ingest/api/event'
-        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <PlausibleScript />
         <ContactLinkTracker />
         <Providers>{children}</Providers>
       </body>
