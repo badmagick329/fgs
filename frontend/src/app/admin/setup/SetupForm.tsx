@@ -8,6 +8,7 @@ export default function SetupForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [setupToken, setSetupToken] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,7 +20,7 @@ export default function SetupForm() {
       const res = await fetch(API.admin.setup, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, setupToken }),
       });
       if (!res.ok) {
         const json = await res.json().catch(() => null);
@@ -49,6 +50,18 @@ export default function SetupForm() {
         </p>
 
         <label className='mt-6 flex flex-col gap-2'>
+          <span className='text-sm font-medium'>Setup token</span>
+          <input
+            type='password'
+            value={setupToken}
+            autoComplete='off'
+            onChange={(e) => setSetupToken(e.target.value)}
+            className='w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-fgs-ink outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50'
+            placeholder='ADMIN_SETUP_TOKEN from the server environment'
+            required
+          />
+        </label>
+        <label className='mt-4 flex flex-col gap-2'>
           <span className='text-sm font-medium'>Email</span>
           <input
             type='email'

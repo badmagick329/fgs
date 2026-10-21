@@ -3,7 +3,14 @@ import { IToken } from '@/features/admin/domain/interfaces';
 import { SignJWT, jwtVerify } from 'jose';
 import crypto from 'node:crypto';
 import 'server-only';
+import * as z from 'zod';
 import { AUTH_TOKEN, AUTH_TTL } from '@/lib/consts';
+
+const accessTokenPayloadSchema = z.object({
+  sub: z.string().min(1),
+  email: z.string(),
+  sid: z.number().int().positive(),
+});
 
 export class Token implements IToken {
   constructor(private readonly jwtSecret: string) {}
@@ -20,7 +27,13 @@ export class Token implements IToken {
   async verifyAccessToken(token: string): Promise<AccessTokenPayload> {
     const secret = this.getEncodedSecret();
     const { payload } = await jwtVerify(token, secret);
-    return payload as AccessTokenPayload;
+    // Tokens signed before the session id existed lack `sid`; they cannot be
+    // tied to a session, so they are refused and the caller refreshes.
+    const parsed = accessTokenPayloadSchema.safeParse(payload);
+    if (!parsed.success) {
+      throw new Error('Access token payload is malformed.');
+    }
+    return parsed.data;
   }
 
   generateRefreshToken(): string {

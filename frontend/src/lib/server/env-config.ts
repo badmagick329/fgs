@@ -25,8 +25,13 @@ export class EnvConfig {
     return secret;
   }
 
-  getPasswordSaltRounds(defaultRounds = 20) {
+  getPasswordSaltRounds(defaultRounds = 12) {
     return Number(process.env.PASSWORD_SALT_ROUNDS ?? defaultRounds);
+  }
+
+  /** Unset or blank switches first-admin setup off entirely. */
+  getAdminSetupToken() {
+    return process.env.ADMIN_SETUP_TOKEN?.trim() || undefined;
   }
 
   getDiscordWebhookUrl() {

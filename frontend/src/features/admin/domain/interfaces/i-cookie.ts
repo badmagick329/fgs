@@ -5,7 +5,8 @@ export interface ICookie {
   setAuthCookies(
     res: NextResponse,
     accessToken: string,
-    refreshToken: string
+    /** Omitted: the refresh cookie is left as it is. */
+    refreshToken?: string
   ): void;
   clearAuthCookies(res: NextResponse): void;
 }

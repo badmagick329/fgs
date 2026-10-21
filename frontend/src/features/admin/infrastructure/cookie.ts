@@ -14,7 +14,7 @@ export class Cookie implements ICookie {
   setAuthCookies(
     res: NextResponse,
     accessToken: string,
-    refreshToken: string
+    refreshToken?: string
   ): void {
     res.cookies.set(AUTH_COOKIE_KEYS.access, accessToken, {
       httpOnly: true,
@@ -24,6 +24,9 @@ export class Cookie implements ICookie {
       maxAge: AUTH_TTL.accessSeconds,
     });
 
+    if (refreshToken === undefined) {
+      return;
+    }
     res.cookies.set(AUTH_COOKIE_KEYS.refresh, refreshToken, {
       httpOnly: true,
       secure: this.isProduction,

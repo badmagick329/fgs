@@ -35,8 +35,14 @@ export type RefreshTokenRow = {
 };
 export type RefreshedTokens = {
   accessToken: string;
-  refreshToken: string;
+  /**
+   * Absent when a concurrent request already rotated the refresh token: that
+   * request's response sets the new refresh cookie, and this one must leave
+   * it alone.
+   */
+  refreshToken?: string;
 };
+export type IssuedTokens = Required<RefreshedTokens>;
 export type RouteAuthResult = {
   payload: AccessTokenPayload | null;
   refreshedTokens: RefreshedTokens | null;
@@ -57,6 +63,12 @@ export type RequireAdminRouteAuthResult = RouteAuthFailure | RouteAuthSuccess;
 export type AccessTokenPayload = {
   sub: string;
   email: string;
+  /**
+   * Refresh-token row the access token was issued with. Authentication
+   * follows its rotation chain, so logout or revocation ends the access token
+   * too instead of leaving it valid until expiry.
+   */
+  sid: number;
 };
 export class AdminActionError extends Error {
   status: number;

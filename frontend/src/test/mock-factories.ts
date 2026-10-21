@@ -39,6 +39,11 @@ export function createAdminRepositoryMock(
       email: 'admin@example.com',
       password_hash: 'hash',
     })),
+    createFirstAdminUser: mock(async () => ({
+      id: 1,
+      email: 'admin@example.com',
+      password_hash: 'hash',
+    })),
     getAdminByEmail: mock(async () => null),
     getAdminById: mock(async () => null),
     getAdminAuthById: mock(async () => null),
@@ -77,6 +82,7 @@ export function createAdminRepositoryMock(
       revoked_at: null,
       replaced_by_token_id: null,
     })),
+    getLiveSessionTip: mock(async () => null),
     revokeRefreshToken: mock(async () => {}),
     revokeAllRefreshTokensForUser: mock(async () => {}),
     withTransaction: mock(async (work) =>
@@ -92,6 +98,7 @@ export function createTokenMock(overrides: Partial<IToken> = {}): IToken {
     verifyAccessToken: mock(async () => ({
       sub: '1',
       email: 'admin@example.com',
+      sid: 1,
     })),
     generateRefreshToken: mock(() => 'raw-refresh-token'),
     hashRefreshToken: mock(() => 'hashed-refresh-token'),

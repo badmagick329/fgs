@@ -5,6 +5,7 @@ import { AUTH_COOKIE_KEYS } from '@/lib/consts';
 
 const sessionIssuerMock = {
   refreshSession: mock(async () => null),
+  isSessionActive: mock(async () => true),
 };
 
 describe('RequestAuthenticator', () => {
@@ -22,6 +23,7 @@ describe('RequestAuthenticator', () => {
       verifyAccessToken: mock(async () => ({
         sub: '1',
         email: 'admin@example.com',
+        sid: 7,
       })),
     });
     const auth = new RequestAuthenticator(
@@ -35,6 +37,34 @@ describe('RequestAuthenticator', () => {
     expect(result.payload?.sub).toBe('1');
     expect(result.refreshedTokens).toBeNull();
     expect(result.needsClear).toBeFalse();
+  });
+
+  it('rejects a valid access token whose session was revoked', async () => {
+    // After logout the refresh cookie is gone; only the access cookie lingers.
+    const cookie = createCookieMock({
+      get: mock(async (name: string) =>
+        name === AUTH_COOKIE_KEYS.access ? 'access' : undefined
+      ),
+    });
+    const token = createTokenMock();
+    const sessionIssuer = {
+      refreshSession: mock(async () => null),
+      isSessionActive: mock(async () => false),
+    };
+    const auth = new RequestAuthenticator(cookie, token, sessionIssuer as any);
+
+    const result = await auth.getRouteAuth();
+
+    expect(sessionIssuer.isSessionActive).toHaveBeenCalledWith({
+      sub: '1',
+      email: 'admin@example.com',
+      sid: 1,
+    });
+    expect(result).toEqual({
+      payload: null,
+      refreshedTokens: null,
+      needsClear: true,
+    });
   });
 
   it('uses refresh flow when access token invalid', async () => {

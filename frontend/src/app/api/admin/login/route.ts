@@ -1,5 +1,6 @@
 import { adminCredentialsSchema } from '@/features/admin/domain/admin';
 import { NextResponse } from 'next/server';
+import { getClientIp } from '@/lib/server/client-ip';
 import { getServerContainer } from '@/lib/server/container';
 
 export async function POST(req: Request) {
@@ -22,11 +23,21 @@ export async function POST(req: Request) {
   }
 
   const { email, password } = parsed.data;
-  const loginResult = await adminAccessService.login({ email, password });
+  const loginResult = await adminAccessService.login({
+    email,
+    password,
+    clientIp: getClientIp(req),
+  });
   if (!loginResult.ok) {
     return NextResponse.json(
       { ok: false, message: loginResult.message },
-      { status: loginResult.status }
+      {
+        status: loginResult.status,
+        headers:
+          loginResult.status === 429
+            ? { 'Retry-After': String(loginResult.retryAfterSeconds) }
+            : undefined,
+      }
     );
   }
 

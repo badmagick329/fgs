@@ -27,6 +27,12 @@ export class RequestAuthenticator {
       }
     }
 
+    // A valid signature only proves we issued the token. Logout, a password
+    // change or removing the admin must end it now, not at expiry.
+    if (payload && !(await this.sessionIssuer.isSessionActive(payload))) {
+      payload = null;
+    }
+
     if (!payload) {
       const refreshCookie = await this.cookieService.get(
         AUTH_COOKIE_KEYS.refresh

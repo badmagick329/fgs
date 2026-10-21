@@ -9,6 +9,10 @@ export const adminCredentialsSchema = z.object({
 
 export type AdminCredentials = z.infer<typeof adminCredentialsSchema>;
 
+export const adminSetupSchema = adminCredentialsSchema.extend({
+  setupToken: z.string().min(1, { error: 'Setup token is required' }),
+});
+
 export const adminPasswordChangeSchema = z.object({
   currentPassword: z
     .string()

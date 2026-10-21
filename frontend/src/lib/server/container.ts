@@ -5,7 +5,9 @@ import { SessionIssuer } from '@/features/admin/domain/session-issuer';
 import { SuperAdminPolicy } from '@/features/admin/domain/super-admin-policy';
 import { AdminRepository } from '@/features/admin/infrastructure/admin-repository';
 import { Cookie } from '@/features/admin/infrastructure/cookie';
+import { LoginThrottle } from '@/features/admin/infrastructure/login-throttle';
 import { PasswordHasher } from '@/features/admin/infrastructure/password-hasher';
+import { SetupTokenVerifier } from '@/features/admin/infrastructure/setup-token-verifier';
 import { Token } from '@/features/admin/infrastructure/token';
 import { AlumniStoryService } from '@/features/alumni-stories/application/alumni-story-service';
 import { AlumniStoryRepository } from '@/features/alumni-stories/infrastructure/alumni-story-repository';
@@ -134,7 +136,9 @@ const createServerContainer = (): ServerContainer => {
       passwordHasher,
       cookieService,
       requestAuthenticator,
-      sessionIssuer
+      sessionIssuer,
+      new LoginThrottle(clock),
+      new SetupTokenVerifier(envConfig.getAdminSetupToken())
     ),
     adminManagementService: new AdminManagementService(
       adminRepository,

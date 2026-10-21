@@ -24,6 +24,8 @@ describe('AdminRepository integration', () => {
   const pool = createTestPool();
   let repo: any;
   let lockClient: PoolClient;
+  const isLive = async (adminId: number, sessionId: number) =>
+    (await repo.getLiveSessionTip(sessionId))?.admin_user_id === adminId;
 
   beforeAll(async () => {
     const { AdminRepository } =
@@ -94,12 +96,121 @@ describe('AdminRepository integration', () => {
     );
 
     expect(rotated.token_hash).toBe('hash-2');
+    // Rotating an already-rotated token is refused.
+    expect(
+      await repo.rotateRefreshToken(
+        token.id,
+        admin.id,
+        'hash-3',
+        new Date(Date.now() + 1000 * 60)
+      )
+    ).toBeNull();
 
     await repo.revokeRefreshToken(rotated.id);
     const revoked = await repo.getRefreshTokenByHash('hash-2');
     expect(revoked?.revoked_at).toBeDefined();
 
     await repo.revokeAllRefreshTokensForUser(admin.id);
+  });
+
+  it('creates exactly one first admin under concurrent setup', async () => {
+    const results = await Promise.all(
+      Array.from({ length: 6 }, (_, i) =>
+        repo.createFirstAdminUser(`admin${i}@example.com`, 'hash')
+      )
+    );
+
+    expect(results.filter((admin) => admin !== null)).toHaveLength(1);
+    expect(await repo.countAdmins()).toBe(1);
+    expect(await repo.countSuperAdmins()).toBe(1);
+    expect(
+      await repo.createFirstAdminUser('late@example.com', 'hash')
+    ).toBeNull();
+  });
+
+  it('lets only one of two concurrent rotations of a token win', async () => {
+    const admin = await repo.createAdminUser('admin@example.com', 'hash', true);
+    const parent = await repo.createRefreshToken(
+      admin.id,
+      'parent-hash',
+      new Date(Date.now() + 1000 * 60)
+    );
+
+    const results = await Promise.all([
+      repo.rotateRefreshToken(
+        parent.id,
+        admin.id,
+        'child-a',
+        new Date(Date.now() + 1000 * 60)
+      ),
+      repo.rotateRefreshToken(
+        parent.id,
+        admin.id,
+        'child-b',
+        new Date(Date.now() + 1000 * 60)
+      ),
+    ]);
+
+    const winners = results.filter((row) => row !== null);
+    expect(winners).toHaveLength(1);
+    const rows = await pool.query(
+      `SELECT id FROM admin_refresh_tokens WHERE admin_user_id = $1`,
+      [admin.id]
+    );
+    // The loser's child insert was rolled back.
+    expect(rows.rowCount).toBe(2);
+    const reloadedParent = await repo.getRefreshTokenByHash('parent-hash');
+    expect(reloadedParent?.replaced_by_token_id).toBe(winners[0].id);
+  });
+
+  it('tracks session liveness across rotation, logout and admin removal', async () => {
+    const admin = await repo.createAdminUser('admin@example.com', 'hash', true);
+    const first = await repo.createRefreshToken(
+      admin.id,
+      'hash-1',
+      new Date(Date.now() + 1000 * 60)
+    );
+    expect(await isLive(admin.id, first.id)).toBeTrue();
+    // A session id is only valid for its own admin.
+    expect(await isLive(admin.id + 1, first.id)).toBeFalse();
+
+    const second = await repo.rotateRefreshToken(
+      first.id,
+      admin.id,
+      'hash-2',
+      new Date(Date.now() + 1000 * 60)
+    );
+    // An access token signed before the rotation still belongs to a live session.
+    expect(await isLive(admin.id, first.id)).toBeTrue();
+
+    // Logout revokes the newest token; every access token of the session dies.
+    await repo.revokeRefreshToken(second.id);
+    expect(await isLive(admin.id, first.id)).toBeFalse();
+    expect(await isLive(admin.id, second.id)).toBeFalse();
+
+    // Password change revokes every token.
+    const other = await repo.createRefreshToken(
+      admin.id,
+      'hash-3',
+      new Date(Date.now() + 1000 * 60)
+    );
+    await repo.revokeAllRefreshTokensForUser(admin.id);
+    expect(await isLive(admin.id, other.id)).toBeFalse();
+
+    const expired = await repo.createRefreshToken(
+      admin.id,
+      'hash-4',
+      new Date(Date.now() - 1000)
+    );
+    expect(await isLive(admin.id, expired.id)).toBeFalse();
+
+    const live = await repo.createRefreshToken(
+      admin.id,
+      'hash-5',
+      new Date(Date.now() + 1000 * 60)
+    );
+    await repo.deleteAdminUserById(admin.id);
+    expect(await isLive(admin.id, live.id)).toBeFalse();
   });
 
   it('commits and rolls back withTransaction', async () => {

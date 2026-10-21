@@ -14,6 +14,14 @@ export interface IAdminRepository {
     passwordHash: string,
     isSuperAdmin?: boolean
   ): Promise<AdminUser>;
+  /**
+   * Creates a super admin only while no admin exists, atomically across
+   * concurrent callers. Null when an admin already exists.
+   */
+  createFirstAdminUser(
+    email: string,
+    passwordHash: string
+  ): Promise<AdminUser | null>;
   getAdminByEmail(email: string): Promise<AdminUser | null>;
   getAdminById(id: number): Promise<AdminUser | null>;
   getAdminAuthById(id: number): Promise<AdminAuthUser | null>;
@@ -41,12 +49,18 @@ export interface IAdminRepository {
     tokenHash: string,
     expiresAt: Date
   ): Promise<RefreshTokenRow>;
+  /** Null when the old token was already revoked, e.g. by a concurrent rotation. */
   rotateRefreshToken(
     oldTokenId: number,
     adminUserId: number,
     newTokenHash: string,
     expiresAt: Date
-  ): Promise<RefreshTokenRow>;
+  ): Promise<RefreshTokenRow | null>;
+  /**
+   * The newest token in `refreshTokenId`'s rotation chain, if the session is
+   * still live: that token is unrevoked and unexpired, and its admin exists.
+   */
+  getLiveSessionTip(refreshTokenId: number): Promise<RefreshTokenRow | null>;
   revokeRefreshToken(id: number): Promise<void>;
   revokeAllRefreshTokensForUser(adminUserId: number): Promise<void>;
   withTransaction<T>(

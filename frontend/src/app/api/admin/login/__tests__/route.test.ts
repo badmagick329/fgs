@@ -51,4 +51,35 @@ describe('/api/admin/login', () => {
     expect(res.status).toBe(200);
     expect(setAuthCookies).toHaveBeenCalled();
   });
+
+  it('passes the client IP to login and answers a lockout with 429 and Retry-After', async () => {
+    const login = mock(async () => ({
+      ok: false,
+      status: 429,
+      message: 'Too many failed sign-in attempts. Try again later.',
+      retryAfterSeconds: 600,
+    }));
+    getServerContainer.mockReturnValue({
+      adminAccessService: { countAdmins: mock(async () => 1), login },
+    });
+
+    const res = await POST(
+      new Request('http://localhost', {
+        method: 'POST',
+        headers: { 'x-forwarded-for': '203.0.113.7' },
+        body: JSON.stringify({
+          email: 'admin@example.com',
+          password: 'password123',
+        }),
+      })
+    );
+
+    expect(res.status).toBe(429);
+    expect(res.headers.get('Retry-After')).toBe('600');
+    expect(login).toHaveBeenCalledWith({
+      email: 'admin@example.com',
+      password: 'password123',
+      clientIp: '203.0.113.7',
+    });
+  });
 });

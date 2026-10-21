@@ -14,6 +14,9 @@ import 'server-only';
 
 type Queryable = Pool | PoolClient;
 
+/** Advisory lock id that serialises first-admin setup. Arbitrary but fixed. */
+const FIRST_ADMIN_LOCK_KEY = 727_001;
+
 class PgAdminTransactionRepository implements IAdminRepositoryTransaction {
   constructor(private readonly client: PoolClient) {}
 
@@ -90,6 +93,36 @@ export class AdminRepository implements IAdminRepository {
       [email.toLowerCase(), passwordHash, isSuperAdmin]
     );
     return res.rows[0];
+  }
+
+  async createFirstAdminUser(
+    email: string,
+    passwordHash: string
+  ): Promise<AdminUser | null> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      // NOT EXISTS alone races under READ COMMITTED: two callers can both see
+      // an empty table. The lock serialises them, and the second caller's
+      // INSERT then takes a fresh snapshot that sees the first admin.
+      await client.query('SELECT pg_advisory_xact_lock($1)', [
+        FIRST_ADMIN_LOCK_KEY,
+      ]);
+      const res = await client.query<AdminUser>(
+        `INSERT INTO admin_users (email, password_hash, is_super_admin)
+         SELECT $1, $2, TRUE
+         WHERE NOT EXISTS (SELECT 1 FROM admin_users)
+         RETURNING id, email, password_hash`,
+        [email.toLowerCase(), passwordHash]
+      );
+      await client.query('COMMIT');
+      return res.rows[0] ?? null;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   async getAdminByEmail(email: string): Promise<AdminUser | null> {
@@ -253,7 +286,7 @@ export class AdminRepository implements IAdminRepository {
     adminUserId: number,
     newTokenHash: string,
     expiresAt: Date
-  ): Promise<RefreshTokenRow> {
+  ): Promise<RefreshTokenRow | null> {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -265,12 +298,20 @@ export class AdminRepository implements IAdminRepository {
         expiresAt
       );
 
-      await client.query(
+      // The caller checked the old token before this transaction, so a
+      // concurrent rotation may have revoked it since. The row lock makes the
+      // loser wait for the winner's commit, then match nothing.
+      const revoked = await client.query(
         `UPDATE admin_refresh_tokens
          SET revoked_at = NOW(), replaced_by_token_id = $1
-         WHERE id = $2`,
+         WHERE id = $2 AND revoked_at IS NULL
+         RETURNING id`,
         [newToken.id, oldTokenId]
       );
+      if ((revoked.rowCount ?? 0) === 0) {
+        await client.query('ROLLBACK');
+        return null;
+      }
 
       await client.query('COMMIT');
       return newToken;
@@ -280,6 +321,35 @@ export class AdminRepository implements IAdminRepository {
     } finally {
       client.release();
     }
+  }
+
+  async getLiveSessionTip(
+    refreshTokenId: number
+  ): Promise<RefreshTokenRow | null> {
+    // Rotation is normal between when a token id was handed out and now, so
+    // follow replaced_by to the newest token and judge the session by it.
+    const res = await this.pool.query<RefreshTokenRow>(
+      `WITH RECURSIVE chain AS (
+         SELECT id, admin_user_id, token_hash, created_at, expires_at,
+                revoked_at, replaced_by_token_id
+         FROM admin_refresh_tokens
+         WHERE id = $1
+         UNION
+         SELECT next.id, next.admin_user_id, next.token_hash, next.created_at,
+                next.expires_at, next.revoked_at, next.replaced_by_token_id
+         FROM admin_refresh_tokens next
+         JOIN chain ON next.id = chain.replaced_by_token_id
+       )
+       SELECT chain.id, chain.admin_user_id, chain.token_hash, chain.created_at,
+              chain.expires_at, chain.revoked_at, chain.replaced_by_token_id
+       FROM chain
+       JOIN admin_users ON admin_users.id = chain.admin_user_id
+       WHERE chain.replaced_by_token_id IS NULL
+         AND chain.revoked_at IS NULL
+         AND chain.expires_at > NOW()`,
+      [refreshTokenId]
+    );
+    return res.rows[0] ?? null;
   }
 
   async revokeRefreshToken(id: number): Promise<void> {
